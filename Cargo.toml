@@ -1,0 +1,9 @@
+[package]
+name = "yin"
+version = "0.0.1"
+authors = ["Amos Jun-yeung Ng <me@amos.ng>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
