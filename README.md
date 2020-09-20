@@ -1,6 +1,6 @@
 # YIN
 
-Yin is a rudimentary, experimental knowledge base. This is inspired by [Scone](https://github.com/sfahlman/scone), but is not meant to be a replacement or clone of Scone and its functionality.
+Yin is a rudimentary, experimental knowledge base. It is inspired by [Scone](https://github.com/sfahlman/scone), but is not meant to be a replacement/clone of Scone and its functionality.
 
 ## Functionality
 
