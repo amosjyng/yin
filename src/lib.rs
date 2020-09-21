@@ -1,3 +1,7 @@
+//! Yin is a rudimentary, experimental knowledge base.
+
+pub mod graph;
+
 #[cfg(test)]
 mod tests {
     #[test]
