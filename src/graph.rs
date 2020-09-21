@@ -8,6 +8,7 @@ pub trait Graph<'a> {
     fn add_node(&mut self, name: &'a str) -> usize;
 }
 
+/// Create a new graph that resides entirely in memory.
 pub fn new_in_memory_graph<'a>() -> impl Graph<'a> {
     InMemoryGraph::new()
 }
