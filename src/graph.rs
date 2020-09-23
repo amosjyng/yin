@@ -43,12 +43,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn creates_in_memory_graph() {
+    fn in_memory_graph_create() {
         new_in_memory_graph();
     }
 
     #[test]
-    fn add_node_to_in_memory_graph() {
+    fn in_memory_graph_add_node() {
         let mut g = new_in_memory_graph();
         g.add_node("A");
     }
