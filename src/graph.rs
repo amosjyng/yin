@@ -1,6 +1,6 @@
 //! Graph implementations
 
-use petgraph::graph::{NodeIndex};
+use petgraph::graph::NodeIndex;
 
 /// A classic directed Graph with nodes and labeled links.
 pub trait Graph<'a> {
@@ -17,13 +17,13 @@ pub fn new_in_memory_graph<'a>() -> impl Graph<'a> {
 }
 
 struct InMemoryGraph<'a> {
-    graph: petgraph::graph::Graph::<&'a str, NodeIndex>
+    graph: petgraph::graph::Graph<&'a str, NodeIndex>,
 }
 
 impl<'a> InMemoryGraph<'a> {
     fn new() -> Self {
         InMemoryGraph {
-            graph: petgraph::graph::Graph::<&'a str, NodeIndex>::new()
+            graph: petgraph::graph::Graph::<&'a str, NodeIndex>::new(),
         }
     }
 }
