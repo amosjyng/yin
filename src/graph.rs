@@ -6,6 +6,9 @@ use petgraph::graph::{NodeIndex};
 pub trait Graph<'a> {
     /// Adds a new node with the given string name to the graph, and returns the node's ID.
     fn add_node(&mut self, name: &'a str) -> usize;
+
+    /// Retrieve's a node's name from the graph, or None if the node does not exist.
+    fn node_name(&self, id: usize) -> Option<&str>;
 }
 
 /// Create a new graph that resides entirely in memory.
@@ -29,6 +32,10 @@ impl<'a> Graph<'a> for InMemoryGraph<'a> {
     fn add_node(&mut self, name: &'a str) -> usize {
         return self.graph.add_node(name).index();
     }
+
+    fn node_name(&self, id: usize) -> Option<&str> {
+        return self.graph.node_weight(NodeIndex::new(id)).map(|s| *s);
+    }
 }
 
 #[cfg(test)]
@@ -44,5 +51,12 @@ mod tests {
     fn add_node_to_in_memory_graph() {
         let mut g = new_in_memory_graph();
         g.add_node("A");
+    }
+
+    #[test]
+    fn in_memory_graph_retrieve_node_name() {
+        let mut g = new_in_memory_graph();
+        let a_id = g.add_node("A");
+        assert_eq!(g.node_name(a_id), Some("A"));
     }
 }
