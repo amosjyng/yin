@@ -102,6 +102,28 @@ mod tests {
     fn in_memory_graph_retrieve_node_value() {
         let mut g = new_in_memory_graph();
         let a_id = g.add_node_with_value("A", &5);
-        assert_eq!(g.node_value(a_id).expect("entered 5").downcast_ref::<i32>(), Some(&5));
+        assert_eq!(
+            g.node_value(a_id).expect("entered 5").downcast_ref::<i32>(),
+            Some(&5)
+        );
+    }
+
+    #[test]
+    fn in_memory_graph_retrieve_node_string_value() {
+        let mut g = new_in_memory_graph();
+        let a_id = g.add_node_with_value("A", &"5");
+        assert_eq!(
+            g.node_value(a_id)
+                .expect("entered 5")
+                .downcast_ref::<&str>(),
+            Some(&"5")
+        );
+    }
+
+    #[test]
+    fn in_memory_graph_retrieve_node_without_value() {
+        let mut g = new_in_memory_graph();
+        let a_id = g.add_node("A");
+        assert!(g.node_value(a_id).is_none());
     }
 }
