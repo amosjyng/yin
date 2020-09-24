@@ -2,6 +2,24 @@
 
 use petgraph::graph::NodeIndex;
 use std::any::Any;
+use std::cell::RefCell;
+use std::thread::LocalKey;
+
+thread_local! {
+    pub static GRAPH: RefCell<InjectionGraph> = RefCell::new(InjectionGraph{
+        injection: None
+    });
+}
+
+/// Bind GRAPH to a new graph that sits entirely in memory.
+pub fn bind_in_memory_graph() {
+    GRAPH.with(|g| g.borrow_mut().inject(Box::new(InMemoryGraph::new())));
+}
+
+/// Retrieve the thread-local bound graph.
+pub fn thread_local_graph<'a>() -> &'a LocalKey<RefCell<InjectionGraph>> {
+    &GRAPH
+}
 
 /// A classic directed Graph with nodes and labeled links.
 pub trait Graph<'a> {
@@ -12,23 +30,64 @@ pub trait Graph<'a> {
     fn set_node_value(&mut self, id: usize, value: &'a dyn Any);
 
     /// Sets the name for a given node. Names can only be set once.
-    fn set_node_name(&mut self, id: usize, name: &'a str);
+    fn set_node_name(&mut self, id: usize, name: String);
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or is unnamed.
-    fn node_name(&self, id: usize) -> Option<&'a str>;
+    fn node_name(&self, id: usize) -> Option<&String>;
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
     fn node_value(&self, id: usize) -> Option<&dyn Any>;
 }
 
-/// Create a new graph that resides entirely in memory.
-pub fn new_in_memory_graph<'a>() -> impl Graph<'a> {
-    InMemoryGraph::new()
+/// Graph only for dependency injection.
+pub struct InjectionGraph {
+    injection: Option<Box<dyn Graph<'static>>>
+}
+
+impl InjectionGraph {
+    fn inject(&mut self, graph: Box<dyn Graph<'static>>) {
+        match &self.injection {
+            Some(_) => panic!("Replacing existing graph with injection"),
+            None => self.injection = Some(graph),
+        }
+    }
+}
+
+impl Graph<'static> for InjectionGraph {
+    fn add_node(&mut self) -> usize {
+        self.injection.as_mut()
+        .expect("Initialize graph binding before use")
+        .add_node()
+    }
+
+    fn set_node_value(&mut self, id: usize, value: &'static dyn Any) {
+        self.injection.as_mut()
+        .expect("Initialize graph binding before use")
+        .set_node_value(id, value)
+    }
+
+    fn set_node_name(&mut self, id: usize, name: String) {
+        self.injection.as_mut()
+        .expect("Initialize graph binding before use")
+        .set_node_name(id, name)
+    }
+
+    fn node_name(&self, id: usize) -> Option<&String> {
+        self.injection.as_ref()
+        .expect("Initialize graph binding before use")
+        .node_name(id)
+    }
+
+    fn node_value(&self, id: usize) -> Option<&dyn Any> {
+        self.injection.as_ref()
+        .expect("Initialize graph binding before use")
+        .node_value(id)
+    }
 }
 
 struct NodeInfo<'a> {
-    name: Option<&'a str>,
+    name: Option<String>,
     value: Option<&'a dyn Any>,
 }
 
@@ -55,18 +114,18 @@ impl<'a> Graph<'a> for InMemoryGraph<'a> {
     }
 
     fn set_node_value(&mut self, id: usize, value: &'a dyn Any) {
-        self.graph.node_weight_mut(NodeIndex::new(id)).expect("").value = Some(value);
+        self.graph.node_weight_mut(NodeIndex::new(id)).unwrap().value = Some(value);
     }
 
-    fn set_node_name(&mut self, id: usize, name: &'a str) {
-        self.graph.node_weight_mut(NodeIndex::new(id)).expect("").name = Some(name);
+    fn set_node_name(&mut self, id: usize, name: String) {
+        self.graph.node_weight_mut(NodeIndex::new(id)).unwrap().name = Some(name);
     }
 
-    fn node_name(&self, id: usize) -> Option<&'a str> {
+    fn node_name(&self, id: usize) -> Option<&String> {
         return self
             .graph
             .node_weight(NodeIndex::new(id))
-            .map(|info| info.name)
+            .map(|info| info.name.as_ref())
             .flatten();
     }
 
@@ -85,20 +144,25 @@ mod tests {
 
     #[test]
     fn in_memory_graph_create() {
-        new_in_memory_graph();
+        bind_in_memory_graph();
     }
 
     #[test]
     fn in_memory_graph_add_node() {
-        let mut g = new_in_memory_graph();
-        let id = g.add_node();
-        assert!(g.node_value(id).is_none());
-        assert_eq!(g.node_name(id), None);
+        bind_in_memory_graph();
+        GRAPH.with(|g_cell| {
+            let mut g = g_cell.borrow_mut();
+            let id = g.add_node();
+            assert!(g.node_value(id).is_none());
+            assert_eq!(g.node_name(id), None);
+        })
     }
 
     #[test]
     fn in_memory_graph_set_node_value() {
-        let mut g = new_in_memory_graph();
+        bind_in_memory_graph();
+        GRAPH.with(|g_cell| {
+            let mut g = g_cell.borrow_mut();
         let a_id = g.add_node();
         g.set_node_value(a_id, &5);
         assert_eq!(
@@ -106,11 +170,14 @@ mod tests {
             Some(&5)
         );
         assert_eq!(g.node_name(a_id), None);
+    })
     }
 
     #[test]
     fn in_memory_graph_retrieve_node_string_value() {
-        let mut g = new_in_memory_graph();
+        bind_in_memory_graph();
+        GRAPH.with(|g_cell| {
+            let mut g = g_cell.borrow_mut();
         let a_id = g.add_node();
         g.set_node_value(a_id, &"5");
         assert_eq!(
@@ -120,26 +187,33 @@ mod tests {
             Some(&"5")
         );
         assert_eq!(g.node_name(a_id), None);
+    })
     }
 
     #[test]
     fn in_memory_graph_retrieve_node_name() {
-        let mut g = new_in_memory_graph();
+        bind_in_memory_graph();
+        GRAPH.with(|g_cell| {
+            let mut g = g_cell.borrow_mut();
         let a_id = g.add_node();
-        g.set_node_name(a_id, "A");
-        assert_eq!(g.node_name(a_id), Some("A"));
+        g.set_node_name(a_id, "A".to_string());
+        assert_eq!(g.node_name(a_id), Some(&"A".to_string()));
+        })
     }
 
     #[test]
     fn in_memory_graph_retrieve_node_name_value() {
-        let mut g = new_in_memory_graph();
+        bind_in_memory_graph();
+        GRAPH.with(|g_cell| {
+            let mut g = g_cell.borrow_mut();
         let a_id = g.add_node();
-        g.set_node_name(a_id, "A");
+        g.set_node_name(a_id, "A".to_string());
         g.set_node_value(a_id, &5);
-        assert_eq!(g.node_name(a_id), Some("A"));
+        assert_eq!(g.node_name(a_id), Some(&"A".to_string()));
         assert_eq!(
             g.node_value(a_id).expect("entered 5").downcast_ref::<i32>(),
             Some(&5)
         );
+    })
     }
 }
