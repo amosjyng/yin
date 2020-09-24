@@ -19,7 +19,7 @@ pub trait Graph<'a> {
     fn add_node_with_name_value(&mut self, name: &'a str, value: &'a dyn Any) -> usize;
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or is unnamed.
-    fn node_name(&self, id: usize) -> Option<&str>;
+    fn node_name(&self, id: usize) -> Option<&'a str>;
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
@@ -75,7 +75,7 @@ impl<'a> Graph<'a> for InMemoryGraph<'a> {
         return self.add_node_with_info(Some(name), Some(value));
     }
 
-    fn node_name(&self, id: usize) -> Option<&str> {
+    fn node_name(&self, id: usize) -> Option<&'a str> {
         return self
             .graph
             .node_weight(NodeIndex::new(id))

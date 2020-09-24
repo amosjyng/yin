@@ -8,13 +8,17 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use crate::graph::Graph;
 
-/// A generic concept.
+/// Interface for all concepts.
 pub trait Concept {
     /// The unique integer that's associated with this concept.
     fn id(&self) -> usize;
+
+    /// The internal name that's associated with this concept, if one exists.
+    fn internal_name(&self) -> Option<&str>;
 }
 
-struct ConceptImpl<'a> {
+/// Implementation for a generic concept.
+pub struct ConceptImpl<'a> {
     graph: Rc<RefCell<dyn Graph<'a>>>,
     id: usize,
 }
@@ -36,11 +40,24 @@ impl<'a> ConceptImpl<'a> {
             id: id,
         }
     }
+
+    /// Create a new concept with the given name.
+    pub fn create_with_name(graph: Rc<RefCell<dyn Graph<'a>>>, name: &'a str) -> Self {
+        let id = graph.borrow_mut().add_node_with_name(name);
+        ConceptImpl {
+            graph: graph,
+            id: id,
+        }
+    }
 }
 
 impl<'a> Concept for ConceptImpl<'a> {
     fn id(&self) -> usize {
         self.id
+    }
+
+    fn internal_name(&self) -> Option<&str> {
+        self.graph.borrow().node_name(self.id)
     }
 }
 
@@ -59,5 +76,20 @@ mod tests {
         let concept1 = ConceptImpl::create(graph.clone());
         let concept2 = ConceptImpl::create(graph.clone());
         assert_eq!(concept1.id() + 1, concept2.id());
+    }
+
+    #[test]
+    fn from_node_id() {
+        let graph = Rc::new(RefCell::new(setup_graph()));
+        let concept = ConceptImpl::create(graph.clone());
+        let concept_copy = ConceptImpl::from(graph.clone(), concept.id());
+        assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_name() {
+        let graph = Rc::new(RefCell::new(setup_graph()));
+        let concept = ConceptImpl::create_with_name(graph.clone(), "A");
+        assert_eq!(concept.internal_name(), Some("A"));
     }
 }
