@@ -43,7 +43,8 @@ impl<'a> ConceptImpl<'a> {
 
     /// Create a new concept with the given name.
     pub fn create_with_name(graph: Rc<RefCell<dyn Graph<'a>>>, name: &'a str) -> Self {
-        let id = graph.borrow_mut().add_node_with_name(name);
+        let id = graph.borrow_mut().add_node();
+        graph.borrow_mut().set_node_name(id, name);
         ConceptImpl {
             graph: graph,
             id: id,

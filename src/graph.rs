@@ -8,15 +8,11 @@ pub trait Graph<'a> {
     /// Adds a new node to the graph, and returns the node's ID.
     fn add_node(&mut self) -> usize;
 
-    /// Adds a new node with the given value to the graph, and returns the node's ID.
-    fn add_node_with_value(&mut self, value: &'a dyn Any) -> usize;
+    /// Sets the value for a given node. Values can only be set once.
+    fn set_node_value(&mut self, id: usize, value: &'a dyn Any);
 
-    /// Adds a new node with the given string name to the graph, and returns the node's ID.
-    fn add_node_with_name(&mut self, name: &'a str) -> usize;
-
-    /// Adds a new node with the given string name and value to the graph, and returns the node's
-    /// ID.
-    fn add_node_with_name_value(&mut self, name: &'a str, value: &'a dyn Any) -> usize;
+    /// Sets the name for a given node. Names can only be set once.
+    fn set_node_name(&mut self, id: usize, name: &'a str);
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or is unnamed.
     fn node_name(&self, id: usize) -> Option<&'a str>;
@@ -47,32 +43,23 @@ impl<'a> InMemoryGraph<'a> {
             graph: petgraph::graph::Graph::<NodeInfo, NodeIndex>::new(),
         }
     }
-
-    /// Adds a new node with corresponding info to an existing graph
-    fn add_node_with_info(&mut self, name: Option<&'a str>, value: Option<&'a dyn Any>) -> usize {
-        let new_node_info = NodeInfo {
-            name: name,
-            value: value,
-        };
-        return self.graph.add_node(new_node_info).index();
-    }
 }
 
 impl<'a> Graph<'a> for InMemoryGraph<'a> {
     fn add_node(&mut self) -> usize {
-        return self.add_node_with_info(None, None);
+        let new_node_info = NodeInfo {
+            name: None,
+            value: None,
+        };
+        self.graph.add_node(new_node_info).index()
     }
 
-    fn add_node_with_value(&mut self, value: &'a dyn Any) -> usize {
-        return self.add_node_with_info(None, Some(value));
+    fn set_node_value(&mut self, id: usize, value: &'a dyn Any) {
+        self.graph.node_weight_mut(NodeIndex::new(id)).expect("").value = Some(value);
     }
 
-    fn add_node_with_name(&mut self, name: &'a str) -> usize {
-        return self.add_node_with_info(Some(name), None);
-    }
-
-    fn add_node_with_name_value(&mut self, name: &'a str, value: &'a dyn Any) -> usize {
-        return self.add_node_with_info(Some(name), Some(value));
+    fn set_node_name(&mut self, id: usize, name: &'a str) {
+        self.graph.node_weight_mut(NodeIndex::new(id)).expect("").name = Some(name);
     }
 
     fn node_name(&self, id: usize) -> Option<&'a str> {
@@ -104,81 +91,55 @@ mod tests {
     #[test]
     fn in_memory_graph_add_node() {
         let mut g = new_in_memory_graph();
-        g.add_node();
+        let id = g.add_node();
+        assert!(g.node_value(id).is_none());
+        assert_eq!(g.node_name(id), None);
     }
 
     #[test]
-    fn in_memory_graph_retrieve_node_value() {
+    fn in_memory_graph_set_node_value() {
         let mut g = new_in_memory_graph();
-        let a_id = g.add_node_with_value(&5);
+        let a_id = g.add_node();
+        g.set_node_value(a_id, &5);
         assert_eq!(
             g.node_value(a_id).expect("entered 5").downcast_ref::<i32>(),
             Some(&5)
         );
+        assert_eq!(g.node_name(a_id), None);
     }
 
     #[test]
     fn in_memory_graph_retrieve_node_string_value() {
         let mut g = new_in_memory_graph();
-        let a_id = g.add_node_with_value(&"5");
+        let a_id = g.add_node();
+        g.set_node_value(a_id, &"5");
         assert_eq!(
             g.node_value(a_id)
                 .expect("entered 5")
                 .downcast_ref::<&str>(),
             Some(&"5")
         );
-    }
-
-    #[test]
-    fn in_memory_graph_retrieve_node_without_value() {
-        let mut g = new_in_memory_graph();
-        let a_id = g.add_node();
-        assert!(g.node_value(a_id).is_none());
+        assert_eq!(g.node_name(a_id), None);
     }
 
     #[test]
     fn in_memory_graph_retrieve_node_name() {
         let mut g = new_in_memory_graph();
-        let a_id = g.add_node_with_name("A");
-        assert_eq!(g.node_name(a_id), Some("A"));
-    }
-
-    #[test]
-    fn in_memory_graph_retrieve_node_without_name() {
-        let mut g = new_in_memory_graph();
         let a_id = g.add_node();
-        assert_eq!(g.node_name(a_id), None);
+        g.set_node_name(a_id, "A");
+        assert_eq!(g.node_name(a_id), Some("A"));
     }
 
     #[test]
     fn in_memory_graph_retrieve_node_name_value() {
         let mut g = new_in_memory_graph();
-        let a_id = g.add_node_with_name_value("A", &5);
+        let a_id = g.add_node();
+        g.set_node_name(a_id, "A");
+        g.set_node_value(a_id, &5);
         assert_eq!(g.node_name(a_id), Some("A"));
         assert_eq!(
             g.node_value(a_id).expect("entered 5").downcast_ref::<i32>(),
             Some(&5)
         );
-    }
-
-    #[test]
-    fn in_memory_graph_retrieve_node_name_string_value() {
-        let mut g = new_in_memory_graph();
-        let a_id = g.add_node_with_name_value("A", &"5");
-        assert_eq!(g.node_name(a_id), Some("A"));
-        assert_eq!(
-            g.node_value(a_id)
-                .expect("entered 5")
-                .downcast_ref::<&str>(),
-            Some(&"5")
-        );
-    }
-
-    #[test]
-    fn in_memory_graph_retrieve_node_name_without_value() {
-        let mut g = new_in_memory_graph();
-        let a_id = g.add_node_with_name("A");
-        assert_eq!(g.node_name(a_id), Some("A"));
-        assert!(g.node_value(a_id).is_none());
     }
 }
