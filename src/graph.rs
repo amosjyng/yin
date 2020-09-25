@@ -1,42 +1,21 @@
 //! Graph implementations
 
+mod invalid_graph;
+mod kb_wrapper;
+
 use petgraph::graph::NodeIndex;
-use std::any::Any;
 use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
+use invalid_graph::InvalidGraph;
+pub use kb_wrapper::{KBWrapper, WeakWrapper};
 
 thread_local! {
-    pub static GRAPH: RefCell<Box<dyn Graph<'static>>> = RefCell::new(Box::new(InvalidGraph{}));
+    static GRAPH: RefCell<Box<dyn Graph<'static>>> = RefCell::new(Box::new(InvalidGraph{}));
 }
 
 /// Bind GRAPH to a new graph that sits entirely in memory.
 pub fn bind_in_memory_graph() {
     GRAPH.with(|g| *g.borrow_mut() = Box::new(InMemoryGraph::new()));
-}
-
-pub trait KBWrapper: Any {
-    fn as_any(&self) -> &dyn Any;
-    fn value(&self) -> &dyn Any;
-}
-
-pub struct WeakWrapper<T: Any> {
-    item: Weak<T>,
-}
-
-impl<T: Any> WeakWrapper<T> {
-    pub fn new(weak: Weak<T>) -> Self {
-        WeakWrapper { item: weak }
-    }
-}
-
-impl<'a, T: Any + 'static> KBWrapper for WeakWrapper<T> {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn value(&self) -> &dyn Any {
-        &self.item
-    }
 }
 
 /// A classic directed Graph with nodes and labeled links.
@@ -56,31 +35,6 @@ pub trait Graph<'a> {
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>>;
-}
-
-/// Invalid default graph.
-struct InvalidGraph {}
-
-impl Graph<'static> for InvalidGraph {
-    fn add_node(&mut self) -> usize {
-        panic!("Initialize graph binding before use");
-    }
-
-    fn set_node_value(&mut self, _: usize, _: Box<dyn KBWrapper>) {
-        panic!("Initialize graph binding before use");
-    }
-
-    fn set_node_name(&mut self, _: usize, _: String) {
-        panic!("Initialize graph binding before use");
-    }
-
-    fn node_name(&self, _: usize) -> Option<String> {
-        panic!("Initialize graph binding before use");
-    }
-
-    fn node_value(&self, _: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
-        panic!("Initialize graph binding before use");
-    }
 }
 
 /// Graph only for dependency injection.
