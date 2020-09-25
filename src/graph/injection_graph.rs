@@ -1,6 +1,6 @@
-use super::{Graph,KBWrapper};
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
+use super::{Graph, KBWrapper};
 use std::cell::RefCell;
 use std::rc::Rc;
 

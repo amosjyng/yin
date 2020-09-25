@@ -1,11 +1,11 @@
 //! Graph implementations
 
-mod injection_graph;
 mod in_memory_graph;
+mod injection_graph;
 mod invalid_graph;
 mod kb_wrapper;
 
-pub use injection_graph::{InjectionGraph, bind_in_memory_graph};
+pub use injection_graph::{bind_in_memory_graph, InjectionGraph};
 pub use kb_wrapper::{KBWrapper, WeakWrapper};
 
 use std::rc::Rc;

@@ -52,8 +52,8 @@ impl<'a> Graph<'a> for InMemoryGraph {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::*;
+    use super::*;
 
     #[test]
     fn in_memory_graph_create() {
