@@ -3,11 +3,11 @@
 mod invalid_graph;
 mod kb_wrapper;
 
+use invalid_graph::InvalidGraph;
+pub use kb_wrapper::{KBWrapper, WeakWrapper};
 use petgraph::graph::NodeIndex;
 use std::cell::RefCell;
 use std::rc::Rc;
-use invalid_graph::InvalidGraph;
-pub use kb_wrapper::{KBWrapper, WeakWrapper};
 
 thread_local! {
     static GRAPH: RefCell<Box<dyn Graph<'static>>> = RefCell::new(Box::new(InvalidGraph{}));

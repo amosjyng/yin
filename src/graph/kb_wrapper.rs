@@ -1,9 +1,9 @@
-use std::rc::Weak;
 use std::any::Any;
+use std::rc::Weak;
 
 /// Wrapper for KB values, because Rust doesn't support upcasting at the moment.
-/// 
-/// This is an implementation of 
+///
+/// This is an implementation of
 /// [https://stackoverflow.com/a/42057047/257583](https://stackoverflow.com/a/42057047/257583).
 pub trait KBWrapper: Any {
     fn as_any(&self) -> &dyn Any;
