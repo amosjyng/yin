@@ -11,6 +11,9 @@ pub trait Concept {
     /// The unique integer that's associated with this concept.
     fn id(&self) -> usize;
 
+    /// Associate this concept with an internal name. The name does not need to be unique.
+    fn set_internal_name(&mut self, name: &String);
+
     /// The internal name that's associated with this concept, if one exists.
     fn internal_name(&self) -> Option<String>;
 }
@@ -36,19 +39,15 @@ impl<'a> ConceptImpl {
         let id = g.add_node();
         ConceptImpl { graph: g, id: id }
     }
-
-    /// Create a new concept with the given name.
-    pub fn create_with_name(name: String) -> Self {
-        let mut g = InjectionGraph {};
-        let id = g.add_node();
-        g.set_node_name(id, name);
-        ConceptImpl { graph: g, id: id }
-    }
 }
 
 impl<'a> Concept for ConceptImpl {
     fn id(&self) -> usize {
         self.id
+    }
+
+    fn set_internal_name(&mut self, name: &String) {
+        self.graph.set_node_name(self.id, name.clone());
     }
 
     fn internal_name(&self) -> Option<String> {
@@ -80,7 +79,8 @@ mod tests {
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let concept = ConceptImpl::create_with_name("A".to_string());
+        let mut concept = ConceptImpl::create();
+        concept.set_internal_name(&"A".to_string());
         assert_eq!(concept.internal_name(), Some("A".to_string()));
     }
 }
