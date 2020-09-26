@@ -1,6 +1,11 @@
-use super::{Graph, KBWrapper, NodeInfo};
+use super::{Graph, KBWrapper};
 use petgraph::graph::NodeIndex;
 use std::rc::Rc;
+
+struct NodeInfo {
+    name: Option<String>,
+    value: Option<Rc<Box<dyn KBWrapper>>>,
+}
 
 pub struct InMemoryGraph {
     graph: petgraph::graph::Graph<NodeInfo, NodeIndex>,
@@ -74,19 +79,9 @@ mod tests {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
-        let v = Rc::new(Box::new(5));
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(Rc::downgrade(&v))));
-        assert_eq!(
-            g.node_value(a_id)
-                .map(|v| {
-                    v.as_any()
-                        .downcast_ref::<WeakWrapper<Box<i32>>>()
-                        .map(|w| w.item.upgrade().map(|rc| **rc))
-                })
-                .flatten()
-                .flatten(),
-            Some(5)
-        );
+        let v = Rc::new(5);
+        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+        assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
 
@@ -95,18 +90,9 @@ mod tests {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
-        let v = Rc::new(Box::new("5".to_owned()));
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(Rc::downgrade(&v))));
-        assert_eq!(
-            g.node_value(a_id)
-                .map(|v| v
-                    .as_any()
-                    .downcast_ref::<WeakWrapper<Box<String>>>()
-                    .map(|w| w.item.upgrade()))
-                .flatten()
-                .flatten(),
-            Some(v)
-        );
+        let v = Rc::new("5");
+        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+        assert_eq!(unwrap_weak::<&str>(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
 
@@ -124,19 +110,10 @@ mod tests {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
-        let v = Rc::new(Box::new(5));
+        let v = Rc::new(5);
         g.set_node_name(a_id, "A".to_string());
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(Rc::downgrade(&v))));
+        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
         assert_eq!(g.node_name(a_id), Some("A".to_string()));
-        assert_eq!(
-            g.node_value(a_id)
-                .map(|v| v
-                    .as_any()
-                    .downcast_ref::<WeakWrapper<Box<i32>>>()
-                    .map(|w| w.item.upgrade().map(|rc| **rc)))
-                .flatten()
-                .flatten(),
-            Some(5)
-        );
+        assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
     }
 }

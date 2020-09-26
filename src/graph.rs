@@ -6,7 +6,7 @@ mod invalid_graph;
 mod kb_wrapper;
 
 pub use injection_graph::{bind_in_memory_graph, InjectionGraph};
-pub use kb_wrapper::{KBWrapper, WeakWrapper};
+pub use kb_wrapper::{unwrap_weak, KBWrapper, WeakWrapper};
 
 use std::rc::Rc;
 
@@ -27,9 +27,4 @@ pub trait Graph<'a> {
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>>;
-}
-
-struct NodeInfo {
-    name: Option<String>,
-    value: Option<Rc<Box<dyn KBWrapper>>>,
 }
