@@ -44,4 +44,8 @@ impl Graph<'static> for InjectionGraph {
     fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize> {
         GRAPH.with(|g| g.borrow().outgoing_nodes(from, edge_type))
     }
+
+    fn incoming_nodes(&self, to: usize, edge_type: usize) -> Vec<usize> {
+        GRAPH.with(|g| g.borrow().incoming_nodes(to, edge_type))
+    }
 }

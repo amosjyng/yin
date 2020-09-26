@@ -33,4 +33,8 @@ impl Graph<'static> for InvalidGraph {
     fn outgoing_nodes(&self, _: usize, _: usize) -> Vec<usize> {
         panic!("Initialize graph binding before use")
     }
+
+    fn incoming_nodes(&self, _: usize, _: usize) -> Vec<usize> {
+        panic!("Initialize graph binding before use")
+    }
 }

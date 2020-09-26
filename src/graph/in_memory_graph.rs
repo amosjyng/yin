@@ -71,6 +71,17 @@ impl<'a> Graph<'a> for InMemoryGraph {
         result.sort(); // sort for determinism
         result
     }
+
+    fn incoming_nodes(&self, to: usize, edge_type: usize) -> Vec<usize> {
+        let mut result: Vec<usize> = self
+            .graph
+            .edges_directed(NodeIndex::new(to), Direction::Incoming)
+            .filter(|e| *e.weight() == edge_type)
+            .map(|e| e.source().index())
+            .collect();
+        result.sort(); // sort for determinism
+        result
+    }
 }
 
 #[cfg(test)]
@@ -155,7 +166,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_one_multiple_outgoing_nodes() {
+    fn in_memory_graph_multiple_outgoing_nodes() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -168,7 +179,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_one_outgoing_ignores_incoming_nodes() {
+    fn in_memory_graph_outgoing_ignores_incoming_nodes() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -183,7 +194,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_one_outgoing_ignores_wrong_edge_type() {
+    fn in_memory_graph_outgoing_ignores_wrong_edge_type() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -196,5 +207,68 @@ mod tests {
         g.add_edge(a_id, edge_type2, c_id);
         g.add_edge(a_id, edge_type1, d_id);
         assert_eq!(g.outgoing_nodes(a_id, edge_type1), vec![b_id, d_id]);
+    }
+
+    #[test]
+    fn in_memory_graph_no_incoming_node() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        assert_eq!(g.incoming_nodes(a_id, a_id), Vec::new());
+    }
+
+    #[test]
+    fn in_memory_graph_incoming_node() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        let edge_type = g.add_node();
+        g.add_edge(b_id, edge_type, a_id);
+        assert_eq!(g.incoming_nodes(a_id, edge_type), vec![b_id]);
+    }
+
+    #[test]
+    fn in_memory_graph_multiple_incoming_nodes() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        let c_id = g.add_node();
+        let edge_type = g.add_node();
+        g.add_edge(b_id, edge_type, a_id);
+        g.add_edge(c_id, edge_type, a_id);
+        assert_eq!(g.incoming_nodes(a_id, edge_type), vec![b_id, c_id]);
+    }
+
+    #[test]
+    fn in_memory_graph_incoming_ignores_outgoing_nodes() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        let c_id = g.add_node();
+        let d_id = g.add_node();
+        let edge_type = g.add_node();
+        g.add_edge(b_id, edge_type, a_id);
+        g.add_edge(d_id, edge_type, a_id);
+        g.add_edge(a_id, edge_type, c_id);
+        assert_eq!(g.incoming_nodes(a_id, edge_type), vec![b_id, d_id]);
+    }
+
+    #[test]
+    fn in_memory_graph_incoming_ignores_wrong_edge_type() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        let c_id = g.add_node();
+        let d_id = g.add_node();
+        let edge_type1 = g.add_node();
+        let edge_type2 = g.add_node();
+        g.add_edge(b_id, edge_type1, a_id);
+        g.add_edge(c_id, edge_type2, a_id);
+        g.add_edge(d_id, edge_type1, a_id);
+        assert_eq!(g.incoming_nodes(a_id, edge_type1), vec![b_id, d_id]);
     }
 }
