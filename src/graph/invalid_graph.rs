@@ -25,4 +25,12 @@ impl Graph<'static> for InvalidGraph {
     fn node_value(&self, _: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
         panic!("Initialize graph binding before use");
     }
+
+    fn add_edge(&mut self, _: usize, _: usize, _: usize) {
+        panic!("Initialize graph binding before use");
+    }
+
+    fn outgoing_nodes(&self, _: usize, _: usize) -> Vec<usize> {
+        panic!("Initialize graph binding before use")
+    }
 }

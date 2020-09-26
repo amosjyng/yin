@@ -27,4 +27,10 @@ pub trait Graph<'a> {
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>>;
+
+    /// Add a labeled edge between two nodes. The label should be the ID of an existing node.
+    fn add_edge(&mut self, from: usize, edge_type: usize, to: usize);
+
+    /// Retrieve all node IDs that are on the other end of an outgoing edge of the given type.
+    fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize>;
 }

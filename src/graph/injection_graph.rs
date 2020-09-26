@@ -36,4 +36,12 @@ impl Graph<'static> for InjectionGraph {
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
         GRAPH.with(|g| g.borrow().node_value(id).map(|r| r.clone()))
     }
+
+    fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
+        GRAPH.with(|g| g.borrow_mut().add_edge(from, edge_type, to))
+    }
+
+    fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize> {
+        GRAPH.with(|g| g.borrow().outgoing_nodes(from, edge_type))
+    }
 }

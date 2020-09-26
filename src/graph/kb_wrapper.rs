@@ -11,9 +11,9 @@ pub trait KBWrapper: Any {
 }
 
 /// Helper function for unwrapping values contained inside a WeakWrapper.
-/// 
+///
 /// There are three layers of options here:
-/// 
+///
 ///  1. The option of whether or not there is a value associated with this KB node. Necessary
 ///     because not every node has a value to it.
 ///  3. The option of whether or not the value associated with this KB node is contained inside a
@@ -22,7 +22,7 @@ pub trait KBWrapper: Any {
 ///  2. The option of whether the value referred to here still exists. Since a WeakWrapper refers
 ///     to values outside of the KB that might stop existing at any given time, this is not
 ///     guaranteed to return a value even if there was originally one associated with the node.
-/// 
+///
 /// This function encapsulates all of the above into one simpler return value.
 pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> Option<Rc<T>> {
     wrapper
