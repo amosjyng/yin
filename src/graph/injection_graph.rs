@@ -48,4 +48,12 @@ impl Graph<'static> for InjectionGraph {
     fn incoming_nodes(&self, to: usize, edge_type: usize) -> Vec<usize> {
         GRAPH.with(|g| g.borrow().incoming_nodes(to, edge_type))
     }
+
+    fn all_outgoing_nodes(&self, from: usize) -> Vec<usize> {
+        GRAPH.with(|g| g.borrow().all_outgoing_nodes(from))
+    }
+
+    fn all_incoming_nodes(&self, to: usize) -> Vec<usize> {
+        GRAPH.with(|g| g.borrow().all_incoming_nodes(to))
+    }
 }

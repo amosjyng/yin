@@ -36,4 +36,10 @@ pub trait Graph<'a> {
 
     /// Retrieve all node IDs that are on the other end of an incoming edge of the given type.
     fn incoming_nodes(&self, to: usize, edge_type: usize) -> Vec<usize>;
+
+    /// Retrieve all node IDs that are on the other end of outgoing edges.
+    fn all_outgoing_nodes(&self, from: usize) -> Vec<usize>;
+
+    /// Retrieve all node IDs that are on the other end of incoming edges.
+    fn all_incoming_nodes(&self, to: usize) -> Vec<usize>;
 }
