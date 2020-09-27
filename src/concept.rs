@@ -3,6 +3,26 @@
 //!
 //! Do not mistake the map for the territory. Concepts are the map that tells you how to interact
 //! with the territory of the actual data structures that they point to.
+//!
+//! # Examples
+//!
+//! ```rust
+//! use yin::concept::{Concept, ConceptImpl};
+//! use yin::graph::{bind_in_memory_graph, WeakWrapper, unwrap_weak};
+//! use std::rc::Rc;
+//!
+//! // First we need to specify which graph implementation to use
+//! bind_in_memory_graph();
+//! // Then we can create a new concept
+//! let mut concept = ConceptImpl::create();
+//! // We can set a name for this concept
+//! concept.set_internal_name("A".to_string());
+//! assert_eq!(concept.internal_name(), Some("A".to_string()));
+//! // We can also set a value for the concept
+//! let v = Rc::new(5);
+//! concept.set_value(Box::new(WeakWrapper::new(&v)));
+//! assert_eq!(unwrap_weak::<i32>(concept.value()), Some(v));
+//! ```
 
 use crate::graph::{Graph, InjectionGraph, KBWrapper};
 use std::rc::Rc;
