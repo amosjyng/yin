@@ -12,7 +12,7 @@ pub trait Concept {
     fn id(&self) -> usize;
 
     /// Associate this concept with an internal name. The name does not need to be unique.
-    fn set_internal_name(&mut self, name: &String);
+    fn set_internal_name(&mut self, name: String);
 
     /// The internal name that's associated with this concept, if one exists.
     fn internal_name(&self) -> Option<String>;
@@ -46,8 +46,8 @@ impl<'a> Concept for ConceptImpl {
         self.id
     }
 
-    fn set_internal_name(&mut self, name: &String) {
-        self.graph.set_node_name(self.id, name.clone());
+    fn set_internal_name(&mut self, name: String) {
+        self.graph.set_node_name(self.id, name);
     }
 
     fn internal_name(&self) -> Option<String> {
@@ -80,7 +80,7 @@ mod tests {
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
         let mut concept = ConceptImpl::create();
-        concept.set_internal_name(&"A".to_string());
+        concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some("A".to_string()));
     }
 }
