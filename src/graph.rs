@@ -2,39 +2,92 @@
 //! labeled edges.
 //!
 //! # Examples
+//! We need to choose which graph implementation to ground our knowledge and reasoning on. All
+//! implementations should be logically equivalent. Let's use the in-memory one for simplicity:
 //!
 //! ```rust
-//! use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph, WeakWrapper, unwrap_weak};
+//! use yin::graph::bind_in_memory_graph;
+//!
+//! bind_in_memory_graph();
+//! ```
+//!
+//! No matter which implementation you choose, `InjectionGraph` allows you to use that
+//! implementation via dependency injection:
+//!
+//! ```rust
+//! # use yin::graph::bind_in_memory_graph;
+//! # bind_in_memory_graph();
+//! use yin::graph::InjectionGraph;
+//!
+//! let mut g = InjectionGraph {};
+//! ```
+//!
+//! Now we can create a new node:
+//! ```rust
+//! # use yin::graph::{bind_in_memory_graph, InjectionGraph};
+//! # bind_in_memory_graph();
+//! # let mut g = InjectionGraph {};
+//! use yin::graph::Graph;
+//!
+//! let a_id = g.add_node();
+//! ```
+//!
+//! We can set a name for the node. Note that names don't need to be unique.
+//!
+//! ```rust
+//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # bind_in_memory_graph();
+//! # let mut g = InjectionGraph {};
+//! # let a_id = g.add_node();
+//! g.set_node_name(a_id, "A".to_string());
+//! assert_eq!(g.node_name(a_id), Some("A".to_string()));
+//! ```
+//!
+//! We can also set a value for the node:
+//!
+//! ```rust
+//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # bind_in_memory_graph();
+//! # let mut g = InjectionGraph {};
+//! # let a_id = g.add_node();
+//! use yin::graph::{WeakWrapper, unwrap_weak};
 //! use std::rc::Rc;
 //!
-//! // First we need to specify which implementation to use
-//! bind_in_memory_graph();
-//! // InjectionGraph is a usable graph interface no matter the implemntation chosen
-//! let mut g = InjectionGraph {};
-//! // Create a node
-//! let a_id = g.add_node();
-//! // Name the node
-//! g.set_node_name(a_id, "A".to_string());
-//! // Set a value for the node
 //! let v = Rc::new(5);
 //! g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
-//! // Retrieve the node's name
-//! assert_eq!(g.node_name(a_id), Some("A".to_string()));
-//! // Retrieve the node's value
 //! assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
-//! // Create a few other nodes
+//! ```
+//!
+//! Let's create a few more nodes:
+//! ```rust
+//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # bind_in_memory_graph();
+//! # let mut g = InjectionGraph {};
+//! # let a_id = g.add_node();
 //! let b_id = g.add_node();
 //! let c_id = g.add_node();
 //! let d_id = g.add_node();
-//! // Note that while edge labels can technically be any integer, they are assumed to be node IDs
-//! // by higher-level abstractions:
 //! let edge_type1 = g.add_node();
 //! let edge_type2 = g.add_node();
-//! // Connect the first node to these other nodes
+//! ```
+//!
+//! Let's now connect some of these nodes together. Note that while edge labels can technically be
+//! any integer, they are assumed to be node IDs by higher-level Yin abstractions:
+//!
+//! ```rust
+//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # bind_in_memory_graph();
+//! # let mut g = InjectionGraph {};
+//! # let a_id = g.add_node();
+//! # let b_id = g.add_node();
+//! # let c_id = g.add_node();
+//! # let d_id = g.add_node();
+//! # let edge_type1 = g.add_node();
+//! # let edge_type2 = g.add_node();
 //! g.add_edge(b_id, edge_type1, a_id);
 //! g.add_edge(c_id, edge_type2, a_id);
 //! g.add_edge(d_id, edge_type1, a_id);
-//! // Query incoming and outgoing nodes:
+//!
 //! assert_eq!(g.all_incoming_nodes(a_id), vec![b_id, c_id, d_id]);
 //! assert_eq!(g.incoming_nodes(a_id, edge_type1), vec![b_id, d_id]);
 //! assert_eq!(g.all_outgoing_nodes(b_id), vec![a_id]);
