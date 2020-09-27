@@ -25,7 +25,7 @@
 //! let mut concept = ConceptImpl::create();
 //! ```
 //!
-//! We can set a name for this concept:
+//! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
 //! # use yin::concept::ConceptImpl;
@@ -115,7 +115,6 @@ impl<'a> Concept for ConceptImpl {
         self.graph.set_node_value(self.id, value)
     }
 
-    /// Retrieve the value associated with this concept.
     fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>> {
         self.graph.node_value(self.id)
     }
