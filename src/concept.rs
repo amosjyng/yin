@@ -4,7 +4,8 @@
 //! Do not mistake the map for the territory. Concepts are the map that tells you how to interact
 //! with the territory of the actual data structures that they point to.
 
-use crate::graph::{Graph, InjectionGraph};
+use crate::graph::{Graph, InjectionGraph, KBWrapper};
+use std::rc::Rc;
 
 /// Interface for all concepts.
 pub trait Concept {
@@ -16,6 +17,12 @@ pub trait Concept {
 
     /// The internal name that's associated with this concept, if one exists.
     fn internal_name(&self) -> Option<String>;
+
+    /// Associate this concept with a value.
+    fn set_value(&mut self, value: Box<dyn KBWrapper>);
+
+    /// Retrieve the value associated with this concept.
+    fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>>;
 }
 
 /// Implementation for a generic concept.
@@ -53,12 +60,21 @@ impl<'a> Concept for ConceptImpl {
     fn internal_name(&self) -> Option<String> {
         self.graph.node_name(self.id).map(|n| n.clone())
     }
+
+    fn set_value(&mut self, value: Box<dyn KBWrapper>) {
+        self.graph.set_node_value(self.id, value)
+    }
+
+    /// Retrieve the value associated with this concept.
+    fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>> {
+        self.graph.node_value(self.id)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::bind_in_memory_graph;
+    use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
 
     #[test]
     fn create_and_retrieve_node_id() {
@@ -82,5 +98,14 @@ mod tests {
         let mut concept = ConceptImpl::create();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some("A".to_string()));
+    }
+
+    #[test]
+    fn retrieve_node_value() {
+        bind_in_memory_graph();
+        let mut concept = ConceptImpl::create();
+        let v = Rc::new(5);
+        concept.set_value(Box::new(WeakWrapper::new(&v)));
+        assert_eq!(unwrap_weak::<i32>(concept.value()), Some(v));
     }
 }
