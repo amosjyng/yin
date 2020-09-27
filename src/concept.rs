@@ -6,19 +6,49 @@
 //!
 //! # Examples
 //!
+//! We need to choose which graph implementation to ground our knowledge and reasoning on. All
+//! implementations should be logically equivalent. Let's use the in-memory one for simplicity:
+//! 
 //! ```rust
-//! use yin::concept::{Concept, ConceptImpl};
-//! use yin::graph::{bind_in_memory_graph, WeakWrapper, unwrap_weak};
-//! use std::rc::Rc;
-//!
-//! // First we need to specify which graph implementation to use
+//! use yin::graph::bind_in_memory_graph;
+//! 
 //! bind_in_memory_graph();
-//! // Then we can create a new concept
+//! ```
+//! 
+//! Now, we can create a new concept:
+//! 
+//! ```rust
+//! # use yin::graph::bind_in_memory_graph;
+//! # bind_in_memory_graph();
+//! use yin::concept::ConceptImpl;
+//! 
 //! let mut concept = ConceptImpl::create();
-//! // We can set a name for this concept
+//! ```
+//! 
+//! We can set a name for this concept:
+//! 
+//! ```rust
+//! # use yin::concept::ConceptImpl;
+//! # use yin::graph::bind_in_memory_graph;
+//! # bind_in_memory_graph();
+//! # let mut concept = ConceptImpl::create();
+//! use yin::concept::Concept;
+//! 
 //! concept.set_internal_name("A".to_string());
 //! assert_eq!(concept.internal_name(), Some("A".to_string()));
-//! // We can also set a value for the concept
+//! ```
+//! 
+//! We can also set a value for the concept. We use `Rc` here because Yin being the map and not the
+//! territory, we generally don't want to have Yin itself own the data being operated on.
+//! 
+//! ```rust
+//! # use yin::concept::{Concept, ConceptImpl};
+//! # use yin::graph::bind_in_memory_graph;
+//! # bind_in_memory_graph();
+//! # let mut concept = ConceptImpl::create();
+//! use yin::graph::{WeakWrapper, unwrap_weak};
+//! use std::rc::Rc;
+//! 
 //! let v = Rc::new(5);
 //! concept.set_value(Box::new(WeakWrapper::new(&v)));
 //! assert_eq!(unwrap_weak::<i32>(concept.value()), Some(v));
