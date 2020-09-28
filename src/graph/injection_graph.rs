@@ -14,6 +14,7 @@ pub fn bind_in_memory_graph() {
 }
 
 /// Graph usable with dependency injection.
+#[derive(Copy, Clone)]
 pub struct InjectionGraph {}
 
 impl Graph<'static> for InjectionGraph {

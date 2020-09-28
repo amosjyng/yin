@@ -55,6 +55,8 @@
 //! ```
 
 use crate::graph::{Graph, InjectionGraph, KBWrapper};
+use std::cmp::{Eq, PartialEq};
+use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// Interface for all concepts.
@@ -76,9 +78,43 @@ pub trait Concept {
 }
 
 /// Implementation for a generic concept.
+#[derive(Copy, Clone)]
 pub struct ConceptImpl {
     graph: InjectionGraph,
     id: usize,
+}
+
+impl ConceptImpl {
+    /// Link this concept to another one via an outgoing edge.
+    pub fn add_outgoing(&mut self, edge_type: ConceptImpl, to: ConceptImpl) {
+        self.graph.add_edge(self.id(), edge_type.id(), to.id())
+    }
+
+    /// All concepts that this one links to via outgoing edges of a certain type.
+    pub fn outgoing_nodes(&self, edge_type: ConceptImpl) -> Vec<ConceptImpl> {
+        self.graph
+            .outgoing_nodes(self.id(), edge_type.id())
+            .into_iter()
+            .map(|id| ConceptImpl::from(id))
+            .collect()
+    }
+}
+
+impl Debug for ConceptImpl {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        match self.internal_name() {
+            Some(name) => f.write_fmt(format_args!("Concept({},{})", self.id, name)),
+            None => f.write_fmt(format_args!("Concept({})", self.id)),
+        }
+    }
+}
+
+impl Eq for ConceptImpl {}
+
+impl PartialEq for ConceptImpl {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
 }
 
 impl<'a> ConceptImpl {
@@ -156,5 +192,29 @@ mod tests {
         let v = Rc::new(5);
         concept.set_value(Box::new(WeakWrapper::new(&v)));
         assert_eq!(unwrap_weak::<i32>(concept.value()), Some(v));
+    }
+
+    #[test]
+    fn no_outgoing_nodes() {
+        bind_in_memory_graph();
+        let a = ConceptImpl::create();
+        assert_eq!(a.outgoing_nodes(a), Vec::new());
+    }
+
+    #[test]
+    fn outgoing_nodes() {
+        bind_in_memory_graph();
+        let mut a = ConceptImpl::create();
+        let b = ConceptImpl::create();
+        let c = ConceptImpl::create();
+        let d = ConceptImpl::create();
+        let mut e = ConceptImpl::create();
+        let edge_type1 = ConceptImpl::create();
+        let edge_type2 = ConceptImpl::create();
+        a.add_outgoing(edge_type1, b);
+        a.add_outgoing(edge_type2, c);
+        a.add_outgoing(edge_type1, d);
+        e.add_outgoing(edge_type1, a);
+        assert_eq!(a.outgoing_nodes(edge_type1), vec![b, d]);
     }
 }
