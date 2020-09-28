@@ -20,7 +20,7 @@
 //! ```rust
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::concept::Concept;
+//! use yin::concepts::Concept;
 //!
 //! let mut concept = Concept::create();
 //! ```
@@ -28,11 +28,11 @@
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use yin::concept::Concept;
+//! # use yin::concepts::Concept;
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
 //! # let mut concept = Concept::create();
-//! use yin::concept::ConceptTrait;
+//! use yin::concepts::ConceptTrait;
 //!
 //! concept.set_internal_name("A".to_string());
 //! assert_eq!(concept.internal_name(), Some("A".to_string()));
@@ -42,7 +42,7 @@
 //! territory, we generally don't want to have Yin itself own the data being operated on.
 //!
 //! ```rust
-//! # use yin::concept::{Concept, ConceptTrait};
+//! # use yin::concepts::{Concept, ConceptTrait};
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
 //! # let mut concept = Concept::create();
