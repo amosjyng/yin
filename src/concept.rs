@@ -20,19 +20,19 @@
 //! ```rust
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::concept::ConceptImpl;
+//! use yin::concept::Concept;
 //!
-//! let mut concept = ConceptImpl::create();
+//! let mut concept = Concept::create();
 //! ```
 //!
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use yin::concept::ConceptImpl;
+//! # use yin::concept::Concept;
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! # let mut concept = ConceptImpl::create();
-//! use yin::concept::Concept;
+//! # let mut concept = Concept::create();
+//! use yin::concept::ConceptTrait;
 //!
 //! concept.set_internal_name("A".to_string());
 //! assert_eq!(concept.internal_name(), Some("A".to_string()));
@@ -42,10 +42,10 @@
 //! territory, we generally don't want to have Yin itself own the data being operated on.
 //!
 //! ```rust
-//! # use yin::concept::{Concept, ConceptImpl};
+//! # use yin::concept::{Concept, ConceptTrait};
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! # let mut concept = ConceptImpl::create();
+//! # let mut concept = Concept::create();
 //! use yin::graph::{WeakWrapper, unwrap_weak};
 //! use std::rc::Rc;
 //!
@@ -60,7 +60,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// Interface for all concepts.
-pub trait Concept {
+pub trait ConceptTrait {
     /// The unique integer that's associated with this concept.
     fn id(&self) -> usize;
 
@@ -79,28 +79,28 @@ pub trait Concept {
 
 /// Implementation for a generic concept.
 #[derive(Copy, Clone)]
-pub struct ConceptImpl {
+pub struct Concept {
     graph: InjectionGraph,
     id: usize,
 }
 
-impl ConceptImpl {
+impl Concept {
     /// Link this concept to another one via an outgoing edge.
-    pub fn add_outgoing(&mut self, edge_type: ConceptImpl, to: ConceptImpl) {
+    pub fn add_outgoing(&mut self, edge_type: Concept, to: Concept) {
         self.graph.add_edge(self.id(), edge_type.id(), to.id())
     }
 
     /// All concepts that this one links to via outgoing edges of a certain type.
-    pub fn outgoing_nodes(&self, edge_type: ConceptImpl) -> Vec<ConceptImpl> {
+    pub fn outgoing_nodes(&self, edge_type: Concept) -> Vec<Concept> {
         self.graph
             .outgoing_nodes(self.id(), edge_type.id())
             .into_iter()
-            .map(|id| ConceptImpl::from(id))
+            .map(|id| Concept::from(id))
             .collect()
     }
 }
 
-impl Debug for ConceptImpl {
+impl Debug for Concept {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match self.internal_name() {
             Some(name) => f.write_fmt(format_args!("Concept({},{})", self.id, name)),
@@ -109,18 +109,18 @@ impl Debug for ConceptImpl {
     }
 }
 
-impl Eq for ConceptImpl {}
+impl Eq for Concept {}
 
-impl PartialEq for ConceptImpl {
+impl PartialEq for Concept {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
 }
 
-impl<'a> ConceptImpl {
+impl<'a> Concept {
     /// Create a concept wrapper from an existing node's ID.
     pub fn from(id: usize) -> Self {
-        ConceptImpl {
+        Concept {
             graph: InjectionGraph {},
             id: id,
         }
@@ -130,11 +130,11 @@ impl<'a> ConceptImpl {
     pub fn create() -> Self {
         let mut g = InjectionGraph {};
         let id = g.add_node();
-        ConceptImpl { graph: g, id: id }
+        Concept { graph: g, id: id }
     }
 }
 
-impl<'a> Concept for ConceptImpl {
+impl<'a> ConceptTrait for Concept {
     fn id(&self) -> usize {
         self.id
     }
@@ -164,23 +164,23 @@ mod tests {
     #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
-        let concept1 = ConceptImpl::create();
-        let concept2 = ConceptImpl::create();
+        let concept1 = Concept::create();
+        let concept2 = Concept::create();
         assert_eq!(concept1.id() + 1, concept2.id());
     }
 
     #[test]
     fn from_node_id() {
         bind_in_memory_graph();
-        let concept = ConceptImpl::create();
-        let concept_copy = ConceptImpl::from(concept.id());
+        let concept = Concept::create();
+        let concept_copy = Concept::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
     }
 
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut concept = ConceptImpl::create();
+        let mut concept = Concept::create();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some("A".to_string()));
     }
@@ -188,7 +188,7 @@ mod tests {
     #[test]
     fn retrieve_node_value() {
         bind_in_memory_graph();
-        let mut concept = ConceptImpl::create();
+        let mut concept = Concept::create();
         let v = Rc::new(5);
         concept.set_value(Box::new(WeakWrapper::new(&v)));
         assert_eq!(unwrap_weak::<i32>(concept.value()), Some(v));
@@ -197,20 +197,20 @@ mod tests {
     #[test]
     fn no_outgoing_nodes() {
         bind_in_memory_graph();
-        let a = ConceptImpl::create();
+        let a = Concept::create();
         assert_eq!(a.outgoing_nodes(a), Vec::new());
     }
 
     #[test]
     fn outgoing_nodes() {
         bind_in_memory_graph();
-        let mut a = ConceptImpl::create();
-        let b = ConceptImpl::create();
-        let c = ConceptImpl::create();
-        let d = ConceptImpl::create();
-        let mut e = ConceptImpl::create();
-        let edge_type1 = ConceptImpl::create();
-        let edge_type2 = ConceptImpl::create();
+        let mut a = Concept::create();
+        let b = Concept::create();
+        let c = Concept::create();
+        let d = Concept::create();
+        let mut e = Concept::create();
+        let edge_type1 = Concept::create();
+        let edge_type2 = Concept::create();
         a.add_outgoing(edge_type1, b);
         a.add_outgoing(edge_type2, c);
         a.add_outgoing(edge_type1, d);
