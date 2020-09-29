@@ -15,8 +15,14 @@ pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Link this concept to another one via an outgoing edge.
     fn add_outgoing(&mut self, edge_type: T, to: T);
 
+    /// Link this concept to another one via an incoming edge.
+    fn add_incoming(&mut self, edge_type: T, from: T);
+
     /// All concepts that this one links to via outgoing edges of a certain type.
     fn outgoing_nodes(&self, edge_type: T) -> Vec<T>;
+
+    /// All concepts that this one links to via incoming edges of a certain type.
+    fn incoming_nodes(&self, edge_type: T) -> Vec<T>;
 }
 
 /// Implementation for the most basic of node wrappers. Offers no additional functionality.
@@ -86,9 +92,21 @@ impl BaseNodeTrait<BaseWrapper> for BaseWrapper {
         self.graph.add_edge(self.id(), edge_type.id(), to.id())
     }
 
+    fn add_incoming(&mut self, edge_type: BaseWrapper, from: BaseWrapper) {
+        self.graph.add_edge(from.id(), edge_type.id(), self.id())
+    }
+
     fn outgoing_nodes(&self, edge_type: BaseWrapper) -> Vec<BaseWrapper> {
         self.graph
             .outgoing_nodes(self.id(), edge_type.id())
+            .into_iter()
+            .map(|id| BaseWrapper::from(id))
+            .collect()
+    }
+
+    fn incoming_nodes(&self, edge_type: BaseWrapper) -> Vec<BaseWrapper> {
+        self.graph
+            .incoming_nodes(self.id(), edge_type.id())
             .into_iter()
             .map(|id| BaseWrapper::from(id))
             .collect()
@@ -155,5 +173,29 @@ mod tests {
         a.add_outgoing(edge_type1, d);
         e.add_outgoing(edge_type1, a);
         assert_eq!(a.outgoing_nodes(edge_type1), vec![b, d]);
+    }
+
+    #[test]
+    fn no_incoming_nodes() {
+        bind_in_memory_graph();
+        let a = BaseWrapper::create();
+        assert_eq!(a.incoming_nodes(a), Vec::new());
+    }
+
+    #[test]
+    fn incoming_nodes() {
+        bind_in_memory_graph();
+        let mut a = BaseWrapper::create();
+        let b = BaseWrapper::create();
+        let c = BaseWrapper::create();
+        let d = BaseWrapper::create();
+        let mut e = BaseWrapper::create();
+        let edge_type1 = BaseWrapper::create();
+        let edge_type2 = BaseWrapper::create();
+        a.add_incoming(edge_type1, b);
+        a.add_incoming(edge_type2, c);
+        a.add_incoming(edge_type1, d);
+        e.add_incoming(edge_type1, a);
+        assert_eq!(a.incoming_nodes(edge_type1), vec![b, d]);
     }
 }
