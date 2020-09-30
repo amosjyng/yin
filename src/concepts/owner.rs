@@ -78,13 +78,12 @@ impl ConceptTrait for Owner {
 
 impl AttributeTrait<Owner> for Owner {
     fn set_owner(&mut self, owner: Box<&dyn ConceptTrait>) {
-        self.base
-            .add_outgoing(Owner::type_concept().base, *owner.base());
+        self.base.add_outgoing(Owner::TYPE_ID, owner.base());
     }
 
     fn owner(&self) -> Option<Concept> {
         self.base
-            .outgoing_nodes(Owner::type_concept().base)
+            .outgoing_nodes(Owner::TYPE_ID)
             .get(0)
             .map(|n| Concept { base: *n })
     }

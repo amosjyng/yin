@@ -13,22 +13,22 @@ pub trait BaseNodeTrait<T>: CommonNodeTrait {
     fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>>;
 
     /// Link this node to another one via an outgoing edge.
-    fn add_outgoing(&mut self, edge_type: T, to: T);
+    fn add_outgoing(&mut self, edge_type: usize, to: &T);
 
     /// Link this node to another one via an incoming edge.
-    fn add_incoming(&mut self, edge_type: T, from: T);
+    fn add_incoming(&mut self, edge_type: usize, from: &T);
 
     /// Whether or not this node is linked to another one via an outgoing edge of a certain type.
-    fn has_outgoing(&self, edge_type: T, to: T) -> bool;
+    fn has_outgoing(&self, edge_type: usize, to: &T) -> bool;
 
     /// Whether or not this node is linked to another one via an outgoing edge of a certain type.
-    fn has_incoming(&self, edge_type: T, from: T) -> bool;
+    fn has_incoming(&self, edge_type: usize, from: &T) -> bool;
 
     /// All nodes that this one links to via outgoing edges of a certain type.
-    fn outgoing_nodes(&self, edge_type: T) -> Vec<T>;
+    fn outgoing_nodes(&self, edge_type: usize) -> Vec<T>;
 
     /// All nodes that this one links to via incoming edges of a certain type.
-    fn incoming_nodes(&self, edge_type: T) -> Vec<T>;
+    fn incoming_nodes(&self, edge_type: usize) -> Vec<T>;
 }
 
 /// Implementation for the most basic of node wrappers. Offers no additional functionality.
@@ -94,33 +94,33 @@ impl BaseNodeTrait<BaseWrapper> for BaseWrapper {
         self.graph.node_value(self.id)
     }
 
-    fn add_outgoing(&mut self, edge_type: BaseWrapper, to: BaseWrapper) {
-        self.graph.add_edge(self.id(), edge_type.id(), to.id())
+    fn add_outgoing(&mut self, edge_type: usize, to: &BaseWrapper) {
+        self.graph.add_edge(self.id(), edge_type, to.id())
     }
 
-    fn add_incoming(&mut self, edge_type: BaseWrapper, from: BaseWrapper) {
-        self.graph.add_edge(from.id(), edge_type.id(), self.id())
+    fn add_incoming(&mut self, edge_type: usize, from: &BaseWrapper) {
+        self.graph.add_edge(from.id(), edge_type, self.id())
     }
 
-    fn has_outgoing(&self, edge_type: BaseWrapper, to: BaseWrapper) -> bool {
-        self.graph.has_edge(self.id, edge_type.id, to.id)
+    fn has_outgoing(&self, edge_type: usize, to: &BaseWrapper) -> bool {
+        self.graph.has_edge(self.id, edge_type, to.id)
     }
 
-    fn has_incoming(&self, edge_type: BaseWrapper, from: BaseWrapper) -> bool {
-        self.graph.has_edge(from.id, edge_type.id, self.id)
+    fn has_incoming(&self, edge_type: usize, from: &BaseWrapper) -> bool {
+        self.graph.has_edge(from.id, edge_type, self.id)
     }
 
-    fn outgoing_nodes(&self, edge_type: BaseWrapper) -> Vec<BaseWrapper> {
+    fn outgoing_nodes(&self, edge_type: usize) -> Vec<BaseWrapper> {
         self.graph
-            .outgoing_nodes(self.id(), edge_type.id())
+            .outgoing_nodes(self.id(), edge_type)
             .into_iter()
             .map(|id| BaseWrapper::from(id))
             .collect()
     }
 
-    fn incoming_nodes(&self, edge_type: BaseWrapper) -> Vec<BaseWrapper> {
+    fn incoming_nodes(&self, edge_type: usize) -> Vec<BaseWrapper> {
         self.graph
-            .incoming_nodes(self.id(), edge_type.id())
+            .incoming_nodes(self.id(), edge_type)
             .into_iter()
             .map(|id| BaseWrapper::from(id))
             .collect()
@@ -169,7 +169,7 @@ mod tests {
     fn no_outgoing_nodes() {
         bind_in_memory_graph();
         let a = BaseWrapper::new();
-        assert_eq!(a.outgoing_nodes(a), Vec::new());
+        assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
 
     #[test]
@@ -182,18 +182,18 @@ mod tests {
         let mut e = BaseWrapper::new();
         let edge_type1 = BaseWrapper::new();
         let edge_type2 = BaseWrapper::new();
-        a.add_outgoing(edge_type1, b);
-        a.add_outgoing(edge_type2, c);
-        a.add_outgoing(edge_type1, d);
-        e.add_outgoing(edge_type1, a);
-        assert_eq!(a.outgoing_nodes(edge_type1), vec![b, d]);
+        a.add_outgoing(edge_type1.id(), &b);
+        a.add_outgoing(edge_type2.id(), &c);
+        a.add_outgoing(edge_type1.id(), &d);
+        e.add_outgoing(edge_type1.id(), &a);
+        assert_eq!(a.outgoing_nodes(edge_type1.id()), vec![b, d]);
     }
 
     #[test]
     fn no_incoming_nodes() {
         bind_in_memory_graph();
         let a = BaseWrapper::new();
-        assert_eq!(a.incoming_nodes(a), Vec::new());
+        assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
 
     #[test]
@@ -206,11 +206,11 @@ mod tests {
         let mut e = BaseWrapper::new();
         let edge_type1 = BaseWrapper::new();
         let edge_type2 = BaseWrapper::new();
-        a.add_incoming(edge_type1, b);
-        a.add_incoming(edge_type2, c);
-        a.add_incoming(edge_type1, d);
-        e.add_incoming(edge_type1, a);
-        assert_eq!(a.incoming_nodes(edge_type1), vec![b, d]);
+        a.add_incoming(edge_type1.id(), &b);
+        a.add_incoming(edge_type2.id(), &c);
+        a.add_incoming(edge_type1.id(), &d);
+        e.add_incoming(edge_type1.id(), &a);
+        assert_eq!(a.incoming_nodes(edge_type1.id()), vec![b, d]);
     }
 
     #[test]
@@ -220,10 +220,10 @@ mod tests {
         let b = BaseWrapper::new();
         let edge_type1 = BaseWrapper::new();
         let edge_type2 = BaseWrapper::new();
-        a.add_outgoing(edge_type1, b);
-        assert!(a.has_outgoing(edge_type1, b));
-        assert!(!a.has_outgoing(edge_type2, b));
-        assert!(!b.has_outgoing(edge_type1, a));
+        a.add_outgoing(edge_type1.id(), &b);
+        assert!(a.has_outgoing(edge_type1.id(), &b));
+        assert!(!a.has_outgoing(edge_type2.id(), &b));
+        assert!(!b.has_outgoing(edge_type1.id(), &a));
     }
 
     #[test]
@@ -233,9 +233,9 @@ mod tests {
         let b = BaseWrapper::new();
         let edge_type1 = BaseWrapper::new();
         let edge_type2 = BaseWrapper::new();
-        a.add_incoming(edge_type1, b);
-        assert!(a.has_incoming(edge_type1, b));
-        assert!(!a.has_incoming(edge_type2, b));
-        assert!(!b.has_incoming(edge_type1, a));
+        a.add_incoming(edge_type1.id(), &b);
+        assert!(a.has_incoming(edge_type1.id(), &b));
+        assert!(!a.has_incoming(edge_type2.id(), &b));
+        assert!(!b.has_incoming(edge_type1.id(), &a));
     }
 }
