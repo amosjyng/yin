@@ -11,6 +11,10 @@ thread_local! {
 /// Bind GRAPH to a new graph that sits entirely in memory.
 pub fn bind_in_memory_graph() {
     GRAPH.with(|g| *g.borrow_mut() = Box::new(InMemoryGraph::new()));
+    for _ in 0..2 {
+        // Initialize the graph with initial type nodes.
+        GRAPH.with(|g| g.borrow_mut().add_node());
+    }
 }
 
 /// Graph usable with dependency injection.

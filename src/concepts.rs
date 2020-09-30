@@ -20,35 +20,63 @@
 //! ```rust
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::concepts::Concept;
+//! use yin::concepts::{Concept, ConceptTypeTrait};
 //!
-//! let mut concept = Concept::create();
+//! let mut concept = Concept::new();
 //! ```
 //!
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use yin::concepts::Concept;
+//! # use yin::concepts::{Concept, ConceptTypeTrait};
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! # let mut concept = Concept::create();
+//! # let mut concept = Concept::new();
 //! use yin::wrappers::CommonNodeTrait;
 //!
 //! concept.set_internal_name("A".to_string());
 //! assert_eq!(concept.internal_name(), Some("A".to_string()));
 //! ```
 
+mod owner;
+
+pub use owner::Owner;
+
 use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
 use std::cmp::{Eq, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
 
+/// Interface for all concepts -- separate from ConceptTrait so that ConceptTrait can be a trait
+/// object.
+pub trait ConceptTypeTrait<T>: From<usize> {
+    /// ID for the node that represents this type of node.
+    const TYPE_ID: usize;
+
+    /// The type concept that represents all concepts of this type.
+    fn type_concept() -> Concept;
+
+    /// Create a new concept of this type.
+    fn new() -> T;
+}
+
 /// Interface for all concepts.
-pub trait ConceptTrait: CommonNodeTrait {}
+pub trait ConceptTrait: CommonNodeTrait {
+    /// Get down to the core of the abstraction.
+    fn base(&self) -> &BaseWrapper;
+
+    /// Upcast to a Concept.
+    fn as_concept(&self) -> Concept {
+        Concept {
+            base: self.base().clone(),
+        }
+    }
+}
 
 /// Implementation for a generic concept.
 #[derive(Copy, Clone)]
 pub struct Concept {
-    base: BaseWrapper,
+    /// Wrapper that this abstraction is based on.
+    pub base: BaseWrapper,
 }
 
 impl Debug for Concept {
@@ -65,18 +93,10 @@ impl PartialEq for Concept {
     }
 }
 
-impl<'a> Concept {
-    /// Create a concept wrapper from an existing node's ID.
-    pub fn from(id: usize) -> Self {
+impl From<usize> for Concept {
+    fn from(id: usize) -> Self {
         Concept {
             base: BaseWrapper::from(id),
-        }
-    }
-
-    /// Create a new concept.
-    pub fn create() -> Self {
-        Concept {
-            base: BaseWrapper::create(),
         }
     }
 }
@@ -95,23 +115,51 @@ impl CommonNodeTrait for Concept {
     }
 }
 
+impl ConceptTypeTrait<Concept> for Concept {
+    const TYPE_ID: usize = 0;
+
+    fn type_concept() -> Concept {
+        Concept {
+            base: BaseWrapper::from(Self::TYPE_ID),
+        }
+    }
+
+    fn new() -> Self {
+        Concept {
+            base: BaseWrapper::new(),
+        }
+    }
+}
+
+impl ConceptTrait for Concept {
+    fn base(&self) -> &BaseWrapper {
+        &self.base
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::graph::bind_in_memory_graph;
 
     #[test]
+    fn check_type_created() {
+        bind_in_memory_graph();
+        assert_eq!(Concept::type_concept().id(), Concept::TYPE_ID);
+    }
+
+    #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
-        let concept1 = Concept::create();
-        let concept2 = Concept::create();
+        let concept1 = Concept::new();
+        let concept2 = Concept::new();
         assert_eq!(concept1.id() + 1, concept2.id());
     }
 
     #[test]
     fn from_node_id() {
         bind_in_memory_graph();
-        let concept = Concept::create();
+        let concept = Concept::new();
         let concept_copy = Concept::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
     }
@@ -119,7 +167,7 @@ mod tests {
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut concept = Concept::create();
+        let mut concept = Concept::new();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some("A".to_string()));
     }

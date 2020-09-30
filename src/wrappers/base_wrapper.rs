@@ -48,7 +48,7 @@ impl BaseWrapper {
     }
 
     /// Create a new node.
-    pub fn create() -> Self {
+    pub fn new() -> Self {
         let mut g = InjectionGraph {};
         BaseWrapper {
             graph: g,
@@ -135,15 +135,15 @@ mod tests {
     #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
-        let node1 = BaseWrapper::create();
-        let node2 = BaseWrapper::create();
+        let node1 = BaseWrapper::new();
+        let node2 = BaseWrapper::new();
         assert_eq!(node1.id() + 1, node2.id());
     }
 
     #[test]
     fn from_node_id() {
         bind_in_memory_graph();
-        let node = BaseWrapper::create();
+        let node = BaseWrapper::new();
         let node_copy = BaseWrapper::from(node.id());
         assert_eq!(node.id(), node_copy.id());
     }
@@ -151,7 +151,7 @@ mod tests {
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut node = BaseWrapper::create();
+        let mut node = BaseWrapper::new();
         node.set_internal_name("A".to_string());
         assert_eq!(node.internal_name(), Some("A".to_string()));
     }
@@ -159,7 +159,7 @@ mod tests {
     #[test]
     fn retrieve_node_value() {
         bind_in_memory_graph();
-        let mut node = BaseWrapper::create();
+        let mut node = BaseWrapper::new();
         let v = Rc::new(5);
         node.set_value(Box::new(WeakWrapper::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
@@ -168,20 +168,20 @@ mod tests {
     #[test]
     fn no_outgoing_nodes() {
         bind_in_memory_graph();
-        let a = BaseWrapper::create();
+        let a = BaseWrapper::new();
         assert_eq!(a.outgoing_nodes(a), Vec::new());
     }
 
     #[test]
     fn outgoing_nodes() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::create();
-        let b = BaseWrapper::create();
-        let c = BaseWrapper::create();
-        let d = BaseWrapper::create();
-        let mut e = BaseWrapper::create();
-        let edge_type1 = BaseWrapper::create();
-        let edge_type2 = BaseWrapper::create();
+        let mut a = BaseWrapper::new();
+        let b = BaseWrapper::new();
+        let c = BaseWrapper::new();
+        let d = BaseWrapper::new();
+        let mut e = BaseWrapper::new();
+        let edge_type1 = BaseWrapper::new();
+        let edge_type2 = BaseWrapper::new();
         a.add_outgoing(edge_type1, b);
         a.add_outgoing(edge_type2, c);
         a.add_outgoing(edge_type1, d);
@@ -192,20 +192,20 @@ mod tests {
     #[test]
     fn no_incoming_nodes() {
         bind_in_memory_graph();
-        let a = BaseWrapper::create();
+        let a = BaseWrapper::new();
         assert_eq!(a.incoming_nodes(a), Vec::new());
     }
 
     #[test]
     fn incoming_nodes() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::create();
-        let b = BaseWrapper::create();
-        let c = BaseWrapper::create();
-        let d = BaseWrapper::create();
-        let mut e = BaseWrapper::create();
-        let edge_type1 = BaseWrapper::create();
-        let edge_type2 = BaseWrapper::create();
+        let mut a = BaseWrapper::new();
+        let b = BaseWrapper::new();
+        let c = BaseWrapper::new();
+        let d = BaseWrapper::new();
+        let mut e = BaseWrapper::new();
+        let edge_type1 = BaseWrapper::new();
+        let edge_type2 = BaseWrapper::new();
         a.add_incoming(edge_type1, b);
         a.add_incoming(edge_type2, c);
         a.add_incoming(edge_type1, d);
@@ -216,10 +216,10 @@ mod tests {
     #[test]
     fn test_has_outgoing() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::create();
-        let b = BaseWrapper::create();
-        let edge_type1 = BaseWrapper::create();
-        let edge_type2 = BaseWrapper::create();
+        let mut a = BaseWrapper::new();
+        let b = BaseWrapper::new();
+        let edge_type1 = BaseWrapper::new();
+        let edge_type2 = BaseWrapper::new();
         a.add_outgoing(edge_type1, b);
         assert!(a.has_outgoing(edge_type1, b));
         assert!(!a.has_outgoing(edge_type2, b));
@@ -229,10 +229,10 @@ mod tests {
     #[test]
     fn test_has_incoming() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::create();
-        let b = BaseWrapper::create();
-        let edge_type1 = BaseWrapper::create();
-        let edge_type2 = BaseWrapper::create();
+        let mut a = BaseWrapper::new();
+        let b = BaseWrapper::new();
+        let edge_type1 = BaseWrapper::new();
+        let edge_type2 = BaseWrapper::new();
         a.add_incoming(edge_type1, b);
         assert!(a.has_incoming(edge_type1, b));
         assert!(!a.has_incoming(edge_type2, b));
