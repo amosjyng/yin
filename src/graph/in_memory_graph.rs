@@ -63,10 +63,11 @@ impl<'a> Graph<'a> for InMemoryGraph {
 
     fn has_edge(&self, from: usize, edge_type: usize, to: usize) -> bool {
         // can't use petgraph's find_edge because it doesn't take into account the edge label
-        self.graph.edges_connecting(NodeIndex::new(from), NodeIndex::new(to))
-        .filter(|e| *e.weight() == edge_type)
-        .next()
-        .is_some()
+        self.graph
+            .edges_connecting(NodeIndex::new(from), NodeIndex::new(to))
+            .filter(|e| *e.weight() == edge_type)
+            .next()
+            .is_some()
     }
 
     fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize> {
