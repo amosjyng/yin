@@ -30,6 +30,10 @@ impl Graph<'static> for InvalidGraph {
         panic!("Initialize graph binding before use");
     }
 
+    fn has_edge(&self, _: usize, _: usize, _: usize) -> bool {
+        panic!("Initialize graph binding before use");
+    }
+
     fn outgoing_nodes(&self, _: usize, _: usize) -> Vec<usize> {
         panic!("Initialize graph binding before use")
     }

@@ -125,6 +125,9 @@ pub trait Graph<'a> {
     /// Add a labeled edge between two nodes. The label should be the ID of an existing node.
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize);
 
+    /// Checks for a labeled edge between two nodes. The label should be the ID of an existing node.
+    fn has_edge(&self, from: usize, edge_type: usize, to: usize) -> bool;
+
     /// Retrieve all node IDs that are on the other end of an outgoing edge of the given type.
     fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize>;
 

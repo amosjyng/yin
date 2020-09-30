@@ -61,6 +61,14 @@ impl<'a> Graph<'a> for InMemoryGraph {
             .add_edge(NodeIndex::new(from), NodeIndex::new(to), edge_type);
     }
 
+    fn has_edge(&self, from: usize, edge_type: usize, to: usize) -> bool {
+        // can't use petgraph's find_edge because it doesn't take into account the edge label
+        self.graph.edges_connecting(NodeIndex::new(from), NodeIndex::new(to))
+        .filter(|e| *e.weight() == edge_type)
+        .next()
+        .is_some()
+    }
+
     fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize> {
         let mut result: Vec<usize> = self
             .graph
@@ -232,6 +240,20 @@ mod tests {
         g.add_edge(a_id, edge_type1, d_id);
         assert_eq!(g.all_outgoing_nodes(a_id), vec![b_id, c_id, d_id]);
         assert_eq!(g.outgoing_nodes(a_id, edge_type1), vec![b_id, d_id]);
+    }
+
+    #[test]
+    fn test_has_edge() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        let edge_type1 = g.add_node();
+        let edge_type2 = g.add_node();
+        g.add_edge(a_id, edge_type1, b_id);
+        assert!(g.has_edge(a_id, edge_type1, b_id));
+        assert!(!g.has_edge(a_id, edge_type2, b_id));
+        assert!(!g.has_edge(b_id, edge_type2, a_id));
     }
 
     #[test]

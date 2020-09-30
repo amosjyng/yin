@@ -42,6 +42,10 @@ impl Graph<'static> for InjectionGraph {
         GRAPH.with(|g| g.borrow_mut().add_edge(from, edge_type, to))
     }
 
+    fn has_edge(&self, from: usize, edge_type: usize, to: usize) -> bool {
+        GRAPH.with(|g| g.borrow().has_edge(from, edge_type, to))
+    }
+
     fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize> {
         GRAPH.with(|g| g.borrow().outgoing_nodes(from, edge_type))
     }
