@@ -139,4 +139,7 @@ pub trait Graph<'a> {
 
     /// Retrieve all node IDs that are on the other end of incoming edges.
     fn all_incoming_nodes(&self, to: usize) -> Vec<usize>;
+
+    /// Outputs the entire graph in DOT format.
+    fn into_dot(&self) -> String;
 }

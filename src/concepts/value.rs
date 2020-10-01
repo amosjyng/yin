@@ -1,53 +1,38 @@
-use super::value::Value;
+use super::owner::{AttributeTrait, Owner};
 use crate::concepts::{Concept, ConceptTrait, ConceptTypeTrait};
 use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
 
-/// Interface for all attributes.
-pub trait AttributeTrait<T>: ConceptTrait {
-    /// Set the owner for this attribute.
-    fn set_owner(&mut self, owner: Box<&dyn ConceptTrait>);
-
-    /// The owner of an attribute, if it exists.
-    fn owner(&self) -> Option<Concept>;
-
-    /// Set the value for this attribute.
-    fn set_value(&mut self, value: Box<&dyn ConceptTrait>);
-
-    /// The value of an attribute, if it exists.
-    fn value(&self) -> Option<Concept>;
-}
-
-/// The owner/source/from-node of an attribute.
+/// The value/target/to-node of an attribute.
 #[derive(Copy, Clone)]
-pub struct Owner {
+pub struct Value {
     /// Wrapper that this abstraction is based on.
     pub base: BaseWrapper,
 }
 
-impl Debug for Owner {
+impl Debug for Value {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debug_wrapper("Owner", Box::new(self), f)
+        debug_wrapper("Value", Box::new(self), f)
     }
 }
 
-impl Eq for Owner {}
+impl Eq for Value {}
 
-impl PartialEq for Owner {
+impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
         self.id() == other.id()
     }
 }
 
-impl From<usize> for Owner {
+impl From<usize> for Value {
     fn from(id: usize) -> Self {
-        Owner {
+        Value {
             base: BaseWrapper::from(id),
         }
     }
 }
 
-impl CommonNodeTrait for Owner {
+impl CommonNodeTrait for Value {
     fn id(&self) -> usize {
         self.base.id()
     }
@@ -61,9 +46,9 @@ impl CommonNodeTrait for Owner {
     }
 }
 
-impl ConceptTypeTrait<Owner> for Owner {
-    const TYPE_ID: usize = 1;
-    const TYPE_NAME: &'static str = "Owner";
+impl ConceptTypeTrait<Value> for Value {
+    const TYPE_ID: usize = 2;
+    const TYPE_NAME: &'static str = "Value";
 
     fn type_concept() -> Concept {
         Concept {
@@ -72,19 +57,19 @@ impl ConceptTypeTrait<Owner> for Owner {
     }
 
     fn new() -> Self {
-        Owner {
+        Value {
             base: BaseWrapper::new(),
         }
     }
 }
 
-impl ConceptTrait for Owner {
+impl ConceptTrait for Value {
     fn base(&self) -> &BaseWrapper {
         &self.base
     }
 }
 
-impl AttributeTrait<Owner> for Owner {
+impl AttributeTrait<Value> for Value {
     fn set_owner(&mut self, owner: Box<&dyn ConceptTrait>) {
         self.base.add_outgoing(Owner::TYPE_ID, owner.base());
     }
@@ -116,30 +101,30 @@ mod tests {
     #[test]
     fn check_type_created() {
         bind_in_memory_graph();
-        assert_eq!(Owner::type_concept().id(), Owner::TYPE_ID);
+        assert_eq!(Value::type_concept().id(), Value::TYPE_ID);
         assert_eq!(
-            Owner::type_concept().internal_name(),
-            Some(Owner::TYPE_NAME.to_string())
+            Value::type_concept().internal_name(),
+            Some(Value::TYPE_NAME.to_string())
         );
     }
 
     #[test]
     fn get_owner() {
         bind_in_memory_graph();
-        let mut owner_instance = Owner::new();
-        let owner_of_owner = Owner::new();
-        owner_instance.set_owner(Box::new(&owner_of_owner));
-        assert_eq!(owner_instance.owner(), Some(owner_of_owner.as_concept()));
-        assert_eq!(owner_instance.value(), None);
+        let mut value_instance = Value::new();
+        let owner_of_value = Value::new();
+        value_instance.set_owner(Box::new(&owner_of_value));
+        assert_eq!(value_instance.owner(), Some(owner_of_value.as_concept()));
+        assert_eq!(value_instance.value(), None);
     }
 
     #[test]
     fn get_value() {
         bind_in_memory_graph();
-        let mut owner_instance = Owner::new();
-        let value_of_owner = Owner::new();
-        owner_instance.set_value(Box::new(&value_of_owner));
-        assert_eq!(owner_instance.owner(), None);
-        assert_eq!(owner_instance.value(), Some(value_of_owner.as_concept()));
+        let mut value_instance = Value::new();
+        let value_of_value = Value::new();
+        value_instance.set_value(Box::new(&value_of_value));
+        assert_eq!(value_instance.owner(), None);
+        assert_eq!(value_instance.value(), Some(value_of_value.as_concept()));
     }
 }

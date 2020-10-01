@@ -1,12 +1,26 @@
 use super::{Graph, KBWrapper};
+use petgraph::dot::Dot;
 use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
 use petgraph::Direction;
+use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 
 struct NodeInfo {
+    /// Store ID here as well in order to allow printing the ID as a label when no internal name is
+    /// assigned.
+    id: usize,
     name: Option<String>,
     value: Option<Rc<Box<dyn KBWrapper>>>,
+}
+
+impl Display for NodeInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match &self.name {
+            Some(name) => write!(f, "{}", name),
+            None => write!(f, "{}", self.id),
+        }
+    }
 }
 
 pub struct InMemoryGraph {
@@ -25,10 +39,13 @@ impl InMemoryGraph {
 impl<'a> Graph<'a> for InMemoryGraph {
     fn add_node(&mut self) -> usize {
         let new_node_info = NodeInfo {
+            id: 0,
             name: None,
             value: None,
         };
-        self.graph.add_node(new_node_info).index()
+        let new_id = self.graph.add_node(new_node_info);
+        self.graph.node_weight_mut(new_id).unwrap().id = new_id.index();
+        new_id.index()
     }
 
     fn set_node_value(&mut self, id: usize, value: Box<dyn KBWrapper>) {
@@ -110,6 +127,10 @@ impl<'a> Graph<'a> for InMemoryGraph {
             .collect();
         result.sort(); // sort for determinism
         result
+    }
+
+    fn into_dot(&self) -> String {
+        format!("{}", Dot::new(&self.graph))
     }
 }
 
@@ -323,5 +344,12 @@ mod tests {
         g.add_edge(d_id, edge_type1, a_id);
         assert_eq!(g.all_incoming_nodes(a_id), vec![b_id, c_id, d_id]);
         assert_eq!(g.incoming_nodes(a_id, edge_type1), vec![b_id, d_id]);
+    }
+
+    #[test]
+    fn test_into_dot() {
+        bind_in_memory_graph();
+        let g = InjectionGraph {};
+        assert!(g.into_dot().starts_with("digraph"));
     }
 }

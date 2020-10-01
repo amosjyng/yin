@@ -39,8 +39,10 @@
 //! ```
 
 mod owner;
+mod value;
 
 pub use owner::Owner;
+pub use value::Value;
 
 use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
 use std::cmp::{Eq, PartialEq};
@@ -51,6 +53,9 @@ use std::fmt::{Debug, Formatter, Result};
 pub trait ConceptTypeTrait<T>: From<usize> {
     /// ID for the node that represents this type of node.
     const TYPE_ID: usize;
+
+    /// String name for this type node.
+    const TYPE_NAME: &'static str;
 
     /// The type concept that represents all concepts of this type.
     fn type_concept() -> Concept;
@@ -117,6 +122,7 @@ impl CommonNodeTrait for Concept {
 
 impl ConceptTypeTrait<Concept> for Concept {
     const TYPE_ID: usize = 0;
+    const TYPE_NAME: &'static str = "Tao";
 
     fn type_concept() -> Concept {
         Concept {
@@ -146,6 +152,10 @@ mod tests {
     fn check_type_created() {
         bind_in_memory_graph();
         assert_eq!(Concept::type_concept().id(), Concept::TYPE_ID);
+        assert_eq!(
+            Concept::type_concept().internal_name(),
+            Some(Concept::TYPE_NAME.to_string())
+        );
     }
 
     #[test]

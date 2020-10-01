@@ -1,6 +1,7 @@
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
 use super::{Graph, KBWrapper};
+use crate::concepts::{Concept, ConceptTypeTrait, Owner, Value};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -8,13 +9,24 @@ thread_local! {
     static GRAPH: RefCell<Box<dyn Graph<'static>>> = RefCell::new(Box::new(InvalidGraph{}));
 }
 
+/// Add the given Concept type to the KB.
+#[macro_export]
+macro_rules! initialize_type {
+    ($g:expr, $t:ty) => {
+        $g.add_node();
+        $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
+    };
+}
+
 /// Bind GRAPH to a new graph that sits entirely in memory.
 pub fn bind_in_memory_graph() {
-    GRAPH.with(|g| *g.borrow_mut() = Box::new(InMemoryGraph::new()));
-    for _ in 0..2 {
-        // Initialize the graph with initial type nodes.
-        GRAPH.with(|g| g.borrow_mut().add_node());
-    }
+    GRAPH.with(|g| {
+        let mut img = InMemoryGraph::new();
+        initialize_type!(img, Concept);
+        initialize_type!(img, Owner);
+        initialize_type!(img, Value);
+        *g.borrow_mut() = Box::new(img);
+    });
 }
 
 /// Graph usable with dependency injection.
@@ -64,5 +76,9 @@ impl Graph<'static> for InjectionGraph {
 
     fn all_incoming_nodes(&self, to: usize) -> Vec<usize> {
         GRAPH.with(|g| g.borrow().all_incoming_nodes(to))
+    }
+
+    fn into_dot(&self) -> String {
+        GRAPH.with(|g| g.borrow().into_dot())
     }
 }

@@ -49,4 +49,8 @@ impl Graph<'static> for InvalidGraph {
     fn all_incoming_nodes(&self, _: usize) -> Vec<usize> {
         panic!("Initialize graph binding before use")
     }
+
+    fn into_dot(&self) -> String {
+        panic!("Initialize graph binding before use")
+    }
 }
