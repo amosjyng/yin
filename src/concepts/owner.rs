@@ -2,6 +2,7 @@ use super::value::Value;
 use crate::concepts::{Concept, ConceptTrait, ConceptTypeTrait};
 use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
+use std::rc::Rc;
 
 /// Interface for all attributes.
 pub trait AttributeTrait<T>: ConceptTrait {
@@ -56,7 +57,7 @@ impl CommonNodeTrait for Owner {
         self.base.set_internal_name(name);
     }
 
-    fn internal_name(&self) -> Option<String> {
+    fn internal_name(&self) -> Option<Rc<String>> {
         self.base.internal_name()
     }
 }
@@ -119,7 +120,7 @@ mod tests {
         assert_eq!(Owner::type_concept().id(), Owner::TYPE_ID);
         assert_eq!(
             Owner::type_concept().internal_name(),
-            Some(Owner::TYPE_NAME.to_string())
+            Some(Rc::new(Owner::TYPE_NAME.to_string()))
         );
     }
 

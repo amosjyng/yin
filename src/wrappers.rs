@@ -4,6 +4,7 @@ mod base_wrapper;
 
 pub use base_wrapper::{BaseNodeTrait, BaseWrapper};
 use std::fmt::{Formatter, Result};
+use std::rc::Rc;
 
 /// All wrappers around a graph node will always have these associated functions available.
 pub trait CommonNodeTrait {
@@ -14,7 +15,7 @@ pub trait CommonNodeTrait {
     fn set_internal_name(&mut self, name: String);
 
     /// The internal name that's associated with this concept, if one exists.
-    fn internal_name(&self) -> Option<String>;
+    fn internal_name(&self) -> Option<Rc<String>>;
 }
 
 pub fn debug_wrapper(

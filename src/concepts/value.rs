@@ -2,6 +2,7 @@ use super::owner::{AttributeTrait, Owner};
 use crate::concepts::{Concept, ConceptTrait, ConceptTypeTrait};
 use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
+use std::rc::Rc;
 
 /// The value/target/to-node of an attribute.
 #[derive(Copy, Clone)]
@@ -41,7 +42,7 @@ impl CommonNodeTrait for Value {
         self.base.set_internal_name(name);
     }
 
-    fn internal_name(&self) -> Option<String> {
+    fn internal_name(&self) -> Option<Rc<String>> {
         self.base.internal_name()
     }
 }
@@ -104,7 +105,7 @@ mod tests {
         assert_eq!(Value::type_concept().id(), Value::TYPE_ID);
         assert_eq!(
             Value::type_concept().internal_name(),
-            Some(Value::TYPE_NAME.to_string())
+            Some(Rc::new(Value::TYPE_NAME.to_string()))
         );
     }
 

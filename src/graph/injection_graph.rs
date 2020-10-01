@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 thread_local! {
-    static GRAPH: RefCell<Box<dyn Graph<'static>>> = RefCell::new(Box::new(InvalidGraph{}));
+    static GRAPH: RefCell<Box<dyn Graph>> = RefCell::new(Box::new(InvalidGraph{}));
 }
 
 /// Add the given Concept type to the KB.
@@ -33,9 +33,9 @@ pub fn bind_in_memory_graph() {
 #[derive(Copy, Clone)]
 pub struct InjectionGraph {}
 
-impl Graph<'static> for InjectionGraph {
+impl Graph for InjectionGraph {
     fn add_node(&mut self) -> usize {
-        GRAPH.with(|g| g.borrow_mut().add_node())
+        GRAPH.with(|g| g.borrow_mut().add_node().clone())
     }
 
     fn set_node_value(&mut self, id: usize, value: Box<dyn KBWrapper>) {
@@ -46,8 +46,8 @@ impl Graph<'static> for InjectionGraph {
         GRAPH.with(|g| g.borrow_mut().set_node_name(id, name))
     }
 
-    fn node_name(&self, id: usize) -> Option<String> {
-        GRAPH.with(|g| g.borrow().node_name(id).map(|n| n.clone()))
+    fn node_name(&self, id: usize) -> Option<Rc<String>> {
+        GRAPH.with(|g| g.borrow().node_name(id))
     }
 
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>> {

@@ -33,9 +33,10 @@
 //! # bind_in_memory_graph();
 //! # let mut concept = Concept::new();
 //! use yin::wrappers::CommonNodeTrait;
+//! use std::rc::Rc;
 //!
 //! concept.set_internal_name("A".to_string());
-//! assert_eq!(concept.internal_name(), Some("A".to_string()));
+//! assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
 //! ```
 
 mod owner;
@@ -47,6 +48,7 @@ pub use value::Value;
 use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
 use std::cmp::{Eq, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
+use std::rc::Rc;
 
 /// Interface for all concepts -- separate from ConceptTrait so that ConceptTrait can be a trait
 /// object.
@@ -115,7 +117,7 @@ impl CommonNodeTrait for Concept {
         self.base.set_internal_name(name);
     }
 
-    fn internal_name(&self) -> Option<String> {
+    fn internal_name(&self) -> Option<Rc<String>> {
         self.base.internal_name()
     }
 }
@@ -154,7 +156,7 @@ mod tests {
         assert_eq!(Concept::type_concept().id(), Concept::TYPE_ID);
         assert_eq!(
             Concept::type_concept().internal_name(),
-            Some(Concept::TYPE_NAME.to_string())
+            Some(Rc::new(Concept::TYPE_NAME.to_string()))
         );
     }
 
@@ -179,6 +181,6 @@ mod tests {
         bind_in_memory_graph();
         let mut concept = Concept::new();
         concept.set_internal_name("A".to_string());
-        assert_eq!(concept.internal_name(), Some("A".to_string()));
+        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
     }
 }

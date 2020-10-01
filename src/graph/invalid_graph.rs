@@ -5,7 +5,7 @@ use std::rc::Rc;
 /// Invalid default graph.
 pub struct InvalidGraph {}
 
-impl Graph<'static> for InvalidGraph {
+impl Graph for InvalidGraph {
     fn add_node(&mut self) -> usize {
         panic!("Initialize graph binding before use");
     }
@@ -18,7 +18,7 @@ impl Graph<'static> for InvalidGraph {
         panic!("Initialize graph binding before use");
     }
 
-    fn node_name(&self, _: usize) -> Option<String> {
+    fn node_name(&self, _: usize) -> Option<Rc<String>> {
         panic!("Initialize graph binding before use");
     }
 

@@ -39,8 +39,10 @@
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph {};
 //! # let a_id = g.add_node();
+//! use std::rc::Rc;
+//!
 //! g.set_node_name(a_id, "A".to_string());
-//! assert_eq!(g.node_name(a_id), Some("A".to_string()));
+//! assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
 //! ```
 //!
 //! We can also set a value for the node:
@@ -105,7 +107,7 @@ pub use kb_wrapper::{unwrap_weak, KBWrapper, WeakWrapper};
 use std::rc::Rc;
 
 /// A classic directed Graph with nodes and labeled links.
-pub trait Graph<'a> {
+pub trait Graph {
     /// Adds a new node to the graph, and returns the node's ID.
     fn add_node(&mut self) -> usize;
 
@@ -116,7 +118,7 @@ pub trait Graph<'a> {
     fn set_node_name(&mut self, id: usize, name: String);
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or is unnamed.
-    fn node_name(&self, id: usize) -> Option<String>;
+    fn node_name(&self, id: usize) -> Option<Rc<String>>;
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.

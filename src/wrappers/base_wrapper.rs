@@ -80,7 +80,7 @@ impl CommonNodeTrait for BaseWrapper {
         self.graph.set_node_name(self.id, name);
     }
 
-    fn internal_name(&self) -> Option<String> {
+    fn internal_name(&self) -> Option<Rc<String>> {
         self.graph.node_name(self.id).map(|n| n.clone())
     }
 }
@@ -153,7 +153,7 @@ mod tests {
         bind_in_memory_graph();
         let mut node = BaseWrapper::new();
         node.set_internal_name("A".to_string());
-        assert_eq!(node.internal_name(), Some("A".to_string()));
+        assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
     }
 
     #[test]

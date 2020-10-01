@@ -10,11 +10,11 @@ struct NodeInfo {
     /// Store ID here as well in order to allow printing the ID as a label when no internal name is
     /// assigned.
     id: usize,
-    name: Option<String>,
+    name: Option<Rc<String>>,
     value: Option<Rc<Box<dyn KBWrapper>>>,
 }
 
-impl Display for NodeInfo {
+impl<'a> Display for NodeInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match &self.name {
             Some(name) => write!(f, "{}", name),
@@ -23,20 +23,36 @@ impl Display for NodeInfo {
     }
 }
 
-pub struct InMemoryGraph {
-    graph: petgraph::graph::Graph<NodeInfo, usize>,
+/// Wrapper for edge's type ID so that it can have its own Display when it comes time for printing
+/// out its label.
+struct EdgeInfo {
+    type_id: usize,
+    type_name: Option<Rc<String>>,
 }
 
-impl InMemoryGraph {
-    /// Constructs an empty new in-memory graph
-    pub fn new() -> Self {
-        InMemoryGraph {
-            graph: petgraph::graph::Graph::<NodeInfo, usize>::new(),
+impl Display for EdgeInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match &self.type_name {
+            Some(name) => write!(f, "{}", name),
+            None => write!(f, "{}", self.type_id),
         }
     }
 }
 
-impl<'a> Graph<'a> for InMemoryGraph {
+pub struct InMemoryGraph {
+    graph: petgraph::graph::Graph<NodeInfo, EdgeInfo>,
+}
+
+impl<'a> InMemoryGraph {
+    /// Constructs an empty new in-memory graph
+    pub fn new() -> Self {
+        InMemoryGraph {
+            graph: petgraph::graph::Graph::new(),
+        }
+    }
+}
+
+impl<'a> Graph for InMemoryGraph {
     fn add_node(&mut self) -> usize {
         let new_node_info = NodeInfo {
             id: 0,
@@ -56,13 +72,13 @@ impl<'a> Graph<'a> for InMemoryGraph {
     }
 
     fn set_node_name(&mut self, id: usize, name: String) {
-        self.graph.node_weight_mut(NodeIndex::new(id)).unwrap().name = Some(name);
+        self.graph.node_weight_mut(NodeIndex::new(id)).unwrap().name = Some(Rc::new(name));
     }
 
-    fn node_name(&self, id: usize) -> Option<String> {
+    fn node_name(&self, id: usize) -> Option<Rc<String>> {
         self.graph
             .node_weight(NodeIndex::new(id))
-            .map(|info| info.name.as_ref().map(|n| n.clone()))
+            .map(|info| info.name.as_ref().map(|rc| rc.clone()))
             .flatten()
     }
 
@@ -74,15 +90,19 @@ impl<'a> Graph<'a> for InMemoryGraph {
     }
 
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
+        let edge_info = EdgeInfo {
+            type_id: edge_type,
+            type_name: self.node_name(edge_type),
+        };
         self.graph
-            .add_edge(NodeIndex::new(from), NodeIndex::new(to), edge_type);
+            .add_edge(NodeIndex::new(from), NodeIndex::new(to), edge_info);
     }
 
     fn has_edge(&self, from: usize, edge_type: usize, to: usize) -> bool {
         // can't use petgraph's find_edge because it doesn't take into account the edge label
         self.graph
             .edges_connecting(NodeIndex::new(from), NodeIndex::new(to))
-            .filter(|e| *e.weight() == edge_type)
+            .filter(|e| e.weight().type_id == edge_type)
             .next()
             .is_some()
     }
@@ -91,7 +111,7 @@ impl<'a> Graph<'a> for InMemoryGraph {
         let mut result: Vec<usize> = self
             .graph
             .edges_directed(NodeIndex::new(from), Direction::Outgoing)
-            .filter(|e| *e.weight() == edge_type)
+            .filter(|e| e.weight().type_id == edge_type)
             .map(|e| e.target().index())
             .collect();
         result.sort(); // sort for determinism
@@ -102,7 +122,7 @@ impl<'a> Graph<'a> for InMemoryGraph {
         let mut result: Vec<usize> = self
             .graph
             .edges_directed(NodeIndex::new(to), Direction::Incoming)
-            .filter(|e| *e.weight() == edge_type)
+            .filter(|e| e.weight().type_id == edge_type)
             .map(|e| e.source().index())
             .collect();
         result.sort(); // sort for determinism
@@ -138,6 +158,7 @@ impl<'a> Graph<'a> for InMemoryGraph {
 mod tests {
     use super::super::*;
     use super::*;
+    use crate::concepts::{ConceptTypeTrait, Owner};
 
     #[test]
     fn in_memory_graph_create() {
@@ -181,7 +202,7 @@ mod tests {
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
         g.set_node_name(a_id, "A".to_string());
-        assert_eq!(g.node_name(a_id), Some("A".to_string()));
+        assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
     }
 
     #[test]
@@ -192,7 +213,7 @@ mod tests {
         let v = Rc::new(5);
         g.set_node_name(a_id, "A".to_string());
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
-        assert_eq!(g.node_name(a_id), Some("A".to_string()));
+        assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
         assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
     }
 
@@ -349,7 +370,19 @@ mod tests {
     #[test]
     fn test_into_dot() {
         bind_in_memory_graph();
-        let g = InjectionGraph {};
-        assert!(g.into_dot().starts_with("digraph"));
+        let mut g = InjectionGraph {};
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        g.set_node_name(b_id, "B node".to_owned());
+        g.add_edge(a_id, Owner::TYPE_ID, b_id);
+
+        let dot_representation = g.into_dot();
+        println!("{}", dot_representation);
+        assert!(dot_representation.starts_with("digraph"));
+        assert!(dot_representation.contains(" [ label = \"B node\" ]"));
+        assert_eq!(
+            dot_representation.matches(" [ label = \"Owner\" ]").count(),
+            2
+        );
     }
 }
