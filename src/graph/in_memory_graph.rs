@@ -158,7 +158,7 @@ impl<'a> Graph for InMemoryGraph {
 mod tests {
     use super::super::*;
     use super::*;
-    use crate::concepts::{ConceptTypeTrait, Owner};
+    use crate::concepts::{ArchetypeTrait, Owner};
 
     #[test]
     fn in_memory_graph_create() {

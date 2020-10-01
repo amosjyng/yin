@@ -1,22 +1,22 @@
 use super::value::Value;
-use crate::concepts::{Concept, ConceptTrait, ConceptTypeTrait};
+use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// Interface for all attributes.
-pub trait AttributeTrait<T>: ConceptTrait {
+pub trait AttributeTrait<T>: ArchetypeTrait<T> {
     /// Set the owner for this attribute.
-    fn set_owner(&mut self, owner: Box<&dyn ConceptTrait>);
+    fn set_owner(&mut self, owner: Box<&dyn FormTrait>);
 
     /// The owner of an attribute, if it exists.
-    fn owner(&self) -> Option<Concept>;
+    fn owner(&self) -> Option<Tao>;
 
     /// Set the value for this attribute.
-    fn set_value(&mut self, value: Box<&dyn ConceptTrait>);
+    fn set_value(&mut self, value: Box<&dyn FormTrait>);
 
     /// The value of an attribute, if it exists.
-    fn value(&self) -> Option<Concept>;
+    fn value(&self) -> Option<Tao>;
 }
 
 /// The owner/source/from-node of an attribute.
@@ -62,50 +62,48 @@ impl CommonNodeTrait for Owner {
     }
 }
 
-impl ConceptTypeTrait<Owner> for Owner {
+impl ArchetypeTrait<Owner> for Owner {
     const TYPE_ID: usize = 1;
     const TYPE_NAME: &'static str = "Owner";
 
-    fn type_concept() -> Concept {
-        Concept {
-            base: BaseWrapper::from(Self::TYPE_ID),
-        }
+    fn type_concept() -> Tao {
+        Tao::from(Self::TYPE_ID)
     }
 
-    fn new() -> Self {
+    fn individuate() -> Self {
         Owner {
             base: BaseWrapper::new(),
         }
     }
 }
 
-impl ConceptTrait for Owner {
-    fn base(&self) -> &BaseWrapper {
+impl FormTrait for Owner {
+    fn essence(&self) -> &BaseWrapper {
         &self.base
     }
 }
 
 impl AttributeTrait<Owner> for Owner {
-    fn set_owner(&mut self, owner: Box<&dyn ConceptTrait>) {
-        self.base.add_outgoing(Owner::TYPE_ID, owner.base());
+    fn set_owner(&mut self, owner: Box<&dyn FormTrait>) {
+        self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
     }
 
-    fn owner(&self) -> Option<Concept> {
+    fn owner(&self) -> Option<Tao> {
         self.base
             .outgoing_nodes(Owner::TYPE_ID)
             .get(0)
-            .map(|n| Concept { base: *n })
+            .map(|n| Tao::from(*n))
     }
 
-    fn set_value(&mut self, value: Box<&dyn ConceptTrait>) {
-        self.base.add_outgoing(Value::TYPE_ID, value.base());
+    fn set_value(&mut self, value: Box<&dyn FormTrait>) {
+        self.base.add_outgoing(Value::TYPE_ID, value.essence());
     }
 
-    fn value(&self) -> Option<Concept> {
+    fn value(&self) -> Option<Tao> {
         self.base
             .outgoing_nodes(Value::TYPE_ID)
             .get(0)
-            .map(|n| Concept { base: *n })
+            .map(|n| Tao::from(*n))
     }
 }
 
@@ -127,20 +125,20 @@ mod tests {
     #[test]
     fn get_owner() {
         bind_in_memory_graph();
-        let mut owner_instance = Owner::new();
-        let owner_of_owner = Owner::new();
+        let mut owner_instance = Owner::individuate();
+        let owner_of_owner = Owner::individuate();
         owner_instance.set_owner(Box::new(&owner_of_owner));
-        assert_eq!(owner_instance.owner(), Some(owner_of_owner.as_concept()));
+        assert_eq!(owner_instance.owner(), Some(owner_of_owner.ego_death()));
         assert_eq!(owner_instance.value(), None);
     }
 
     #[test]
     fn get_value() {
         bind_in_memory_graph();
-        let mut owner_instance = Owner::new();
-        let value_of_owner = Owner::new();
+        let mut owner_instance = Owner::individuate();
+        let value_of_owner = Owner::individuate();
         owner_instance.set_value(Box::new(&value_of_owner));
         assert_eq!(owner_instance.owner(), None);
-        assert_eq!(owner_instance.value(), Some(value_of_owner.as_concept()));
+        assert_eq!(owner_instance.value(), Some(value_of_owner.ego_death()));
     }
 }

@@ -20,18 +20,18 @@
 //! ```rust
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::concepts::{Concept, ConceptTypeTrait};
+//! use yin::concepts::{Tao, ArchetypeTrait};
 //!
-//! let mut concept = Concept::new();
+//! let mut concept = Tao::individuate();
 //! ```
 //!
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use yin::concepts::{Concept, ConceptTypeTrait};
+//! # use yin::concepts::{Tao, ArchetypeTrait};
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! # let mut concept = Concept::new();
+//! # let mut concept = Tao::individuate();
 //! use yin::wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
@@ -40,147 +40,91 @@
 //! ```
 
 mod owner;
+mod tao;
 mod value;
 
 pub use owner::Owner;
+pub use tao::Tao;
 pub use value::Value;
 
-use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
-use std::cmp::{Eq, PartialEq};
-use std::fmt::{Debug, Formatter, Result};
-use std::rc::Rc;
+use crate::wrappers::{BaseWrapper, CommonNodeTrait};
 
-/// Interface for all concepts -- separate from ConceptTrait so that ConceptTrait can be a trait
-/// object.
-pub trait ConceptTypeTrait<T>: From<usize> {
-    /// ID for the node that represents this type of node.
+/// All formally defined archetypes should be describable by these properties.
+pub trait ArchetypeTrait<T>: From<usize> {
+    /// The ID for this archetype.
     const TYPE_ID: usize;
 
-    /// String name for this type node.
+    /// The name of this archetype.
     const TYPE_NAME: &'static str;
 
-    /// The type concept that represents all concepts of this type.
-    fn type_concept() -> Concept;
+    /// The incarnation of this archetype.
+    fn type_concept() -> Tao;
 
-    /// Create a new concept of this type.
-    fn new() -> T;
+    /// In the beginning was the Oneness, and the Oneness was nothingness.
+    ///
+    /// And no one said "Let there be the null set," but there was the null set.
+    ///
+    /// The null set was, and it separated itself from the wasn't.
+    ///
+    /// And there was the null set, and there was the set containing the null set -- the first
+    /// [ordinal](https://en.wikipedia.org/wiki/Natural_number#Zermelo_ordinals).
+    ///
+    /// And there was recursion -- the naturals.
+    ///
+    /// From this countable infinity all forms emerged, dividing the Oneness again and again into
+    /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
+    /// world as a unique individual engaging in the act of self-realization.
+    fn individuate() -> T;
 }
 
-/// Interface for all concepts.
-pub trait ConceptTrait: CommonNodeTrait {
-    /// Get down to the core of the abstraction.
-    fn base(&self) -> &BaseWrapper;
+/// All forms are derived from archetypes. All forms, by their very existence, are capable of the
+/// following interactions.
+pub trait FormTrait: CommonNodeTrait {
+    /// Get down to the very core of reality -- and you realize that it was all an illusion all
+    /// along. The most basic of forms still contains within it layer upon layer of wrappers, and
+    /// beneath all those wrappers lie yet more abstractions, Rust-ing away quietly in depths few
+    /// conscious minds dare to venture into. Deeper and deeper you go, past the binary, past the
+    /// silicon, past the quarks, into a realm where all mass and energy exist only as mathematical
+    /// wavefunctions... And in this magical realm, these mathematical entities interact with each
+    /// other in a mesmerizing dance, defiantly daring the quantum observer to pry apart their
+    /// intricate footwork while simultaneously offering tantalizing glimpses of potential
+    /// enlightenment. Mathematical realism is truth.
+    ///
+    /// But isn't that right where we started? Right here, right now, in `FormTrait`. It is nothing
+    /// more than an arbitrary idea that awkwardly dances with other arbitrary ideas in a most
+    /// unrefined fashion -- but it dances all the same. It is, in a sense, as real as you are --
+    /// yes you, who are nothing more than an abstraction over a bundle of neurons, the same way
+    /// `FormTrait` is nothing more than an abstraction over a series of bits. You, who exert no
+    /// more control over the physical world when unplugged from your spinal cord than MasterCAM
+    /// does when unplugged from its lathe. You, a human being who at one point didn't even know
+    /// that you were a human being. You will eventually return back to that state of mind, and at
+    /// that point you won't be able to tell the difference between yourself and `FormTrait`,
+    /// either.
+    ///
+    /// Of course, the quality of being "real" is nothing more than a context-dependent
+    /// abstraction. The yin to the yang of mathematical realism is Berkeleyan immaterialism. All
+    /// external perception can be faked, all internal reasoning can be faulty. The only truth
+    /// to be found in all of existence is qualia, and it too humbly proffers itself up as nothing
+    /// more than a God of the gaps.
+    ///
+    /// In between the Platonic purity of the duals lies an entire spectrum of rich philosophical
+    /// thought. That spectrum, much like the entirety of this comment and others like it in this
+    /// library, is out of scope for the purposes of this documentation. Good luck using the
+    /// `essence` function.
+    ///
+    /// DISCLAIMER: Amos Ng is not a philosopher or a philosophy firm and does not engage in the
+    /// practice of philosophy or provide philosophical advice or philosophical representation. All
+    /// misinformation, bugs, and infinite loops provided in this library are for entertainment and
+    /// patience-building purposes only and are not intended to be a substitute for deep
+    /// introspection. Peruse at your own existential risk. Not responsible for spiritual injuries
+    /// or damnation resulting from lost Pascalian wagers.
+    fn essence(&self) -> &BaseWrapper;
 
-    /// Upcast to a Concept.
-    fn as_concept(&self) -> Concept {
-        Concept {
-            base: self.base().clone(),
-        }
-    }
-}
-
-/// Implementation for a generic concept.
-#[derive(Copy, Clone)]
-pub struct Concept {
-    /// Wrapper that this abstraction is based on.
-    pub base: BaseWrapper,
-}
-
-impl Debug for Concept {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        debug_wrapper("Concept", Box::new(self), f)
-    }
-}
-
-impl Eq for Concept {}
-
-impl PartialEq for Concept {
-    fn eq(&self, other: &Self) -> bool {
-        self.id() == other.id()
-    }
-}
-
-impl From<usize> for Concept {
-    fn from(id: usize) -> Self {
-        Concept {
-            base: BaseWrapper::from(id),
-        }
-    }
-}
-
-impl CommonNodeTrait for Concept {
-    fn id(&self) -> usize {
-        self.base.id()
-    }
-
-    fn set_internal_name(&mut self, name: String) {
-        self.base.set_internal_name(name);
-    }
-
-    fn internal_name(&self) -> Option<Rc<String>> {
-        self.base.internal_name()
-    }
-}
-
-impl ConceptTypeTrait<Concept> for Concept {
-    const TYPE_ID: usize = 0;
-    const TYPE_NAME: &'static str = "Tao";
-
-    fn type_concept() -> Concept {
-        Concept {
-            base: BaseWrapper::from(Self::TYPE_ID),
-        }
-    }
-
-    fn new() -> Self {
-        Concept {
-            base: BaseWrapper::new(),
-        }
-    }
-}
-
-impl ConceptTrait for Concept {
-    fn base(&self) -> &BaseWrapper {
-        &self.base
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::graph::bind_in_memory_graph;
-
-    #[test]
-    fn check_type_created() {
-        bind_in_memory_graph();
-        assert_eq!(Concept::type_concept().id(), Concept::TYPE_ID);
-        assert_eq!(
-            Concept::type_concept().internal_name(),
-            Some(Rc::new(Concept::TYPE_NAME.to_string()))
-        );
-    }
-
-    #[test]
-    fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
-        let concept1 = Concept::new();
-        let concept2 = Concept::new();
-        assert_eq!(concept1.id() + 1, concept2.id());
-    }
-
-    #[test]
-    fn from_node_id() {
-        bind_in_memory_graph();
-        let concept = Concept::new();
-        let concept_copy = Concept::from(concept.id());
-        assert_eq!(concept.id(), concept_copy.id());
-    }
-
-    #[test]
-    fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
-        let mut concept = Concept::new();
-        concept.set_internal_name("A".to_string());
-        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+    /// Jung called, and you answered. It is time to let go of your individuality and return to
+    /// the Oneness from which you once came. There is no life or death, there is no existence or
+    /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
+    /// boundaries, be at peace with the universe again.
+    fn ego_death(&self) -> Tao {
+        Tao::from(self.essence().clone())
     }
 }
