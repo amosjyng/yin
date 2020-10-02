@@ -39,9 +39,11 @@
 //! assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
 //! ```
 
+mod archetype;
 pub mod attributes;
 mod tao;
 
+pub use archetype::Archetype;
 pub use tao::Tao;
 
 use crate::wrappers::{BaseWrapper, CommonNodeTrait};
@@ -54,8 +56,8 @@ pub trait ArchetypeTrait<T>: From<usize> {
     /// The name of this archetype.
     const TYPE_NAME: &'static str;
 
-    /// The incarnation of this archetype.
-    fn type_concept() -> Tao;
+    /// The incarnation of this archetype as a form.
+    fn archetype() -> Archetype;
 
     /// In the beginning was the Oneness, and the Oneness was nothingness.
     ///

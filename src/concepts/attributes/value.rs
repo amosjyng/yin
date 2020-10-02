@@ -1,5 +1,5 @@
 use super::{Attribute, AttributeTrait};
-use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
+use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
 use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
@@ -47,11 +47,11 @@ impl CommonNodeTrait for Value {
 }
 
 impl ArchetypeTrait<Value> for Value {
-    const TYPE_ID: usize = 3;
+    const TYPE_ID: usize = 4;
     const TYPE_NAME: &'static str = "Value";
 
-    fn type_concept() -> Tao {
-        Tao::from(Self::TYPE_ID)
+    fn archetype() -> Archetype {
+        Archetype::from(Self::TYPE_ID)
     }
 
     fn individuate() -> Self {
@@ -93,9 +93,9 @@ mod tests {
     #[test]
     fn check_type_created() {
         bind_in_memory_graph();
-        assert_eq!(Value::type_concept().id(), Value::TYPE_ID);
+        assert_eq!(Value::archetype().id(), Value::TYPE_ID);
         assert_eq!(
-            Value::type_concept().internal_name(),
+            Value::archetype().internal_name(),
             Some(Rc::new(Value::TYPE_NAME.to_string()))
         );
     }

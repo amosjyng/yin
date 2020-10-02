@@ -1,11 +1,12 @@
-/// Attributes form unary and binary relations between entities.
+//! Contains all attribute archetypes.
+
 mod owner;
 mod value;
 
 pub use owner::Owner;
 pub use value::Value;
 
-use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
+use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
 use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
@@ -25,7 +26,7 @@ pub trait AttributeTrait<T>: ArchetypeTrait<T> {
     fn value(&self) -> Option<Tao>;
 }
 
-/// Attribute
+/// Represents either a unary or binary relation.
 #[derive(Copy, Clone)]
 pub struct Attribute {
     /// Wrapper that this abstraction is based on.
@@ -69,11 +70,11 @@ impl CommonNodeTrait for Attribute {
 }
 
 impl ArchetypeTrait<Attribute> for Attribute {
-    const TYPE_ID: usize = 1;
+    const TYPE_ID: usize = 2;
     const TYPE_NAME: &'static str = "Attribute";
 
-    fn type_concept() -> Tao {
-        Tao::from(Self::TYPE_ID)
+    fn archetype() -> Archetype {
+        Archetype::from(Self::TYPE_ID)
     }
 
     fn individuate() -> Self {
@@ -121,9 +122,9 @@ mod tests {
     #[test]
     fn check_type_created() {
         bind_in_memory_graph();
-        assert_eq!(Attribute::type_concept().id(), Attribute::TYPE_ID);
+        assert_eq!(Attribute::archetype().id(), Attribute::TYPE_ID);
         assert_eq!(
-            Attribute::type_concept().internal_name(),
+            Attribute::archetype().internal_name(),
             Some(Rc::new(Attribute::TYPE_NAME.to_string()))
         );
     }

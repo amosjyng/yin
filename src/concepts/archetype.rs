@@ -1,54 +1,43 @@
-use crate::concepts::{Archetype, ArchetypeTrait, FormTrait};
+use crate::concepts::{ArchetypeTrait, FormTrait};
 use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
-/// The Tao that can be made into a `struct` is not the eternal Tao.
-///
-/// The name that can be put into a `String` is not the eternal name.
-///
-/// The unlabeled: ones and zeroes that ground this digital world.
-///
-/// The labels: documentation that forms ten thousand abstractions.
-///
-/// ***
-///
-/// (What's that, I could've just called this the "root" node? But where's the *fun* in that? Next
-/// you're going to tell me not to GPL this motherfucker.)
+/// Represents an archetype from which various individual nodes can be derived.
 #[derive(Copy, Clone)]
-pub struct Tao {
+pub struct Archetype {
     base: BaseWrapper,
 }
 
-impl Debug for Tao {
+impl Debug for Archetype {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debug_wrapper("Tao", Box::new(self), f)
+        debug_wrapper("Archetype", Box::new(self), f)
     }
 }
 
-impl Eq for Tao {}
+impl Eq for Archetype {}
 
-impl PartialEq for Tao {
+impl PartialEq for Archetype {
     fn eq(&self, other: &Self) -> bool {
         self.id() == other.id()
     }
 }
 
-impl From<usize> for Tao {
+impl From<usize> for Archetype {
     fn from(id: usize) -> Self {
-        Tao {
+        Archetype {
             base: BaseWrapper::from(id),
         }
     }
 }
 
-impl From<BaseWrapper> for Tao {
+impl From<BaseWrapper> for Archetype {
     fn from(bw: BaseWrapper) -> Self {
-        Tao { base: bw }
+        Archetype { base: bw }
     }
 }
 
-impl CommonNodeTrait for Tao {
+impl CommonNodeTrait for Archetype {
     fn id(&self) -> usize {
         self.base.id()
     }
@@ -62,22 +51,22 @@ impl CommonNodeTrait for Tao {
     }
 }
 
-impl ArchetypeTrait<Tao> for Tao {
-    const TYPE_ID: usize = 0;
-    const TYPE_NAME: &'static str = "Tao";
+impl ArchetypeTrait<Archetype> for Archetype {
+    const TYPE_ID: usize = 1;
+    const TYPE_NAME: &'static str = "Archetype";
 
     fn archetype() -> Archetype {
         Archetype::from(Self::TYPE_ID)
     }
 
     fn individuate() -> Self {
-        Tao {
+        Archetype {
             base: BaseWrapper::new(),
         }
     }
 }
 
-impl FormTrait for Tao {
+impl FormTrait for Archetype {
     fn essence(&self) -> &BaseWrapper {
         &self.base
     }
@@ -91,33 +80,33 @@ mod tests {
     #[test]
     fn check_type_created() {
         bind_in_memory_graph();
-        assert_eq!(Tao::archetype().id(), Tao::TYPE_ID);
+        assert_eq!(Archetype::archetype().id(), Archetype::TYPE_ID);
         assert_eq!(
-            Tao::archetype().internal_name(),
-            Some(Rc::new(Tao::TYPE_NAME.to_string()))
+            Archetype::archetype().internal_name(),
+            Some(Rc::new(Archetype::TYPE_NAME.to_string()))
         );
     }
 
     #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
-        let concept1 = Tao::individuate();
-        let concept2 = Tao::individuate();
+        let concept1 = Archetype::individuate();
+        let concept2 = Archetype::individuate();
         assert_eq!(concept1.id() + 1, concept2.id());
     }
 
     #[test]
     fn from_node_id() {
         bind_in_memory_graph();
-        let concept = Tao::individuate();
-        let concept_copy = Tao::from(concept.id());
+        let concept = Archetype::individuate();
+        let concept_copy = Archetype::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
     }
 
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut concept = Tao::individuate();
+        let mut concept = Archetype::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
     }

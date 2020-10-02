@@ -2,7 +2,7 @@ use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
 use super::{Graph, KBWrapper};
 use crate::concepts::attributes::{Attribute, Owner, Value};
-use crate::concepts::{ArchetypeTrait, Tao};
+use crate::concepts::{Archetype, ArchetypeTrait, Tao};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -24,6 +24,7 @@ pub fn bind_in_memory_graph() {
     GRAPH.with(|g| {
         let mut img = InMemoryGraph::new();
         initialize_type!(img, Tao);
+        initialize_type!(img, Archetype);
         initialize_type!(img, Attribute);
         initialize_type!(img, Owner);
         initialize_type!(img, Value);
