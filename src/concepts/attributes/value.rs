@@ -1,14 +1,13 @@
-use super::owner::{AttributeTrait, Owner};
+use super::{Attribute, AttributeTrait};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
+use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// The value/target/to-node of an attribute.
 #[derive(Copy, Clone)]
 pub struct Value {
-    /// Wrapper that this abstraction is based on.
-    pub base: BaseWrapper,
+    attr: Attribute,
 }
 
 impl Debug for Value {
@@ -21,34 +20,34 @@ impl Eq for Value {}
 
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
-        self.id() == other.id()
+        self.attr == other.attr
     }
 }
 
 impl From<usize> for Value {
     fn from(id: usize) -> Self {
         Value {
-            base: BaseWrapper::from(id),
+            attr: Attribute::from(id),
         }
     }
 }
 
 impl CommonNodeTrait for Value {
     fn id(&self) -> usize {
-        self.base.id()
+        self.attr.id()
     }
 
     fn set_internal_name(&mut self, name: String) {
-        self.base.set_internal_name(name);
+        self.attr.set_internal_name(name);
     }
 
     fn internal_name(&self) -> Option<Rc<String>> {
-        self.base.internal_name()
+        self.attr.internal_name()
     }
 }
 
 impl ArchetypeTrait<Value> for Value {
-    const TYPE_ID: usize = 2;
+    const TYPE_ID: usize = 3;
     const TYPE_NAME: &'static str = "Value";
 
     fn type_concept() -> Tao {
@@ -57,38 +56,32 @@ impl ArchetypeTrait<Value> for Value {
 
     fn individuate() -> Self {
         Value {
-            base: BaseWrapper::new(),
+            attr: Attribute::individuate(),
         }
     }
 }
 
 impl FormTrait for Value {
     fn essence(&self) -> &BaseWrapper {
-        &self.base
+        self.attr.essence()
     }
 }
 
 impl AttributeTrait<Value> for Value {
     fn set_owner(&mut self, owner: Box<&dyn FormTrait>) {
-        self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
+        self.attr.set_owner(owner);
     }
 
     fn owner(&self) -> Option<Tao> {
-        self.base
-            .outgoing_nodes(Owner::TYPE_ID)
-            .get(0)
-            .map(|n| Tao::from(*n))
+        self.attr.owner()
     }
 
     fn set_value(&mut self, value: Box<&dyn FormTrait>) {
-        self.base.add_outgoing(Value::TYPE_ID, value.essence());
+        self.attr.set_value(value);
     }
 
     fn value(&self) -> Option<Tao> {
-        self.base
-            .outgoing_nodes(Value::TYPE_ID)
-            .get(0)
-            .map(|n| Tao::from(*n))
+        self.attr.value()
     }
 }
 

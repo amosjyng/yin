@@ -39,13 +39,10 @@
 //! assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
 //! ```
 
-mod owner;
+pub mod attributes;
 mod tao;
-mod value;
 
-pub use owner::Owner;
 pub use tao::Tao;
-pub use value::Value;
 
 use crate::wrappers::{BaseWrapper, CommonNodeTrait};
 
