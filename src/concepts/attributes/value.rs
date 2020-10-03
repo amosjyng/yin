@@ -49,6 +49,7 @@ impl CommonNodeTrait for Value {
 impl ArchetypeTrait<Value> for Value {
     const TYPE_ID: usize = 4;
     const TYPE_NAME: &'static str = "Value";
+    const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 
     fn archetype() -> Archetype {
         Archetype::from(Self::TYPE_ID)

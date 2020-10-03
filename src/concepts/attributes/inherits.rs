@@ -49,6 +49,7 @@ impl CommonNodeTrait for Inherits {
 impl ArchetypeTrait<Inherits> for Inherits {
     const TYPE_ID: usize = 5;
     const TYPE_NAME: &'static str = "Inherits";
+    const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 
     fn archetype() -> Archetype {
         Archetype::from(Self::TYPE_ID)

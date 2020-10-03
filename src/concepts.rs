@@ -56,6 +56,11 @@ pub trait ArchetypeTrait<T>: From<usize> {
     /// The name of this archetype.
     const TYPE_NAME: &'static str;
 
+    /// The default parent this archetype inherits from. Every archetype should have at least one 
+    /// parent, so that it doesn't live in a separate universe of its own. This helps enforce that, 
+    /// since allocations are not allowed in Rust constants.
+    const PARENT_TYPE_ID: usize;
+
     /// The incarnation of this archetype as a form.
     fn archetype() -> Archetype;
 

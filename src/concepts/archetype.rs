@@ -1,4 +1,4 @@
-use crate::concepts::{ArchetypeTrait, FormTrait};
+use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
@@ -54,6 +54,7 @@ impl CommonNodeTrait for Archetype {
 impl ArchetypeTrait<Archetype> for Archetype {
     const TYPE_ID: usize = 1;
     const TYPE_NAME: &'static str = "Archetype";
+    const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
 
     fn archetype() -> Archetype {
         Archetype::from(Self::TYPE_ID)

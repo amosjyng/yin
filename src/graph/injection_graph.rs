@@ -16,6 +16,7 @@ macro_rules! initialize_type {
     ($g:expr, $t:ty) => {
         $g.add_node();
         $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
+        $g.add_edge(<$t>::TYPE_ID, Inherits::TYPE_ID, <$t>::PARENT_TYPE_ID);
     };
 }
 
