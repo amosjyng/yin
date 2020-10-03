@@ -86,3 +86,8 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow().into_dot())
     }
 }
+
+/// Print graph to stdout for debugging purposes.
+pub fn print_graph_debug() {
+    println!("{}", InjectionGraph {}.into_dot());
+}

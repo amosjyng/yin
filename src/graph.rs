@@ -101,7 +101,7 @@ mod injection_graph;
 mod invalid_graph;
 mod kb_wrapper;
 
-pub use injection_graph::{bind_in_memory_graph, InjectionGraph};
+pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGraph};
 pub use kb_wrapper::{unwrap_weak, KBWrapper, WeakWrapper};
 
 use std::rc::Rc;

@@ -392,7 +392,7 @@ mod tests {
         g.add_edge(a_id, Owner::TYPE_ID, b_id);
 
         let dot_representation = g.into_dot();
-        println!("{}", dot_representation);
+        print_graph_debug();
         assert!(dot_representation.starts_with("digraph"));
         assert!(dot_representation.contains(" [ label = \"B node\" ]"));
         assert_eq!(
