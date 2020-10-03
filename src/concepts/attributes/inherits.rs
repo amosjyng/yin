@@ -4,35 +4,35 @@ use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
-/// The value/target/to-node of an attribute.
+/// Describes the owner as inheriting all attributes of the value.
 #[derive(Copy, Clone)]
-pub struct Value {
+pub struct Inherits {
     attr: Attribute,
 }
 
-impl Debug for Value {
+impl Debug for Inherits {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debug_wrapper("Value", Box::new(self), f)
+        debug_wrapper("Inherits", Box::new(self), f)
     }
 }
 
-impl Eq for Value {}
+impl Eq for Inherits {}
 
-impl PartialEq for Value {
+impl PartialEq for Inherits {
     fn eq(&self, other: &Self) -> bool {
         self.attr == other.attr
     }
 }
 
-impl From<usize> for Value {
+impl From<usize> for Inherits {
     fn from(id: usize) -> Self {
-        Value {
+        Inherits {
             attr: Attribute::from(id),
         }
     }
 }
 
-impl CommonNodeTrait for Value {
+impl CommonNodeTrait for Inherits {
     fn id(&self) -> usize {
         self.attr.id()
     }
@@ -46,28 +46,28 @@ impl CommonNodeTrait for Value {
     }
 }
 
-impl ArchetypeTrait<Value> for Value {
-    const TYPE_ID: usize = 4;
-    const TYPE_NAME: &'static str = "Value";
+impl ArchetypeTrait<Inherits> for Inherits {
+    const TYPE_ID: usize = 5;
+    const TYPE_NAME: &'static str = "Inherits";
 
     fn archetype() -> Archetype {
         Archetype::from(Self::TYPE_ID)
     }
 
     fn individuate() -> Self {
-        Value {
+        Inherits {
             attr: Attribute::individuate(),
         }
     }
 }
 
-impl FormTrait for Value {
+impl FormTrait for Inherits {
     fn essence(&self) -> &FinalWrapper {
         self.attr.essence()
     }
 }
 
-impl AttributeTrait<Value> for Value {
+impl AttributeTrait<Inherits> for Inherits {
     fn set_owner(&mut self, owner: Box<&dyn FormTrait>) {
         self.attr.set_owner(owner);
     }
@@ -93,30 +93,10 @@ mod tests {
     #[test]
     fn check_type_created() {
         bind_in_memory_graph();
-        assert_eq!(Value::archetype().id(), Value::TYPE_ID);
+        assert_eq!(Inherits::archetype().id(), Inherits::TYPE_ID);
         assert_eq!(
-            Value::archetype().internal_name(),
-            Some(Rc::new(Value::TYPE_NAME.to_string()))
+            Inherits::archetype().internal_name(),
+            Some(Rc::new(Inherits::TYPE_NAME.to_string()))
         );
-    }
-
-    #[test]
-    fn get_owner() {
-        bind_in_memory_graph();
-        let mut value_instance = Value::individuate();
-        let owner_of_value = Value::individuate();
-        value_instance.set_owner(Box::new(&owner_of_value));
-        assert_eq!(value_instance.owner(), Some(owner_of_value.ego_death()));
-        assert_eq!(value_instance.value(), None);
-    }
-
-    #[test]
-    fn get_value() {
-        bind_in_memory_graph();
-        let mut value_instance = Value::individuate();
-        let value_of_value = Value::individuate();
-        value_instance.set_value(Box::new(&value_of_value));
-        assert_eq!(value_instance.owner(), None);
-        assert_eq!(value_instance.value(), Some(value_of_value.ego_death()));
     }
 }

@@ -1,6 +1,6 @@
 use super::{Attribute, AttributeTrait};
 use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
+use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -62,7 +62,7 @@ impl ArchetypeTrait<Owner> for Owner {
 }
 
 impl FormTrait for Owner {
-    fn essence(&self) -> &BaseWrapper {
+    fn essence(&self) -> &FinalWrapper {
         self.attr.essence()
     }
 }

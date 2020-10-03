@@ -1,7 +1,7 @@
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
 use super::{Graph, KBWrapper};
-use crate::concepts::attributes::{Attribute, Owner, Value};
+use crate::concepts::attributes::{Attribute, Inherits, Owner, Value};
 use crate::concepts::{Archetype, ArchetypeTrait, Tao};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -28,6 +28,7 @@ pub fn bind_in_memory_graph() {
         initialize_type!(img, Attribute);
         initialize_type!(img, Owner);
         initialize_type!(img, Value);
+        initialize_type!(img, Inherits);
         *g.borrow_mut() = Box::new(img);
     });
 }

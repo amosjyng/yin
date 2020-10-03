@@ -1,5 +1,5 @@
 use crate::concepts::{Archetype, ArchetypeTrait, FormTrait};
-use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
+use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -17,7 +17,7 @@ use std::rc::Rc;
 /// you're going to tell me not to GPL this motherfucker.)
 #[derive(Copy, Clone)]
 pub struct Tao {
-    base: BaseWrapper,
+    base: FinalWrapper,
 }
 
 impl Debug for Tao {
@@ -37,13 +37,13 @@ impl PartialEq for Tao {
 impl From<usize> for Tao {
     fn from(id: usize) -> Self {
         Tao {
-            base: BaseWrapper::from(id),
+            base: FinalWrapper::from(id),
         }
     }
 }
 
-impl From<BaseWrapper> for Tao {
-    fn from(bw: BaseWrapper) -> Self {
+impl From<FinalWrapper> for Tao {
+    fn from(bw: FinalWrapper) -> Self {
         Tao { base: bw }
     }
 }
@@ -72,13 +72,13 @@ impl ArchetypeTrait<Tao> for Tao {
 
     fn individuate() -> Self {
         Tao {
-            base: BaseWrapper::new(),
+            base: FinalWrapper::new(),
         }
     }
 }
 
 impl FormTrait for Tao {
-    fn essence(&self) -> &BaseWrapper {
+    fn essence(&self) -> &FinalWrapper {
         &self.base
     }
 }

@@ -1,13 +1,15 @@
 //! Contains all attribute archetypes.
 
+mod inherits;
 mod owner;
 mod value;
 
+pub use inherits::Inherits;
 pub use owner::Owner;
 pub use value::Value;
 
 use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, BaseNodeTrait, BaseWrapper, CommonNodeTrait};
+use crate::wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -30,7 +32,7 @@ pub trait AttributeTrait<T>: ArchetypeTrait<T> {
 #[derive(Copy, Clone)]
 pub struct Attribute {
     /// Wrapper that this abstraction is based on.
-    pub base: BaseWrapper,
+    pub base: FinalWrapper,
 }
 
 impl Debug for Attribute {
@@ -50,7 +52,7 @@ impl PartialEq for Attribute {
 impl From<usize> for Attribute {
     fn from(id: usize) -> Self {
         Attribute {
-            base: BaseWrapper::from(id),
+            base: FinalWrapper::from(id),
         }
     }
 }
@@ -79,13 +81,13 @@ impl ArchetypeTrait<Attribute> for Attribute {
 
     fn individuate() -> Self {
         Attribute {
-            base: BaseWrapper::new(),
+            base: FinalWrapper::new(),
         }
     }
 }
 
 impl FormTrait for Attribute {
-    fn essence(&self) -> &BaseWrapper {
+    fn essence(&self) -> &FinalWrapper {
         &self.base
     }
 }

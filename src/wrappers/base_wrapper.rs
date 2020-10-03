@@ -1,7 +1,8 @@
 use super::{debug_wrapper, CommonNodeTrait};
 use crate::graph::{Graph, InjectionGraph, KBWrapper};
-use std::cmp::{Eq, PartialEq};
+use std::cmp::{Eq, Ordering, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// All wrappers in the `wrappers` module will have these functions available.
@@ -39,14 +40,6 @@ pub struct BaseWrapper {
 }
 
 impl BaseWrapper {
-    /// Create a node wrapper from an existing node's ID.
-    pub fn from(id: usize) -> Self {
-        BaseWrapper {
-            graph: InjectionGraph {},
-            id: id,
-        }
-    }
-
     /// Create a new node.
     pub fn new() -> Self {
         let mut g = InjectionGraph {};
@@ -57,9 +50,24 @@ impl BaseWrapper {
     }
 }
 
+impl From<usize> for BaseWrapper {
+    fn from(id: usize) -> Self {
+        BaseWrapper {
+            graph: InjectionGraph {},
+            id: id,
+        }
+    }
+}
+
 impl Debug for BaseWrapper {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        debug_wrapper("Base", Box::new(self), f)
+        debug_wrapper("BWrapper", Box::new(self), f)
+    }
+}
+
+impl Hash for BaseWrapper {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
     }
 }
 
@@ -68,6 +76,18 @@ impl Eq for BaseWrapper {}
 impl PartialEq for BaseWrapper {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
+    }
+}
+
+impl Ord for BaseWrapper {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.id.cmp(&other.id)
+    }
+}
+
+impl PartialOrd for BaseWrapper {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

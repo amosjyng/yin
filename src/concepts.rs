@@ -46,7 +46,7 @@ mod tao;
 pub use archetype::Archetype;
 pub use tao::Tao;
 
-use crate::wrappers::{BaseWrapper, CommonNodeTrait};
+use crate::wrappers::{CommonNodeTrait, FinalWrapper};
 
 /// All formally defined archetypes should be describable by these properties.
 pub trait ArchetypeTrait<T>: From<usize> {
@@ -117,7 +117,7 @@ pub trait FormTrait: CommonNodeTrait {
     /// patience-building purposes only and are not intended to be a substitute for deep
     /// introspection. Peruse at your own existential risk. Not responsible for spiritual injuries
     /// or damnation resulting from lost Pascalian wagers.
-    fn essence(&self) -> &BaseWrapper;
+    fn essence(&self) -> &FinalWrapper;
 
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or

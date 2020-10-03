@@ -1,8 +1,12 @@
 //! Wrappers around graph nodes that provide extended functionality at every level.
 
 mod base_wrapper;
+mod final_wrapper;
+mod inheritance_wrapper;
 
 pub use base_wrapper::{BaseNodeTrait, BaseWrapper};
+pub use final_wrapper::FinalWrapper;
+pub use inheritance_wrapper::InheritanceWrapper;
 use std::fmt::{Formatter, Result};
 use std::rc::Rc;
 

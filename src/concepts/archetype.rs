@@ -1,12 +1,12 @@
 use crate::concepts::{ArchetypeTrait, FormTrait};
-use crate::wrappers::{debug_wrapper, BaseWrapper, CommonNodeTrait};
+use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// Represents an archetype from which various individual nodes can be derived.
 #[derive(Copy, Clone)]
 pub struct Archetype {
-    base: BaseWrapper,
+    base: FinalWrapper,
 }
 
 impl Debug for Archetype {
@@ -26,14 +26,14 @@ impl PartialEq for Archetype {
 impl From<usize> for Archetype {
     fn from(id: usize) -> Self {
         Archetype {
-            base: BaseWrapper::from(id),
+            base: FinalWrapper::from(id),
         }
     }
 }
 
-impl From<BaseWrapper> for Archetype {
-    fn from(bw: BaseWrapper) -> Self {
-        Archetype { base: bw }
+impl From<FinalWrapper> for Archetype {
+    fn from(fw: FinalWrapper) -> Self {
+        Archetype { base: fw }
     }
 }
 
@@ -61,13 +61,13 @@ impl ArchetypeTrait<Archetype> for Archetype {
 
     fn individuate() -> Self {
         Archetype {
-            base: BaseWrapper::new(),
+            base: FinalWrapper::new(),
         }
     }
 }
 
 impl FormTrait for Archetype {
-    fn essence(&self) -> &BaseWrapper {
+    fn essence(&self) -> &FinalWrapper {
         &self.base
     }
 }
