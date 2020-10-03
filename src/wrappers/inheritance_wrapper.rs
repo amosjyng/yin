@@ -22,6 +22,13 @@ impl InheritanceWrapper {
         }
     }
 
+    /// Create a new node with an inheritance relation.
+    pub fn new_with_inheritance(type_id: usize) -> Self {
+        let mut new_iw = Self::new();
+        new_iw.add_outgoing(Inherits::TYPE_ID, &InheritanceWrapper::from(type_id));
+        new_iw
+    }
+
     /// The set of nodes, including this one, whose attributes count as this one's.
     fn inheritance_nodes(&self) -> HashSet<BaseWrapper> {
         let mut visited = HashSet::new();
@@ -155,6 +162,7 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::attributes::Owner;
     use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
 
     #[test]
@@ -188,6 +196,16 @@ mod tests {
         let v = Rc::new(5);
         node.set_value(Box::new(WeakWrapper::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
+    }
+
+    #[test]
+    fn create_with_inheritance() {
+        bind_in_memory_graph();
+        let owner = InheritanceWrapper::new();
+        let mut type1 = InheritanceWrapper::new();
+        type1.add_outgoing(Owner::TYPE_ID, &owner);
+        let node = InheritanceWrapper::new_with_inheritance(type1.id());
+        assert!(node.has_outgoing(Owner::TYPE_ID, &owner));
     }
 
     #[test]

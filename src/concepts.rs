@@ -79,6 +79,10 @@ pub trait ArchetypeTrait<T>: From<usize> {
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
     fn individuate() -> T;
+
+    /// Individuate with a more specific parent than the current one. This custom parent should
+    /// inherit from the current type.
+    fn individuate_with_parent(parent_id: usize) -> T;
 }
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
@@ -130,5 +134,23 @@ pub trait FormTrait: CommonNodeTrait {
     /// boundaries, be at peace with the universe again.
     fn ego_death(&self) -> Tao {
         Tao::from(self.essence().clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::concepts::attributes::{AttributeTrait, Owner};
+    use crate::graph::bind_in_memory_graph;
+
+    #[test]
+    fn test_new_node_inheritance() {
+        bind_in_memory_graph();
+        let owner = Owner::individuate();
+        assert_eq!(owner.owner(), None);
+
+        let attr = Owner::individuate();
+        Owner::from(Owner::TYPE_ID).set_owner(Box::new(&attr));
+        assert_eq!(owner.owner(), Some(attr.ego_death()));
     }
 }

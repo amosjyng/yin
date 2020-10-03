@@ -61,8 +61,12 @@ impl ArchetypeTrait<Archetype> for Archetype {
     }
 
     fn individuate() -> Self {
+        Self::individuate_with_parent(Self::TYPE_ID)
+    }
+
+    fn individuate_with_parent(parent_id: usize) -> Self {
         Archetype {
-            base: FinalWrapper::new(),
+            base: FinalWrapper::new_with_inheritance(parent_id),
         }
     }
 }

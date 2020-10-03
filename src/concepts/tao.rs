@@ -74,7 +74,13 @@ impl ArchetypeTrait<Tao> for Tao {
 
     fn individuate() -> Self {
         Tao {
-            base: FinalWrapper::new(),
+            base: FinalWrapper::new_with_inheritance(Self::TYPE_ID),
+        }
+    }
+
+    fn individuate_with_parent(parent_id: usize) -> Self {
+        Tao {
+            base: FinalWrapper::new_with_inheritance(parent_id),
         }
     }
 }

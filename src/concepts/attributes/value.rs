@@ -56,8 +56,12 @@ impl ArchetypeTrait<Value> for Value {
     }
 
     fn individuate() -> Self {
+        Self::individuate_with_parent(Self::TYPE_ID)
+    }
+
+    fn individuate_with_parent(parent_id: usize) -> Self {
         Value {
-            attr: Attribute::individuate(),
+            attr: Attribute::individuate_with_parent(parent_id),
         }
     }
 }

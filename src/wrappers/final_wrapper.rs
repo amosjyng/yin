@@ -18,6 +18,11 @@ impl FinalWrapper {
             base: InheritanceWrapper::new(),
         }
     }
+
+    /// Create a new node with an inheritance relation.
+    pub fn new_with_inheritance(type_id: usize) -> Self {
+        Self::from(InheritanceWrapper::new_with_inheritance(type_id))
+    }
 }
 
 impl From<usize> for FinalWrapper {
@@ -119,7 +124,7 @@ impl BaseNodeTrait<FinalWrapper> for FinalWrapper {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::attributes::Inherits;
+    use crate::concepts::attributes::{Inherits, Owner};
     use crate::concepts::ArchetypeTrait;
     use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
 
@@ -154,6 +159,16 @@ mod tests {
         let v = Rc::new(5);
         node.set_value(Box::new(WeakWrapper::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
+    }
+
+    #[test]
+    fn create_with_inheritance() {
+        bind_in_memory_graph();
+        let owner = FinalWrapper::new();
+        let mut type1 = FinalWrapper::new();
+        type1.add_outgoing(Owner::TYPE_ID, &owner);
+        let node = FinalWrapper::new_with_inheritance(type1.id());
+        assert!(node.has_outgoing(Owner::TYPE_ID, &owner));
     }
 
     #[test]

@@ -81,8 +81,12 @@ impl ArchetypeTrait<Attribute> for Attribute {
     }
 
     fn individuate() -> Self {
+        Self::individuate_with_parent(Self::TYPE_ID)
+    }
+
+    fn individuate_with_parent(parent_id: usize) -> Self {
         Attribute {
-            base: FinalWrapper::new(),
+            base: FinalWrapper::new_with_inheritance(parent_id),
         }
     }
 }
@@ -95,12 +99,12 @@ impl FormTrait for Attribute {
 
 impl AttributeTrait<Attribute> for Attribute {
     fn set_owner(&mut self, owner: Box<&dyn FormTrait>) {
-        self.base.add_outgoing(Attribute::TYPE_ID, owner.essence());
+        self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
     }
 
     fn owner(&self) -> Option<Tao> {
         self.base
-            .outgoing_nodes(Attribute::TYPE_ID)
+            .outgoing_nodes(Owner::TYPE_ID)
             .get(0)
             .map(|n| Tao::from(*n))
     }
