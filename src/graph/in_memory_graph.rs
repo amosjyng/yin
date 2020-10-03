@@ -3,20 +3,29 @@ use petgraph::dot::Dot;
 use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
 use petgraph::Direction;
+use std::cell::RefCell;
 use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 
+/// Wrapper around node name so that we can have multiple references to this in both the node and
+/// the edge weights, and also implement a custom Display for both of them.
+#[derive(Default)]
+struct NodeName {
+    name: Option<Rc<String>>,
+}
+
+#[derive(Default)]
 struct NodeInfo {
     /// Store ID here as well in order to allow printing the ID as a label when no internal name is
     /// assigned.
     id: usize,
-    name: Option<Rc<String>>,
+    name: Rc<RefCell<NodeName>>,
     value: Option<Rc<Box<dyn KBWrapper>>>,
 }
 
 impl<'a> Display for NodeInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        match &self.name {
+        match &self.name.borrow().name {
             Some(name) => write!(f, "{}", name),
             None => write!(f, "{}", self.id),
         }
@@ -27,12 +36,12 @@ impl<'a> Display for NodeInfo {
 /// out its label.
 struct EdgeInfo {
     type_id: usize,
-    type_name: Option<Rc<String>>,
+    type_name: Rc<RefCell<NodeName>>,
 }
 
 impl Display for EdgeInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        match &self.type_name {
+        match &self.type_name.borrow().name {
             Some(name) => write!(f, "{}", name),
             None => write!(f, "{}", self.type_id),
         }
@@ -54,12 +63,7 @@ impl<'a> InMemoryGraph {
 
 impl<'a> Graph for InMemoryGraph {
     fn add_node(&mut self) -> usize {
-        let new_node_info = NodeInfo {
-            id: 0,
-            name: None,
-            value: None,
-        };
-        let new_id = self.graph.add_node(new_node_info);
+        let new_id = self.graph.add_node(Default::default());
         self.graph.node_weight_mut(new_id).unwrap().id = new_id.index();
         new_id.index()
     }
@@ -72,13 +76,18 @@ impl<'a> Graph for InMemoryGraph {
     }
 
     fn set_node_name(&mut self, id: usize, name: String) {
-        self.graph.node_weight_mut(NodeIndex::new(id)).unwrap().name = Some(Rc::new(name));
+        self.graph
+            .node_weight_mut(NodeIndex::new(id))
+            .unwrap()
+            .name
+            .borrow_mut()
+            .name = Some(Rc::new(name));
     }
 
     fn node_name(&self, id: usize) -> Option<Rc<String>> {
         self.graph
             .node_weight(NodeIndex::new(id))
-            .map(|info| info.name.as_ref().map(|rc| rc.clone()))
+            .map(|info| info.name.borrow().name.as_ref().map(|rc| rc.clone()))
             .flatten()
     }
 
@@ -92,7 +101,12 @@ impl<'a> Graph for InMemoryGraph {
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
         let edge_info = EdgeInfo {
             type_id: edge_type,
-            type_name: self.node_name(edge_type),
+            type_name: self
+                .graph
+                .node_weight(NodeIndex::new(edge_type))
+                .unwrap()
+                .name
+                .clone(),
         };
         self.graph
             .add_edge(NodeIndex::new(from), NodeIndex::new(to), edge_info);

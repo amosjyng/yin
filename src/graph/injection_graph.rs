@@ -13,10 +13,14 @@ thread_local! {
 /// Add the given Concept type to the KB.
 #[macro_export]
 macro_rules! initialize_type {
-    ($g:expr, $t:ty) => {
-        $g.add_node();
-        $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
-        $g.add_edge(<$t>::TYPE_ID, Inherits::TYPE_ID, <$t>::PARENT_TYPE_ID);
+    ($g:expr, ($($t:ty),*)) => {
+        $(
+            $g.add_node();
+            $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
+        )*
+        // set edges later, since edges contain references to node names, and that will be
+        // impossible if the nodes themselves don't exist yet
+        $($g.add_edge(<$t>::TYPE_ID, Inherits::TYPE_ID, <$t>::PARENT_TYPE_ID);)*
     };
 }
 
@@ -24,12 +28,7 @@ macro_rules! initialize_type {
 pub fn bind_in_memory_graph() {
     GRAPH.with(|g| {
         let mut img = InMemoryGraph::new();
-        initialize_type!(img, Tao);
-        initialize_type!(img, Archetype);
-        initialize_type!(img, Attribute);
-        initialize_type!(img, Owner);
-        initialize_type!(img, Value);
-        initialize_type!(img, Inherits);
+        initialize_type!(img, (Tao, Archetype, Attribute, Owner, Value, Inherits));
         *g.borrow_mut() = Box::new(img);
     });
 }
