@@ -6,6 +6,7 @@ use crate::graph::KBWrapper;
 use std::cmp::{Eq, Ordering, PartialEq};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// Implementation for a node wrapper that offers inheritance of nodes.
@@ -64,6 +65,12 @@ impl From<BaseWrapper> for InheritanceWrapper {
 impl Debug for InheritanceWrapper {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("IWrapper", Box::new(self), f)
+    }
+}
+
+impl Hash for InheritanceWrapper {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id().hash(state);
     }
 }
 

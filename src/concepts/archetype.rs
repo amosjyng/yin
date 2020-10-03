@@ -1,5 +1,7 @@
+use crate::concepts::attributes::Inherits;
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
+use crate::wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
+use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -7,6 +9,32 @@ use std::rc::Rc;
 #[derive(Copy, Clone)]
 pub struct Archetype {
     base: FinalWrapper,
+}
+
+impl Archetype {
+    /// Individuals that adhere to this archetype. It is possible that some of these individuals
+    /// might not be direct descendants of the archetype in question.
+    pub fn individuals(&self) -> Vec<Tao> {
+        let mut visited: HashSet<FinalWrapper> = HashSet::new();
+        visited.insert(*self.essence());
+        let mut to_be_visited: VecDeque<FinalWrapper> = VecDeque::new();
+        to_be_visited.push_back(*self.essence());
+        let mut leaves: Vec<FinalWrapper> = Vec::new();
+        while let Some(next) = to_be_visited.pop_front() {
+            let children = next.incoming_nodes(Inherits::TYPE_ID);
+            if children.is_empty() {
+                leaves.push(next);
+            } else {
+                for child in next.incoming_nodes(Inherits::TYPE_ID) {
+                    if !visited.contains(&child) {
+                        visited.insert(child);
+                        to_be_visited.push_back(child);
+                    }
+                }
+            }
+        }
+        leaves.into_iter().map(|fw| Tao::from(fw)).collect()
+    }
 }
 
 impl Debug for Archetype {

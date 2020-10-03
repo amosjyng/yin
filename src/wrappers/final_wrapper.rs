@@ -3,6 +3,7 @@ use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::graph::KBWrapper;
 use std::cmp::{Eq, Ordering, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
+use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// Final node wrapper that offers a stable API for all concept abstractions dependent on it.
@@ -42,6 +43,12 @@ impl From<InheritanceWrapper> for FinalWrapper {
 impl Debug for FinalWrapper {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("FWrapper", Box::new(self), f)
+    }
+}
+
+impl Hash for FinalWrapper {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id().hash(state);
     }
 }
 
