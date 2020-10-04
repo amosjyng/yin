@@ -9,6 +9,11 @@ use std::fmt::{Debug, Formatter, Result};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
+pub trait InheritanceNodeTrait<T>: BaseNodeTrait<T> {
+    /// The set of nodes, including this one, whose attributes count as this one's.
+    fn inheritance_nodes(&self) -> Vec<T>;
+}
+
 /// Implementation for a node wrapper that offers inheritance of nodes.
 #[derive(Copy, Clone)]
 pub struct InheritanceWrapper {
@@ -28,23 +33,6 @@ impl InheritanceWrapper {
         let mut new_iw = Self::new();
         new_iw.add_outgoing(Inherits::TYPE_ID, &InheritanceWrapper::from(type_id));
         new_iw
-    }
-
-    /// The set of nodes, including this one, whose attributes count as this one's.
-    fn inheritance_nodes(&self) -> HashSet<BaseWrapper> {
-        let mut visited = HashSet::new();
-        visited.insert(self.base);
-        let mut to_be_visited = VecDeque::new();
-        to_be_visited.push_back(self.base);
-        while let Some(next) = to_be_visited.pop_front() {
-            for neighbor in next.outgoing_nodes(Inherits::TYPE_ID) {
-                if !visited.contains(&neighbor) {
-                    visited.insert(neighbor);
-                    to_be_visited.push_back(neighbor);
-                }
-            }
-        }
-        visited
     }
 }
 
@@ -128,20 +116,20 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
     fn has_outgoing(&self, edge_type: usize, to: &InheritanceWrapper) -> bool {
         self.inheritance_nodes()
             .into_iter()
-            .any(|b| b.has_outgoing(edge_type, &to.base))
+            .any(|iw| iw.base.has_outgoing(edge_type, &to.base))
     }
 
     fn has_incoming(&self, edge_type: usize, from: &InheritanceWrapper) -> bool {
         self.inheritance_nodes()
             .into_iter()
-            .any(|b| b.has_incoming(edge_type, &from.base))
+            .any(|iw| iw.base.has_incoming(edge_type, &from.base))
     }
 
     fn outgoing_nodes(&self, edge_type: usize) -> Vec<InheritanceWrapper> {
         let mut nodes = self
             .inheritance_nodes()
             .into_iter()
-            .map(|b| b.outgoing_nodes(edge_type))
+            .map(|iw| iw.base.outgoing_nodes(edge_type))
             .into_iter()
             .flatten()
             .map(|b| InheritanceWrapper::from(b))
@@ -155,7 +143,7 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
         let mut nodes = self
             .inheritance_nodes()
             .into_iter()
-            .map(|b| b.incoming_nodes(edge_type))
+            .map(|iw| iw.base.incoming_nodes(edge_type))
             .into_iter()
             .flatten()
             .map(|b| InheritanceWrapper::from(b))
@@ -163,6 +151,27 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
         nodes.sort();
         nodes.dedup();
         nodes
+    }
+}
+
+impl InheritanceNodeTrait<InheritanceWrapper> for InheritanceWrapper {
+    fn inheritance_nodes(&self) -> Vec<InheritanceWrapper> {
+        let mut visited = HashSet::new();
+        visited.insert(self.base);
+        let mut to_be_visited = VecDeque::new();
+        to_be_visited.push_back(self.base);
+        while let Some(next) = to_be_visited.pop_front() {
+            for neighbor in next.outgoing_nodes(Inherits::TYPE_ID) {
+                if !visited.contains(&neighbor) {
+                    visited.insert(neighbor);
+                    to_be_visited.push_back(neighbor);
+                }
+            }
+        }
+        let mut result: Vec<InheritanceWrapper> =
+         visited.into_iter().map(|b| InheritanceWrapper::from(b)).collect();
+        result.sort();
+        result
     }
 }
 
@@ -213,6 +222,19 @@ mod tests {
         type1.add_outgoing(Owner::TYPE_ID, &owner);
         let node = InheritanceWrapper::new_with_inheritance(type1.id());
         assert!(node.has_outgoing(Owner::TYPE_ID, &owner));
+    }
+
+    #[test]
+    fn check_inheritance_nodes() {
+        bind_in_memory_graph();
+        let type1 = InheritanceWrapper::new();
+        let mut type2 = InheritanceWrapper::new();
+        let mut a = InheritanceWrapper::new();
+        type2.add_outgoing(Inherits::TYPE_ID, &type1);
+        a.add_outgoing(Inherits::TYPE_ID, &type2);
+        assert_eq!(a.inheritance_nodes(), vec![type1, type2, a]);
+        assert_eq!(type2.inheritance_nodes(), vec![type1, type2]);
+        assert_eq!(type1.inheritance_nodes(), vec![type1]);
     }
 
     #[test]

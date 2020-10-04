@@ -1,4 +1,4 @@
-use super::InheritanceWrapper;
+use super::{InheritanceNodeTrait, InheritanceWrapper};
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::graph::KBWrapper;
 use std::cmp::{Eq, Ordering, PartialEq};
@@ -128,6 +128,12 @@ impl BaseNodeTrait<FinalWrapper> for FinalWrapper {
     }
 }
 
+impl InheritanceNodeTrait<FinalWrapper> for FinalWrapper {
+    fn inheritance_nodes(&self) -> Vec<FinalWrapper> {
+        self.base.inheritance_nodes().into_iter().map(|b| FinalWrapper::from(b)).collect()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -176,6 +182,19 @@ mod tests {
         type1.add_outgoing(Owner::TYPE_ID, &owner);
         let node = FinalWrapper::new_with_inheritance(type1.id());
         assert!(node.has_outgoing(Owner::TYPE_ID, &owner));
+    }
+
+    #[test]
+    fn check_inheritance_nodes() {
+        bind_in_memory_graph();
+        let type1 = InheritanceWrapper::new();
+        let mut type2 = InheritanceWrapper::new();
+        let mut a = InheritanceWrapper::new();
+        type2.add_outgoing(Inherits::TYPE_ID, &type1);
+        a.add_outgoing(Inherits::TYPE_ID, &type2);
+        assert_eq!(a.inheritance_nodes(), vec![type1, type2, a]);
+        assert_eq!(type2.inheritance_nodes(), vec![type1, type2]);
+        assert_eq!(type1.inheritance_nodes(), vec![type1]);
     }
 
     #[test]

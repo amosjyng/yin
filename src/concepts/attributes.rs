@@ -95,6 +95,10 @@ impl FormTrait for Attribute {
     fn essence(&self) -> &FinalWrapper {
         &self.base
     }
+
+    fn essence_mut(&mut self) -> &mut FinalWrapper {
+        &mut self.base
+    }
 }
 
 impl AttributeTrait<Attribute> for Attribute {

@@ -44,9 +44,9 @@ pub mod attributes;
 mod tao;
 
 pub use archetype::Archetype;
+use attributes::Inherits;
 pub use tao::Tao;
-
-use crate::wrappers::{CommonNodeTrait, FinalWrapper};
+use crate::wrappers::{BaseNodeTrait, CommonNodeTrait, FinalWrapper, InheritanceNodeTrait};
 
 /// All formally defined archetypes should be describable by these properties.
 pub trait ArchetypeTrait<T>: From<usize> {
@@ -128,6 +128,9 @@ pub trait FormTrait: CommonNodeTrait {
     /// or damnation resulting from lost Pascalian wagers.
     fn essence(&self) -> &FinalWrapper;
 
+    /// Mutable version of essence.
+    fn essence_mut(&mut self) -> &mut FinalWrapper;
+
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or
     /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
@@ -135,12 +138,20 @@ pub trait FormTrait: CommonNodeTrait {
     fn ego_death(&self) -> Tao {
         Tao::from(self.essence().clone())
     }
+
+    fn add_parent(&mut self, parent: Archetype) {
+        self.essence_mut().add_outgoing(Inherits::TYPE_ID, parent.essence());
+    }
+
+    fn has_ancestor(&self, possible_ancestor: Archetype) -> bool {
+        self.essence().inheritance_nodes().contains(possible_ancestor.essence())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::attributes::{AttributeTrait, Owner};
+    use crate::concepts::attributes::{AttributeTrait, Owner, Value};
     use crate::graph::bind_in_memory_graph;
 
     #[test]
@@ -152,5 +163,14 @@ mod tests {
         let attr = Owner::individuate();
         Owner::from(Owner::TYPE_ID).set_owner(Box::new(&attr));
         assert_eq!(owner.owner(), Some(attr.ego_death()));
+    }
+
+    #[test]
+    fn test_parenthood() {
+        bind_in_memory_graph();
+        let owner = Owner::individuate();
+        assert!(owner.has_ancestor(Owner::archetype()));
+        assert!(owner.has_ancestor(Tao::archetype()));
+        assert!(!owner.has_ancestor(Value::archetype()));
     }
 }

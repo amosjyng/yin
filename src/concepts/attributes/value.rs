@@ -70,6 +70,10 @@ impl FormTrait for Value {
     fn essence(&self) -> &FinalWrapper {
         self.attr.essence()
     }
+
+    fn essence_mut(&mut self) -> &mut FinalWrapper {
+        self.attr.essence_mut()
+    }
 }
 
 impl AttributeTrait<Value> for Value {

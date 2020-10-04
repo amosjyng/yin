@@ -6,7 +6,7 @@ mod inheritance_wrapper;
 
 pub use base_wrapper::{BaseNodeTrait, BaseWrapper};
 pub use final_wrapper::FinalWrapper;
-pub use inheritance_wrapper::InheritanceWrapper;
+pub use inheritance_wrapper::{InheritanceNodeTrait, InheritanceWrapper};
 use std::fmt::{Formatter, Result};
 use std::rc::Rc;
 
