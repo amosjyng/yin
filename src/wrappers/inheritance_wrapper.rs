@@ -88,43 +88,67 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
     }
 
     fn has_outgoing(&self, edge_type: usize, to: &InheritanceWrapper) -> bool {
-        self.inheritance_nodes()
-            .into_iter()
-            .any(|iw| iw.base.has_outgoing(edge_type, &to.base))
+        if edge_type == Inherits::TYPE_ID {
+            self.base.has_outgoing(edge_type, &to.base)
+        } else {
+            self.inheritance_nodes()
+                .into_iter()
+                .any(|iw| iw.base.has_outgoing(edge_type, &to.base))
+        }
     }
 
     fn has_incoming(&self, edge_type: usize, from: &InheritanceWrapper) -> bool {
-        self.inheritance_nodes()
-            .into_iter()
-            .any(|iw| iw.base.has_incoming(edge_type, &from.base))
+        if edge_type == Inherits::TYPE_ID {
+            self.base.has_incoming(edge_type, &from.base)
+        } else {
+            self.inheritance_nodes()
+                .into_iter()
+                .any(|iw| iw.base.has_incoming(edge_type, &from.base))
+        }
     }
 
     fn outgoing_nodes(&self, edge_type: usize) -> Vec<InheritanceWrapper> {
-        let mut nodes = self
-            .inheritance_nodes()
-            .into_iter()
-            .map(|iw| iw.base.outgoing_nodes(edge_type))
-            .into_iter()
-            .flatten()
-            .map(|b| InheritanceWrapper::from(b))
-            .collect::<Vec<InheritanceWrapper>>();
-        nodes.sort();
-        nodes.dedup();
-        nodes
+        if edge_type == Inherits::TYPE_ID {
+            self.base
+                .outgoing_nodes(edge_type)
+                .into_iter()
+                .map(|b| InheritanceWrapper::from(b))
+                .collect()
+        } else {
+            let mut nodes = self
+                .inheritance_nodes()
+                .into_iter()
+                .map(|iw| iw.base.outgoing_nodes(edge_type))
+                .into_iter()
+                .flatten()
+                .map(|b| InheritanceWrapper::from(b))
+                .collect::<Vec<InheritanceWrapper>>();
+            nodes.sort();
+            nodes.dedup();
+            nodes
+        }
     }
 
     fn incoming_nodes(&self, edge_type: usize) -> Vec<InheritanceWrapper> {
-        let mut nodes = self
-            .inheritance_nodes()
-            .into_iter()
-            .map(|iw| iw.base.incoming_nodes(edge_type))
-            .into_iter()
-            .flatten()
-            .map(|b| InheritanceWrapper::from(b))
-            .collect::<Vec<InheritanceWrapper>>();
-        nodes.sort();
-        nodes.dedup();
-        nodes
+        if edge_type == Inherits::TYPE_ID {
+            self.base
+                .incoming_nodes(edge_type)
+                .into_iter()
+                .map(|b| InheritanceWrapper::from(b))
+                .collect()
+        } else {
+            let mut nodes = self
+                .inheritance_nodes()
+                .into_iter()
+                .map(|iw| iw.base.incoming_nodes(edge_type))
+                .into_iter()
+                .flatten()
+                .map(|b| InheritanceWrapper::from(b))
+                .collect::<Vec<InheritanceWrapper>>();
+            nodes.sort();
+            nodes.dedup();
+            nodes
+        }
     }
 }
 
@@ -259,6 +283,19 @@ mod tests {
     }
 
     #[test]
+    fn not_inherit_inheritance_attr_outgoing() {
+        bind_in_memory_graph();
+        let type1 = InheritanceWrapper::new();
+        let mut type2 = InheritanceWrapper::new();
+        let mut a = InheritanceWrapper::new();
+        type2.add_outgoing(Inherits::TYPE_ID, &type1);
+        a.add_outgoing(Inherits::TYPE_ID, &type2);
+        // the inherit edge should be treated specially and not inherited by lower levels
+        assert_eq!(type2.outgoing_nodes(Inherits::TYPE_ID), vec![type1]);
+        assert_eq!(a.outgoing_nodes(Inherits::TYPE_ID), vec![type2]);
+    }
+
+    #[test]
     fn no_incoming_nodes() {
         bind_in_memory_graph();
         let a = InheritanceWrapper::new();
@@ -302,6 +339,19 @@ mod tests {
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         assert_eq!(a.incoming_nodes(edge_type.id()), vec![b, c]);
         assert_eq!(type1.incoming_nodes(edge_type.id()), vec![c]);
+    }
+
+    #[test]
+    fn not_inherit_inheritance_attr_incoming() {
+        bind_in_memory_graph();
+        let type1 = InheritanceWrapper::new();
+        let mut type2 = InheritanceWrapper::new();
+        let mut a = InheritanceWrapper::new();
+        type2.add_outgoing(Inherits::TYPE_ID, &type1);
+        a.add_outgoing(Inherits::TYPE_ID, &type2);
+        // the inherit edge should be treated specially and not inherited by lower levels
+        assert_eq!(type1.incoming_nodes(Inherits::TYPE_ID), vec![type2]);
+        assert_eq!(type2.incoming_nodes(Inherits::TYPE_ID), vec![a]);
     }
 
     #[test]
@@ -350,6 +400,19 @@ mod tests {
     }
 
     #[test]
+    fn not_inherit_inheritance_attr_has_outgoing() {
+        bind_in_memory_graph();
+        let type1 = InheritanceWrapper::new();
+        let mut type2 = InheritanceWrapper::new();
+        let mut a = InheritanceWrapper::new();
+        type2.add_outgoing(Inherits::TYPE_ID, &type1);
+        a.add_outgoing(Inherits::TYPE_ID, &type2);
+        // the inherit edge should be treated specially and not inherited by lower levels
+        assert!(a.has_outgoing(Inherits::TYPE_ID, &type2));
+        assert!(!a.has_outgoing(Inherits::TYPE_ID, &type1));
+    }
+
+    #[test]
     fn inherited_has_incoming() {
         bind_in_memory_graph();
         let mut type1 = InheritanceWrapper::new();
@@ -366,5 +429,18 @@ mod tests {
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         assert!(!a.has_incoming(edge_type.id(), &b));
         assert!(a.has_incoming(edge_type.id(), &c));
+    }
+
+    #[test]
+    fn not_inherit_inheritance_attr_has_incoming() {
+        bind_in_memory_graph();
+        let type1 = InheritanceWrapper::new();
+        let mut type2 = InheritanceWrapper::new();
+        let mut a = InheritanceWrapper::new();
+        type2.add_outgoing(Inherits::TYPE_ID, &type1);
+        a.add_outgoing(Inherits::TYPE_ID, &type2);
+        // the inherit edge should be treated specially and not inherited by lower levels
+        assert!(type1.has_incoming(Inherits::TYPE_ID, &type2));
+        assert!(!type1.has_incoming(Inherits::TYPE_ID, &a));
     }
 }

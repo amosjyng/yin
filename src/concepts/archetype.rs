@@ -12,6 +12,18 @@ pub struct Archetype {
 }
 
 impl Archetype {
+    /// Create a subtype of the archetype represented by this Archetype instance (as opposed to a
+    /// new subtype of Archetype itself, that Archetype::individuate would produce).
+    pub fn individuate_as_archetype(&self) -> Self {
+        Self::individuate_with_parent(self.id())
+    }
+
+    /// Create a new individual of the archetype represented by this Archetype instance (as opposed
+    /// to a new subtype of Archetype itself, that Archetype::individuate would produce).
+    pub fn individuate_as_tao(&self) -> Tao {
+        Tao::individuate_with_parent(self.id())
+    }
+
     /// Individuals that adhere to this archetype. It is possible that some of these individuals
     /// might not be direct descendants of the archetype in question.
     pub fn individuals(&self) -> Vec<Tao> {
@@ -33,7 +45,9 @@ impl Archetype {
                 }
             }
         }
-        leaves.into_iter().map(|fw| Tao::from(fw)).collect()
+        let mut result: Vec<Tao> = leaves.into_iter().map(|fw| Tao::from(fw)).collect();
+        result.sort();
+        result
     }
 }
 
@@ -104,6 +118,7 @@ impl FormTrait for Archetype {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::attributes::{Owner, Value};
     use crate::graph::bind_in_memory_graph;
 
     #[test]
@@ -138,5 +153,28 @@ mod tests {
         let mut concept = Archetype::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+    }
+
+    #[test]
+    fn test_individuation() {
+        bind_in_memory_graph();
+        let type1 = Owner::archetype().individuate_as_archetype();
+        let type1_instance = type1.individuate_as_tao();
+        assert!(type1.has_ancestor(Owner::archetype()));
+        assert!(!type1.has_ancestor(Value::archetype()));
+        assert!(type1_instance.has_ancestor(type1));
+        assert!(type1_instance.has_ancestor(Owner::archetype()));
+        assert!(!type1_instance.has_ancestor(Value::archetype()));
+    }
+
+    #[test]
+    fn test_individuals() {
+        bind_in_memory_graph();
+        let type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = type1.individuate_as_archetype();
+        let type1_instance = type1.individuate_as_tao();
+        let type2_instance = type2.individuate_as_tao();
+        assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
+        assert_eq!(type2.individuals(), vec![type2_instance]);
     }
 }
