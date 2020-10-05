@@ -43,10 +43,10 @@ mod archetype;
 pub mod attributes;
 mod tao;
 
+use crate::wrappers::{BaseNodeTrait, CommonNodeTrait, FinalWrapper, InheritanceNodeTrait};
 pub use archetype::Archetype;
 use attributes::Inherits;
 pub use tao::Tao;
-use crate::wrappers::{BaseNodeTrait, CommonNodeTrait, FinalWrapper, InheritanceNodeTrait};
 
 /// All formally defined archetypes should be describable by these properties.
 pub trait ArchetypeTrait<T>: From<usize> {
@@ -140,11 +140,14 @@ pub trait FormTrait: CommonNodeTrait {
     }
 
     fn add_parent(&mut self, parent: Archetype) {
-        self.essence_mut().add_outgoing(Inherits::TYPE_ID, parent.essence());
+        self.essence_mut()
+            .add_outgoing(Inherits::TYPE_ID, parent.essence());
     }
 
     fn has_ancestor(&self, possible_ancestor: Archetype) -> bool {
-        self.essence().inheritance_nodes().contains(possible_ancestor.essence())
+        self.essence()
+            .inheritance_nodes()
+            .contains(possible_ancestor.essence())
     }
 }
 

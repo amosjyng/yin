@@ -6,7 +6,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// Represents an archetype from which various individual nodes can be derived.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Archetype {
     base: FinalWrapper,
 }
@@ -40,14 +40,6 @@ impl Archetype {
 impl Debug for Archetype {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("Archetype", Box::new(self), f)
-    }
-}
-
-impl Eq for Archetype {}
-
-impl PartialEq for Archetype {
-    fn eq(&self, other: &Self) -> bool {
-        self.id() == other.id()
     }
 }
 

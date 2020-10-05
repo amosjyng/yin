@@ -5,7 +5,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// The value/target/to-node of an attribute.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Value {
     attr: Attribute,
 }
@@ -13,14 +13,6 @@ pub struct Value {
 impl Debug for Value {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("Value", Box::new(self), f)
-    }
-}
-
-impl Eq for Value {}
-
-impl PartialEq for Value {
-    fn eq(&self, other: &Self) -> bool {
-        self.attr == other.attr
     }
 }
 

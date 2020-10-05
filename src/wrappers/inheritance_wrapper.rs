@@ -3,10 +3,10 @@ use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::concepts::attributes::Inherits;
 use crate::concepts::ArchetypeTrait;
 use crate::graph::KBWrapper;
-use std::cmp::{Eq, Ordering, PartialEq};
+use std::cmp::{Eq, PartialEq};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::rc::Rc;
 
 pub trait InheritanceNodeTrait<T>: BaseNodeTrait<T> {
@@ -15,7 +15,7 @@ pub trait InheritanceNodeTrait<T>: BaseNodeTrait<T> {
 }
 
 /// Implementation for a node wrapper that offers inheritance of nodes.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct InheritanceWrapper {
     base: BaseWrapper,
 }
@@ -53,32 +53,6 @@ impl From<BaseWrapper> for InheritanceWrapper {
 impl Debug for InheritanceWrapper {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("IWrapper", Box::new(self), f)
-    }
-}
-
-impl Hash for InheritanceWrapper {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.id().hash(state);
-    }
-}
-
-impl Eq for InheritanceWrapper {}
-
-impl PartialEq for InheritanceWrapper {
-    fn eq(&self, other: &Self) -> bool {
-        self.base == other.base
-    }
-}
-
-impl Ord for InheritanceWrapper {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.base.cmp(&other.base)
-    }
-}
-
-impl PartialOrd for InheritanceWrapper {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
 
@@ -168,8 +142,10 @@ impl InheritanceNodeTrait<InheritanceWrapper> for InheritanceWrapper {
                 }
             }
         }
-        let mut result: Vec<InheritanceWrapper> =
-         visited.into_iter().map(|b| InheritanceWrapper::from(b)).collect();
+        let mut result: Vec<InheritanceWrapper> = visited
+            .into_iter()
+            .map(|b| InheritanceWrapper::from(b))
+            .collect();
         result.sort();
         result
     }

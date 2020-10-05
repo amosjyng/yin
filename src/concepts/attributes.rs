@@ -29,7 +29,7 @@ pub trait AttributeTrait<T>: ArchetypeTrait<T> {
 }
 
 /// Represents either a unary or binary relation.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Attribute {
     /// Wrapper that this abstraction is based on.
     pub base: FinalWrapper,
@@ -38,14 +38,6 @@ pub struct Attribute {
 impl Debug for Attribute {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("Attribute", Box::new(self), f)
-    }
-}
-
-impl Eq for Attribute {}
-
-impl PartialEq for Attribute {
-    fn eq(&self, other: &Self) -> bool {
-        self.id() == other.id()
     }
 }
 

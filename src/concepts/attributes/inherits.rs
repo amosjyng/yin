@@ -5,7 +5,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// Describes the owner as inheriting all attributes of the value.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Inherits {
     attr: Attribute,
 }
@@ -13,14 +13,6 @@ pub struct Inherits {
 impl Debug for Inherits {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("Inherits", Box::new(self), f)
-    }
-}
-
-impl Eq for Inherits {}
-
-impl PartialEq for Inherits {
-    fn eq(&self, other: &Self) -> bool {
-        self.attr == other.attr
     }
 }
 

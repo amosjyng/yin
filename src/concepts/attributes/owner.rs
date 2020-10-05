@@ -5,7 +5,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
 /// The owner/source/from-node of an attribute.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Owner {
     attr: Attribute,
 }
@@ -13,14 +13,6 @@ pub struct Owner {
 impl Debug for Owner {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("Owner", Box::new(self), f)
-    }
-}
-
-impl Eq for Owner {}
-
-impl PartialEq for Owner {
-    fn eq(&self, other: &Self) -> bool {
-        self.attr == other.attr
     }
 }
 

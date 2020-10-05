@@ -1,13 +1,13 @@
-use super::{InheritanceNodeTrait, InheritanceWrapper};
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
+use super::{InheritanceNodeTrait, InheritanceWrapper};
 use crate::graph::KBWrapper;
-use std::cmp::{Eq, Ordering, PartialEq};
+use std::cmp::{Eq, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::rc::Rc;
 
 /// Final node wrapper that offers a stable API for all concept abstractions dependent on it.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct FinalWrapper {
     base: InheritanceWrapper,
 }
@@ -43,32 +43,6 @@ impl From<InheritanceWrapper> for FinalWrapper {
 impl Debug for FinalWrapper {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("FWrapper", Box::new(self), f)
-    }
-}
-
-impl Hash for FinalWrapper {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.id().hash(state);
-    }
-}
-
-impl Eq for FinalWrapper {}
-
-impl PartialEq for FinalWrapper {
-    fn eq(&self, other: &Self) -> bool {
-        self.base == other.base
-    }
-}
-
-impl Ord for FinalWrapper {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.base.cmp(&other.base)
-    }
-}
-
-impl PartialOrd for FinalWrapper {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
 
@@ -130,7 +104,11 @@ impl BaseNodeTrait<FinalWrapper> for FinalWrapper {
 
 impl InheritanceNodeTrait<FinalWrapper> for FinalWrapper {
     fn inheritance_nodes(&self) -> Vec<FinalWrapper> {
-        self.base.inheritance_nodes().into_iter().map(|b| FinalWrapper::from(b)).collect()
+        self.base
+            .inheritance_nodes()
+            .into_iter()
+            .map(|b| FinalWrapper::from(b))
+            .collect()
     }
 }
 

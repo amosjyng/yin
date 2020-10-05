@@ -15,7 +15,7 @@ use std::rc::Rc;
 ///
 /// (What's that, I could've just called this the "root" node? But where's the *fun* in that? Next
 /// you're going to tell me not to GPL this motherfucker.)
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Tao {
     base: FinalWrapper,
 }
@@ -23,14 +23,6 @@ pub struct Tao {
 impl Debug for Tao {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("Tao", Box::new(self), f)
-    }
-}
-
-impl Eq for Tao {}
-
-impl PartialEq for Tao {
-    fn eq(&self, other: &Self) -> bool {
-        self.id() == other.id()
     }
 }
 
