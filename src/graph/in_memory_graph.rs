@@ -62,6 +62,10 @@ impl<'a> InMemoryGraph {
 }
 
 impl<'a> Graph for InMemoryGraph {
+    fn size(&self) -> usize {
+        self.graph.node_count()
+    }
+
     fn add_node(&mut self) -> usize {
         let new_id = self.graph.add_node(Default::default());
         self.graph.node_weight_mut(new_id).unwrap().id = new_id.index();
@@ -187,6 +191,15 @@ mod tests {
         let id = g.add_node();
         assert!(g.node_value(id).is_none());
         assert_eq!(g.node_name(id), None);
+    }
+
+    #[test]
+    fn test_size() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph {};
+        let initial_size = g.size();
+        g.add_node();
+        assert_eq!(g.size(), initial_size + 1);
     }
 
     #[test]

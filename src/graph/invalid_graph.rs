@@ -10,6 +10,10 @@ impl InvalidGraph {
 }
 
 impl Graph for InvalidGraph {
+    fn size(&self) -> usize {
+        panic!(Self::INVALID_MSG);
+    }
+
     fn add_node(&mut self) -> usize {
         panic!(Self::INVALID_MSG);
     }

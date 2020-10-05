@@ -38,6 +38,10 @@ pub fn bind_in_memory_graph() {
 pub struct InjectionGraph {}
 
 impl Graph for InjectionGraph {
+    fn size(&self) -> usize {
+        GRAPH.with(|g| g.borrow().size())
+    }
+
     fn add_node(&mut self) -> usize {
         GRAPH.with(|g| g.borrow_mut().add_node().clone())
     }

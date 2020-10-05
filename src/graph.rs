@@ -108,6 +108,9 @@ use std::rc::Rc;
 
 /// A classic directed Graph with nodes and labeled links.
 pub trait Graph {
+    /// The number of nodes in the graph.
+    fn size(&self) -> usize;
+
     /// Adds a new node to the graph, and returns the node's ID.
     fn add_node(&mut self) -> usize;
 

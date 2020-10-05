@@ -48,6 +48,10 @@ pub use archetype::Archetype;
 use attributes::Inherits;
 pub use tao::Tao;
 
+/// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
+/// should continue their numbering on top of this.
+pub const YIN_MAX_ID: usize = 5;
+
 /// All formally defined archetypes should be describable by these properties.
 pub trait ArchetypeTrait<T>: From<usize> {
     /// The ID for this archetype.
@@ -155,7 +159,14 @@ pub trait FormTrait: CommonNodeTrait {
 mod tests {
     use super::*;
     use crate::concepts::attributes::{AttributeTrait, Owner, Value};
-    use crate::graph::bind_in_memory_graph;
+    use crate::graph::{bind_in_memory_graph, Graph, InjectionGraph};
+
+    #[test]
+    fn test_yin_size() {
+        bind_in_memory_graph();
+        let g = InjectionGraph {};
+        assert_eq!(g.size(), crate::concepts::YIN_MAX_ID + 1); // node IDs are zero-indexed
+    }
 
     #[test]
     fn test_new_node_inheritance() {
