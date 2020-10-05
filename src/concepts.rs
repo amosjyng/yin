@@ -20,9 +20,10 @@
 //! ```rust
 //! # use yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::concepts::{Tao, ArchetypeTrait};
+//! use yin::concepts::{Tao, ArchetypeTrait, FormTrait};
 //!
 //! let mut concept = Tao::individuate();
+//! assert!(concept.has_ancestor(Tao::archetype()));
 //! ```
 //!
 //! We can set a name for this concept. Note that names don't need to be unique.
