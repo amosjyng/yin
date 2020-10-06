@@ -1,3 +1,4 @@
+#[cfg(feature = "cypher")]
 use super::cypher_graph::CypherGraph;
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
@@ -42,6 +43,7 @@ pub fn bind_in_memory_graph() {
 ///    version 4. See the [deprecation notice](https://neo4j.com/docs/rest-docs/3.5/) on the
 ///    version 3 API.
 ///  * Only string values can be attached to nodes.
+#[cfg(feature = "cypher")]
 pub fn bind_cypher_graph(uri: &str) {
     GRAPH.with(|g| {
         let mut cg = CypherGraph::new(uri);
