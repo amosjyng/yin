@@ -6,7 +6,9 @@ Yin is a rudimentary, experimental knowledge base. It is inspired by [Scone](htt
 
 Functionality is basically non-existent at the moment. Please do not use this library.
 
-### Concept creation
+### Initialization and concept creation
+
+Note that there is currently only single-threaded support. Unless using a Neo4j Cypher backend, every spawned thread will have its own independent instance of the KB.
 
 ```rust
 use yin::graph::bind_in_memory_graph;

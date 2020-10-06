@@ -13,7 +13,6 @@ publish = false
 
 [features]
 default = ["cypher"]
-
 cypher = ["rusted_cypher"]
 
 [dependencies]
