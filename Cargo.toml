@@ -9,7 +9,6 @@ repository = "https://github.com/amosjyng/yin"
 license = "GPL-3.0"
 keywords = ["database", "knowledge-base"]
 categories = ["database"]
-publish = false
 
 [features]
 default = ["cypher"]
