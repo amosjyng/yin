@@ -1,4 +1,4 @@
-# YIN
+# YIN 阴
 
 [![Build Status](https://travis-ci.com/amosjyng/yin.svg?branch=master)](https://travis-ci.com/amosjyng/yin)
 
@@ -13,10 +13,9 @@ Functionality is basically non-existent at the moment. Please do not use this li
 Note that there is currently only single-threaded support. Unless using a Neo4j Cypher backend, every spawned thread will have its own independent instance of the KB.
 
 ```rust
-use yin::graph::bind_in_memory_graph;
-use yin::concepts::{Tao, ArchetypeTrait, FormTrait};
-use yin::wrappers::CommonNodeTrait;
-use std::rc::Rc;
+use zamm_yin::graph::bind_in_memory_graph;
+use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
+use zamm_yin::wrappers::CommonNodeTrait;
 
 fn main() {
     // Initialize the knowledge-base

@@ -6,7 +6,7 @@
 //! implementations should be logically equivalent. Let's use the in-memory one for simplicity:
 //!
 //! ```rust
-//! use yin::graph::bind_in_memory_graph;
+//! use zamm_yin::graph::bind_in_memory_graph;
 //!
 //! bind_in_memory_graph();
 //! ```
@@ -15,19 +15,19 @@
 //! implementation via dependency injection:
 //!
 //! ```rust
-//! # use yin::graph::bind_in_memory_graph;
+//! # use zamm_yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::graph::InjectionGraph;
+//! use zamm_yin::graph::InjectionGraph;
 //!
 //! let mut g = InjectionGraph::new();
 //! ```
 //!
 //! Now we can create a new node:
 //! ```rust
-//! # use yin::graph::{bind_in_memory_graph, InjectionGraph};
+//! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph};
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
-//! use yin::graph::Graph;
+//! use zamm_yin::graph::Graph;
 //!
 //! let a_id = g.add_node();
 //! ```
@@ -35,7 +35,7 @@
 //! We can set a name for the node. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
@@ -49,11 +49,11 @@
 //! territory, we generally don't want to have Yin itself own the data being operated on.
 //!
 //! ```rust
-//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
-//! use yin::graph::{WeakWrapper, unwrap_weak};
+//! use zamm_yin::graph::{WeakWrapper, unwrap_weak};
 //! use std::rc::Rc;
 //!
 //! let v = Rc::new(5);
@@ -63,7 +63,7 @@
 //!
 //! Let's create a few more nodes:
 //! ```rust
-//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
@@ -78,7 +78,7 @@
 //! any integer, they are assumed to be node IDs by higher-level Yin abstractions:
 //!
 //! ```rust
-//! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
