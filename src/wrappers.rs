@@ -10,7 +10,7 @@ pub use inheritance_wrapper::{InheritanceNodeTrait, InheritanceWrapper};
 use std::fmt::{Formatter, Result};
 use std::rc::Rc;
 
-/// All wrappers around a graph node will always have these associated functions available.
+/// All wrappers around a graph node will have these functions available.
 pub trait CommonNodeTrait {
     /// The unique integer that's associated with this concept.
     fn id(&self) -> usize;

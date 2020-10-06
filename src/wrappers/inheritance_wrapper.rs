@@ -9,6 +9,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::hash::Hash;
 use std::rc::Rc;
 
+/// All wrappers that are aware of attribute inheritance will have these functions available.
 pub trait InheritanceNodeTrait<T>: BaseNodeTrait<T> {
     /// The set of nodes, including this one, whose attributes count as this one's.
     fn inheritance_nodes(&self) -> Vec<T>;

@@ -5,7 +5,7 @@ use std::fmt::{Debug, Formatter, Result};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
-/// All wrappers in the `wrappers` module will have these functions available.
+/// All low-level wrappers will have these functions available.
 pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Associate this node with a value.
     fn set_value(&mut self, value: Box<dyn KBWrapper>);

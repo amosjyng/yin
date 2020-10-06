@@ -45,7 +45,8 @@
 //! assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
 //! ```
 //!
-//! We can also set a value for the node:
+//! We can also set a value for the node. We use `Rc` here because Yin being the map and not the
+//! territory, we generally don't want to have Yin itself own the data being operated on.
 //!
 //! ```rust
 //! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
