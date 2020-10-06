@@ -30,3 +30,11 @@ fn main() {
     println!("{}", concept.internal_name().unwrap());
 }
 ```
+
+## Development
+
+By default, the Neo4j Cypher tests aren't run. To run them: 
+
+ 1. Ensure that Neo4j version 3 is installed and running (the `petgraph` dependency doesn't support version 4)
+ 2. Change the test DB password to `dummy_password`
+ 3. Run `cargo test -- --ignored`
