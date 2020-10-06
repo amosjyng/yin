@@ -102,6 +102,30 @@ mod tests {
     }
 
     #[test]
+    fn from_node_id() {
+        bind_in_memory_graph();
+        let concept = Value::individuate();
+        let concept_copy = Value::from(concept.id());
+        assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_id() {
+        bind_in_memory_graph();
+        let concept1 = Value::individuate();
+        let concept2 = Value::individuate();
+        assert_eq!(concept1.id() + 1, concept2.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_name() {
+        bind_in_memory_graph();
+        let mut concept = Value::individuate();
+        concept.set_internal_name("A".to_string());
+        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+    }
+
+    #[test]
     fn get_owner() {
         bind_in_memory_graph();
         let mut value_instance = Value::individuate();

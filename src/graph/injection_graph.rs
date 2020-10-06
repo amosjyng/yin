@@ -13,6 +13,24 @@ thread_local! {
 }
 
 /// Add the given Concept type to the KB.
+///
+/// # Examples
+///
+/// Note: do not actually run this on existing types, since they are automatically added when the
+/// KB is initialized.
+///
+/// ```rust
+/// # use zamm_yin::graph::bind_in_memory_graph;
+/// # bind_in_memory_graph();
+/// use zamm_yin::initialize_type;
+/// use zamm_yin::concepts::ArchetypeTrait;
+/// use zamm_yin::concepts::attributes::Inherits;
+/// use zamm_yin::concepts::{Archetype, Tao}; // import your own types instead
+/// use zamm_yin::graph::{Graph, InjectionGraph};
+///
+/// let mut ig = InjectionGraph::new();
+/// initialize_type!(ig, (Archetype, Tao));
+/// ```
 #[macro_export]
 macro_rules! initialize_type {
     ($g:expr, ($($t:ty),*)) => {
