@@ -96,13 +96,16 @@
 //! assert_eq!(g.outgoing_nodes(c_id, edge_type2), vec![a_id]);
 //! ```
 
+mod cypher_graph;
 mod in_memory_graph;
 mod injection_graph;
 mod invalid_graph;
 mod kb_wrapper;
 
-pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGraph};
-pub use kb_wrapper::{unwrap_weak, KBWrapper, WeakWrapper};
+pub use injection_graph::{
+    bind_cypher_graph, bind_in_memory_graph, print_graph_debug, InjectionGraph,
+};
+pub use kb_wrapper::{unwrap_strong, unwrap_weak, KBWrapper, StrongWrapper, WeakWrapper};
 
 use std::rc::Rc;
 

@@ -1,3 +1,4 @@
+use super::cypher_graph::CypherGraph;
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
 use super::{Graph, KBWrapper};
@@ -30,6 +31,22 @@ pub fn bind_in_memory_graph() {
         let mut img = InMemoryGraph::new();
         initialize_type!(img, (Tao, Archetype, Attribute, Owner, Value, Inherits));
         *g.borrow_mut() = Box::new(img);
+    });
+}
+
+/// Bind GRAPH to an external Neo4j database.
+///
+/// Current limitations:
+///
+///  * This requries Neo4j version 3, because rusted_cypher currently does not appear to support
+///    version 4. See the [deprecation notice](https://neo4j.com/docs/rest-docs/3.5/) on the
+///    version 3 API.
+///  * Only string values can be attached to nodes.
+pub fn bind_cypher_graph(uri: &str) {
+    GRAPH.with(|g| {
+        let mut cg = CypherGraph::new(uri);
+        initialize_type!(cg, (Tao, Archetype, Attribute, Owner, Value, Inherits));
+        *g.borrow_mut() = Box::new(cg);
     });
 }
 

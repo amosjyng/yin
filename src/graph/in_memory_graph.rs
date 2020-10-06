@@ -48,11 +48,12 @@ impl Display for EdgeInfo {
     }
 }
 
+/// Graph that resides entirely in-memory, based on PetGraph.
 pub struct InMemoryGraph {
     graph: petgraph::graph::Graph<NodeInfo, EdgeInfo>,
 }
 
-impl<'a> InMemoryGraph {
+impl InMemoryGraph {
     /// Constructs an empty new in-memory graph
     pub fn new() -> Self {
         InMemoryGraph {
@@ -61,7 +62,7 @@ impl<'a> InMemoryGraph {
     }
 }
 
-impl<'a> Graph for InMemoryGraph {
+impl Graph for InMemoryGraph {
     fn size(&self) -> usize {
         self.graph.node_count()
     }
@@ -176,16 +177,14 @@ impl<'a> Graph for InMemoryGraph {
 mod tests {
     use super::super::*;
     use super::*;
-    use crate::concepts::attributes::Owner;
-    use crate::concepts::ArchetypeTrait;
 
     #[test]
-    fn in_memory_graph_create() {
+    fn test_create() {
         bind_in_memory_graph();
     }
 
     #[test]
-    fn in_memory_graph_add_node() {
+    fn test_add_node() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let id = g.add_node();
@@ -203,7 +202,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_set_node_value() {
+    fn test_set_node_value() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -214,7 +213,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_retrieve_node_string_value() {
+    fn test_retrieve_node_string_value() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -225,7 +224,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_retrieve_node_name() {
+    fn test_retrieve_node_name() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -234,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_retrieve_node_name_value() {
+    fn test_retrieve_node_name_value() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -246,16 +245,16 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_no_outgoing_node() {
+    fn test_no_outgoing_node() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
-        assert_eq!(g.all_outgoing_nodes(a_id), Vec::new());
-        assert_eq!(g.outgoing_nodes(a_id, a_id), Vec::new());
+        assert_eq!(g.all_outgoing_nodes(a_id), Vec::<usize>::new());
+        assert_eq!(g.outgoing_nodes(a_id, a_id), Vec::<usize>::new());
     }
 
     #[test]
-    fn in_memory_graph_one_outgoing_node() {
+    fn test_one_outgoing_node() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -267,7 +266,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_multiple_outgoing_nodes() {
+    fn test_multiple_outgoing_nodes() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -281,7 +280,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_outgoing_ignores_incoming_nodes() {
+    fn test_outgoing_ignores_incoming_nodes() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -297,7 +296,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_outgoing_ignores_wrong_edge_type() {
+    fn test_outgoing_ignores_wrong_edge_type() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -328,16 +327,16 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_no_incoming_node() {
+    fn test_no_incoming_node() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
-        assert_eq!(g.all_incoming_nodes(a_id), Vec::new());
-        assert_eq!(g.incoming_nodes(a_id, a_id), Vec::new());
+        assert_eq!(g.all_incoming_nodes(a_id), Vec::<usize>::new());
+        assert_eq!(g.incoming_nodes(a_id, a_id), Vec::<usize>::new());
     }
 
     #[test]
-    fn in_memory_graph_incoming_node() {
+    fn test_incoming_node() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -349,7 +348,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_multiple_incoming_nodes() {
+    fn test_multiple_incoming_nodes() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -363,7 +362,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_incoming_ignores_outgoing_nodes() {
+    fn test_incoming_ignores_outgoing_nodes() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -379,7 +378,7 @@ mod tests {
     }
 
     #[test]
-    fn in_memory_graph_incoming_ignores_wrong_edge_type() {
+    fn test_incoming_ignores_wrong_edge_type() {
         bind_in_memory_graph();
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
@@ -401,16 +400,20 @@ mod tests {
         let mut g = InjectionGraph {};
         let a_id = g.add_node();
         let b_id = g.add_node();
+        let edge_type_id = g.add_node();
         g.set_node_name(b_id, "B node".to_owned());
-        g.add_edge(a_id, Owner::TYPE_ID, b_id);
+        g.set_node_name(edge_type_id, "test attr".to_owned());
+        g.add_edge(a_id, edge_type_id, b_id);
 
         let dot_representation = g.into_dot();
         print_graph_debug();
         assert!(dot_representation.starts_with("digraph"));
         assert!(dot_representation.contains(" [ label = \"B node\" ]"));
         assert_eq!(
-            dot_representation.matches(" [ label = \"Owner\" ]").count(),
-            2
+            dot_representation
+                .matches(" [ label = \"test attr\" ]")
+                .count(),
+            2 // one label for the node, another for the edge
         );
     }
 }

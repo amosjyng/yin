@@ -15,3 +15,4 @@ publish = false
 
 [dependencies]
 petgraph = "^0.5.1"
+rusted_cypher = "^1.1.0"

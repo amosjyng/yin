@@ -30,6 +30,21 @@ pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> O
         .flatten()
 }
 
+/// Similar to unwrap_weak, returns the value held by a String-valued StrongWrapper]
+pub fn unwrap_strong<'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> Option<Rc<String>> {
+    // todo: see if lifetime ugliness can be cleaned up without cloning. Ownership transfer may be
+    // best here, seeing as CypherGraph doesn't care to own any of these strings.
+    wrapper.map(|v| {
+        Rc::new(
+            v.as_any()
+                .downcast_ref::<StrongWrapper<String>>()
+                .unwrap()
+                .value()
+                .clone(),
+        )
+    })
+}
+
 /// KBWrapper for weak references to data.
 #[derive(Debug)]
 pub struct WeakWrapper<T: Any> {
@@ -49,6 +64,28 @@ impl<T: Any> WeakWrapper<T> {
 }
 
 impl<'a, T: Any + 'static> KBWrapper for WeakWrapper<T> {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
+/// KBWrapper for owned data.
+#[derive(Debug)]
+pub struct StrongWrapper<T: Any> {
+    pub item: T,
+}
+
+impl<T: Any> StrongWrapper<T> {
+    pub fn new(t: T) -> Self {
+        StrongWrapper { item: t }
+    }
+
+    pub fn value(&self) -> &T {
+        &self.item
+    }
+}
+
+impl<'a, T: Any + 'static> KBWrapper for StrongWrapper<T> {
     fn as_any(&self) -> &dyn Any {
         self
     }
