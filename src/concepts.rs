@@ -1,9 +1,9 @@
 //! Object-oriented representations of nodes as first-class individuals, as opposed to merely being
 //! one of many components of a knowledge-base.
-//! 
-//! The `wrappers` module provides additional low-level capabilities for nodes, above and beyond 
-//! those of regular graphs. This module abstracts away those low-level capabilities and greatly 
-//! cuts down on the possibilities, in exchange for offering much stronger compile-time checks on 
+//!
+//! The `wrappers` module provides additional low-level capabilities for nodes, above and beyond
+//! those of regular graphs. This module abstracts away those low-level capabilities and greatly
+//! cuts down on the possibilities, in exchange for offering much stronger compile-time checks on
 //! which edge-node combinations are semantically meaningful.
 //!
 //! Do not mistake the map for the territory. Concepts are the map that tells you how to interact

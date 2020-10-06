@@ -17,5 +17,6 @@ default = ["cypher"]
 cypher = ["rusted_cypher"]
 
 [dependencies]
+lazy_static = "^1.4.0"
 petgraph = "^0.5.1"
 rusted_cypher = { version = "^1.1.0", optional = true }

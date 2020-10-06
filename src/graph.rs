@@ -112,7 +112,7 @@ pub use kb_wrapper::{unwrap_strong, unwrap_weak, KBWrapper, StrongWrapper, WeakW
 use std::rc::Rc;
 
 /// A classic directed Graph with nodes and labeled links.
-pub trait Graph {
+pub trait Graph: Send {
     /// The number of nodes in the graph.
     fn size(&self) -> usize;
 
