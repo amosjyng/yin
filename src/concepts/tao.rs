@@ -103,19 +103,19 @@ mod tests {
     }
 
     #[test]
-    fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
-        let concept1 = Tao::individuate();
-        let concept2 = Tao::individuate();
-        assert_eq!(concept1.id() + 1, concept2.id());
-    }
-
-    #[test]
     fn from_node_id() {
         bind_in_memory_graph();
         let concept = Tao::individuate();
         let concept_copy = Tao::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_id() {
+        bind_in_memory_graph();
+        let concept1 = Tao::individuate();
+        let concept2 = Tao::individuate();
+        assert_eq!(concept1.id() + 1, concept2.id());
     }
 
     #[test]

@@ -100,4 +100,28 @@ mod tests {
             Some(Rc::new(Inherits::TYPE_NAME.to_string()))
         );
     }
+
+    #[test]
+    fn from_node_id() {
+        bind_in_memory_graph();
+        let concept = Inherits::individuate();
+        let concept_copy = Inherits::from(concept.id());
+        assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_id() {
+        bind_in_memory_graph();
+        let concept1 = Inherits::individuate();
+        let concept2 = Inherits::individuate();
+        assert_eq!(concept1.id() + 1, concept2.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_name() {
+        bind_in_memory_graph();
+        let mut concept = Inherits::individuate();
+        concept.set_internal_name("A".to_string());
+        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+    }
 }
