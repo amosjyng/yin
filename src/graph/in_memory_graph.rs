@@ -186,7 +186,7 @@ mod tests {
     #[test]
     fn test_add_node() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let id = g.add_node();
         assert!(g.node_value(id).is_none());
         assert_eq!(g.node_name(id), None);
@@ -195,7 +195,7 @@ mod tests {
     #[test]
     fn test_size() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let initial_size = g.size();
         g.add_node();
         assert_eq!(g.size(), initial_size + 1);
@@ -204,7 +204,7 @@ mod tests {
     #[test]
     fn test_set_node_value() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new(5);
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
@@ -215,7 +215,7 @@ mod tests {
     #[test]
     fn test_retrieve_node_string_value() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new("5");
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
@@ -226,7 +226,7 @@ mod tests {
     #[test]
     fn test_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         g.set_node_name(a_id, "A".to_string());
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
@@ -235,7 +235,7 @@ mod tests {
     #[test]
     fn test_retrieve_node_name_value() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new(5);
         g.set_node_name(a_id, "A".to_string());
@@ -247,7 +247,7 @@ mod tests {
     #[test]
     fn test_no_outgoing_node() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         assert_eq!(g.all_outgoing_nodes(a_id), Vec::<usize>::new());
         assert_eq!(g.outgoing_nodes(a_id, a_id), Vec::<usize>::new());
@@ -256,7 +256,7 @@ mod tests {
     #[test]
     fn test_one_outgoing_node() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let edge_type = g.add_node();
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn test_multiple_outgoing_nodes() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let c_id = g.add_node();
@@ -282,7 +282,7 @@ mod tests {
     #[test]
     fn test_outgoing_ignores_incoming_nodes() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let c_id = g.add_node();
@@ -298,7 +298,7 @@ mod tests {
     #[test]
     fn test_outgoing_ignores_wrong_edge_type() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let c_id = g.add_node();
@@ -315,7 +315,7 @@ mod tests {
     #[test]
     fn test_has_edge() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let edge_type1 = g.add_node();
@@ -329,7 +329,7 @@ mod tests {
     #[test]
     fn test_no_incoming_node() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         assert_eq!(g.all_incoming_nodes(a_id), Vec::<usize>::new());
         assert_eq!(g.incoming_nodes(a_id, a_id), Vec::<usize>::new());
@@ -338,7 +338,7 @@ mod tests {
     #[test]
     fn test_incoming_node() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let edge_type = g.add_node();
@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn test_multiple_incoming_nodes() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let c_id = g.add_node();
@@ -364,7 +364,7 @@ mod tests {
     #[test]
     fn test_incoming_ignores_outgoing_nodes() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let c_id = g.add_node();
@@ -380,7 +380,7 @@ mod tests {
     #[test]
     fn test_incoming_ignores_wrong_edge_type() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
         let c_id = g.add_node();
@@ -397,13 +397,15 @@ mod tests {
     #[test]
     fn test_into_dot() {
         bind_in_memory_graph();
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
-        let edge_type_id = g.add_node();
+        let edge1_type_id = g.add_node();
+        let edge2_type_id = g.add_node();
         g.set_node_name(b_id, "B node".to_owned());
-        g.set_node_name(edge_type_id, "test attr".to_owned());
-        g.add_edge(a_id, edge_type_id, b_id);
+        g.set_node_name(edge1_type_id, "test attr".to_owned());
+        g.add_edge(a_id, edge1_type_id, b_id);
+        g.add_edge(a_id, edge2_type_id, b_id);
 
         let dot_representation = g.into_dot();
         print_graph_debug();
@@ -413,6 +415,12 @@ mod tests {
             dot_representation
                 .matches(" [ label = \"test attr\" ]")
                 .count(),
+            2 // one label for the node, another for the edge
+        );
+        // Test that unlabeled edges get represented fine
+        let edge2_label = format!(" [ label = \"{}\" ]", edge2_type_id);
+        assert_eq!(
+            dot_representation.matches(edge2_label.as_str()).count(),
             2 // one label for the node, another for the edge
         );
     }

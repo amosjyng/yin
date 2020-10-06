@@ -30,7 +30,7 @@ pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> O
         .flatten()
 }
 
-/// Similar to unwrap_weak, returns the value held by a String-valued StrongWrapper]
+/// Similar to unwrap_weak, returns the value held by a String-valued StrongWrapper.
 pub fn unwrap_strong<'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> Option<Rc<String>> {
     // todo: see if lifetime ugliness can be cleaned up without cloning. Ownership transfer may be
     // best here, seeing as CypherGraph doesn't care to own any of these strings.

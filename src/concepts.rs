@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn test_yin_size() {
         bind_in_memory_graph();
-        let g = InjectionGraph {};
+        let g = InjectionGraph::new();
         assert_eq!(g.size(), crate::concepts::YIN_MAX_ID + 1); // node IDs are zero-indexed
     }
 

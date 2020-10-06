@@ -56,6 +56,13 @@ pub fn bind_cypher_graph(uri: &str) {
 #[derive(Copy, Clone)]
 pub struct InjectionGraph {}
 
+impl InjectionGraph {
+    /// Creates a new reference to
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 impl Graph for InjectionGraph {
     fn size(&self) -> usize {
         GRAPH.with(|g| g.borrow().size())
@@ -112,5 +119,5 @@ impl Graph for InjectionGraph {
 
 /// Print graph to stdout for debugging purposes.
 pub fn print_graph_debug() {
-    println!("{}", InjectionGraph {}.into_dot());
+    println!("{}", InjectionGraph::new().into_dot());
 }

@@ -19,14 +19,14 @@
 //! # bind_in_memory_graph();
 //! use yin::graph::InjectionGraph;
 //!
-//! let mut g = InjectionGraph {};
+//! let mut g = InjectionGraph::new();
 //! ```
 //!
 //! Now we can create a new node:
 //! ```rust
 //! # use yin::graph::{bind_in_memory_graph, InjectionGraph};
 //! # bind_in_memory_graph();
-//! # let mut g = InjectionGraph {};
+//! # let mut g = InjectionGraph::new();
 //! use yin::graph::Graph;
 //!
 //! let a_id = g.add_node();
@@ -37,7 +37,7 @@
 //! ```rust
 //! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
-//! # let mut g = InjectionGraph {};
+//! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
 //! use std::rc::Rc;
 //!
@@ -50,7 +50,7 @@
 //! ```rust
 //! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
-//! # let mut g = InjectionGraph {};
+//! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
 //! use yin::graph::{WeakWrapper, unwrap_weak};
 //! use std::rc::Rc;
@@ -64,7 +64,7 @@
 //! ```rust
 //! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
-//! # let mut g = InjectionGraph {};
+//! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
 //! let b_id = g.add_node();
 //! let c_id = g.add_node();
@@ -79,7 +79,7 @@
 //! ```rust
 //! # use yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
 //! # bind_in_memory_graph();
-//! # let mut g = InjectionGraph {};
+//! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
 //! # let b_id = g.add_node();
 //! # let c_id = g.add_node();

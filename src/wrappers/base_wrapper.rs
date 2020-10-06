@@ -42,7 +42,7 @@ pub struct BaseWrapper {
 impl BaseWrapper {
     /// Create a new node.
     pub fn new() -> Self {
-        let mut g = InjectionGraph {};
+        let mut g = InjectionGraph::new();
         BaseWrapper {
             graph: g,
             id: g.add_node(),
@@ -53,7 +53,7 @@ impl BaseWrapper {
 impl From<usize> for BaseWrapper {
     fn from(id: usize) -> Self {
         BaseWrapper {
-            graph: InjectionGraph {},
+            graph: InjectionGraph::new(),
             id: id,
         }
     }
