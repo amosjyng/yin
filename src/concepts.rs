@@ -15,7 +15,7 @@
 //! implementations should be logically equivalent. Let's use the in-memory one for simplicity:
 //!
 //! ```rust
-//! use yin::graph::bind_in_memory_graph;
+//! use zamm_yin::graph::bind_in_memory_graph;
 //!
 //! bind_in_memory_graph();
 //! ```
@@ -23,9 +23,9 @@
 //! Now, we can create a new concept:
 //!
 //! ```rust
-//! # use yin::graph::bind_in_memory_graph;
+//! # use zamm_yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
-//! use yin::concepts::{Tao, ArchetypeTrait, FormTrait};
+//! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
 //!
 //! let mut concept = Tao::individuate();
 //! assert!(concept.has_ancestor(Tao::archetype()));
@@ -34,11 +34,11 @@
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use yin::concepts::{Tao, ArchetypeTrait};
-//! # use yin::graph::bind_in_memory_graph;
+//! # use zamm_yin::concepts::{Tao, ArchetypeTrait};
+//! # use zamm_yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
 //! # let mut concept = Tao::individuate();
-//! use yin::wrappers::CommonNodeTrait;
+//! use zamm_yin::wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
 //! concept.set_internal_name("A".to_string());

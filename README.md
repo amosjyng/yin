@@ -1,4 +1,4 @@
-# YIN
+# YIN 阴
 
 [![Build Status](https://travis-ci.com/amosjyng/yin.svg?branch=master)](https://travis-ci.com/amosjyng/yin)
 
@@ -13,10 +13,9 @@ Functionality is basically non-existent at the moment. Please do not use this li
 Note that there is currently only single-threaded support. Unless using a Neo4j Cypher backend, every spawned thread will have its own independent instance of the KB.
 
 ```rust
-use yin::graph::bind_in_memory_graph;
-use yin::concepts::{Tao, ArchetypeTrait, FormTrait};
-use yin::wrappers::CommonNodeTrait;
-use std::rc::Rc;
+use zamm_yin::graph::bind_in_memory_graph;
+use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
+use zamm_yin::wrappers::CommonNodeTrait;
 
 fn main() {
     // Initialize the knowledge-base
@@ -31,3 +30,11 @@ fn main() {
     println!("{}", concept.internal_name().unwrap());
 }
 ```
+
+## Development
+
+By default, the Neo4j Cypher tests aren't run. To run them: 
+
+ 1. Ensure that Neo4j version 3 is installed and running (the `petgraph` dependency doesn't support version 4)
+ 2. Change the test DB password to `dummy_password`
+ 3. Run `cargo test -- --ignored`
