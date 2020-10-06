@@ -2,15 +2,12 @@ use super::Graph;
 use super::KBWrapper;
 use std::rc::Rc;
 
-/// Invalid default graph, created before a real graph is chosen and bound.
+/// Invalid default graph.
 pub struct InvalidGraph {}
 
 impl InvalidGraph {
-    /// Default error message when any functions here are used.
-    pub const INVALID_MSG: &'static str = "Initialize graph binding before use";
+    const INVALID_MSG: &'static str = "Initialize graph binding before use";
 }
-
-unsafe impl Send for InvalidGraph {}
 
 impl Graph for InvalidGraph {
     fn size(&self) -> usize {

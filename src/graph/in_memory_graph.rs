@@ -62,8 +62,6 @@ impl InMemoryGraph {
     }
 }
 
-unsafe impl Send for InMemoryGraph {}
-
 impl Graph for InMemoryGraph {
     fn size(&self) -> usize {
         self.graph.node_count()
