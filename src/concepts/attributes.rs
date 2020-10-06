@@ -8,7 +8,7 @@ pub use inherits::Inherits;
 pub use owner::Owner;
 pub use value::Value;
 
-use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
+use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
@@ -43,7 +43,7 @@ impl Debug for Attribute {
 
 impl From<usize> for Attribute {
     fn from(id: usize) -> Self {
-        Attribute {
+        Self {
             base: FinalWrapper::from(id),
         }
     }
@@ -68,16 +68,8 @@ impl ArchetypeTrait<Attribute> for Attribute {
     const TYPE_NAME: &'static str = "Attribute";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
 
-    fn archetype() -> Archetype {
-        Archetype::from(Self::TYPE_ID)
-    }
-
-    fn individuate() -> Self {
-        Self::individuate_with_parent(Self::TYPE_ID)
-    }
-
     fn individuate_with_parent(parent_id: usize) -> Self {
-        Attribute {
+        Self {
             base: FinalWrapper::new_with_inheritance(parent_id),
         }
     }

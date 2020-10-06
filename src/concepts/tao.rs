@@ -28,7 +28,7 @@ impl Debug for Tao {
 
 impl From<usize> for Tao {
     fn from(id: usize) -> Self {
-        Tao {
+        Self {
             base: FinalWrapper::from(id),
         }
     }
@@ -36,7 +36,7 @@ impl From<usize> for Tao {
 
 impl From<FinalWrapper> for Tao {
     fn from(bw: FinalWrapper) -> Self {
-        Tao { base: bw }
+        Self { base: bw }
     }
 }
 
@@ -64,14 +64,8 @@ impl ArchetypeTrait<Tao> for Tao {
         Archetype::from(Self::TYPE_ID)
     }
 
-    fn individuate() -> Self {
-        Tao {
-            base: FinalWrapper::new_with_inheritance(Self::TYPE_ID),
-        }
-    }
-
     fn individuate_with_parent(parent_id: usize) -> Self {
-        Tao {
+        Self {
             base: FinalWrapper::new_with_inheritance(parent_id),
         }
     }
