@@ -59,7 +59,7 @@ impl Debug for Archetype {
 
 impl From<usize> for Archetype {
     fn from(id: usize) -> Self {
-        Archetype {
+        Self {
             base: FinalWrapper::from(id),
         }
     }
@@ -67,7 +67,7 @@ impl From<usize> for Archetype {
 
 impl From<FinalWrapper> for Archetype {
     fn from(fw: FinalWrapper) -> Self {
-        Archetype { base: fw }
+        Self { base: fw }
     }
 }
 
@@ -90,16 +90,8 @@ impl ArchetypeTrait<Archetype> for Archetype {
     const TYPE_NAME: &'static str = "Archetype";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
 
-    fn archetype() -> Archetype {
-        Archetype::from(Self::TYPE_ID)
-    }
-
-    fn individuate() -> Self {
-        Self::individuate_with_parent(Self::TYPE_ID)
-    }
-
     fn individuate_with_parent(parent_id: usize) -> Self {
-        Archetype {
+        Self {
             base: FinalWrapper::new_with_inheritance(parent_id),
         }
     }

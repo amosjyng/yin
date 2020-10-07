@@ -72,7 +72,9 @@ pub trait ArchetypeTrait<T>: From<usize> {
     const PARENT_TYPE_ID: usize;
 
     /// The incarnation of this archetype as a form.
-    fn archetype() -> Archetype;
+    fn archetype() -> Archetype {
+        Archetype::from(Self::TYPE_ID)
+    }
 
     /// In the beginning was the Oneness, and the Oneness was nothingness.
     ///
@@ -88,7 +90,9 @@ pub trait ArchetypeTrait<T>: From<usize> {
     /// From this countable infinity all forms emerged, dividing the Oneness again and again into
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
-    fn individuate() -> T;
+    fn individuate() -> T {
+        Self::individuate_with_parent(Self::TYPE_ID)
+    }
 
     /// Individuate with a more specific parent than the current one. This custom parent should
     /// inherit from the current type.

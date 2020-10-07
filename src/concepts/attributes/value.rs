@@ -1,5 +1,5 @@
 use super::{Attribute, AttributeTrait};
-use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
+use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
@@ -18,7 +18,7 @@ impl Debug for Value {
 
 impl From<usize> for Value {
     fn from(id: usize) -> Self {
-        Value {
+        Self {
             attr: Attribute::from(id),
         }
     }
@@ -43,16 +43,8 @@ impl ArchetypeTrait<Value> for Value {
     const TYPE_NAME: &'static str = "Value";
     const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 
-    fn archetype() -> Archetype {
-        Archetype::from(Self::TYPE_ID)
-    }
-
-    fn individuate() -> Self {
-        Self::individuate_with_parent(Self::TYPE_ID)
-    }
-
     fn individuate_with_parent(parent_id: usize) -> Self {
-        Value {
+        Self {
             attr: Attribute::individuate_with_parent(parent_id),
         }
     }
