@@ -4,6 +4,7 @@ use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
 use petgraph::Direction;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 
@@ -51,6 +52,7 @@ impl Display for EdgeInfo {
 /// Graph that resides entirely in-memory, based on PetGraph.
 pub struct InMemoryGraph {
     graph: petgraph::graph::Graph<NodeInfo, EdgeInfo>,
+    names: HashMap<Rc<String>, Vec<usize>>,
 }
 
 impl InMemoryGraph {
@@ -58,6 +60,7 @@ impl InMemoryGraph {
     pub fn new() -> Self {
         InMemoryGraph {
             graph: petgraph::graph::Graph::new(),
+            names: HashMap::new(),
         }
     }
 }
@@ -81,12 +84,19 @@ impl Graph for InMemoryGraph {
     }
 
     fn set_node_name(&mut self, id: usize, name: String) {
+        let name_rc = Rc::new(name);
+        match self.names.get_mut(&name_rc) {
+            Some(existing_vec) => existing_vec.push(id),
+            None => {
+                self.names.insert(name_rc.clone(), vec![id]);
+            }
+        };
         self.graph
             .node_weight_mut(NodeIndex::new(id))
             .unwrap()
             .name
             .borrow_mut()
-            .name = Some(Rc::new(name));
+            .name = Some(name_rc);
     }
 
     fn node_name(&self, id: usize) -> Option<Rc<String>> {
@@ -101,6 +111,16 @@ impl Graph for InMemoryGraph {
             .node_weight(NodeIndex::new(id))
             .map(|info| info.value.as_ref().map(|v| v.clone()))
             .flatten()
+    }
+
+    fn lookup(&self, name: &str) -> Vec<usize> {
+        let mut ids = self
+            .names
+            .get(&Rc::new(name.to_string()))
+            .map(|v| v.clone())
+            .unwrap_or(Vec::new());
+        ids.sort();
+        ids
     }
 
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
@@ -242,6 +262,36 @@ mod tests {
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
         assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
+    }
+
+    #[test]
+    fn test_lookup_by_name_none() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph::new();
+        g.add_node();
+        g.add_node();
+        assert_eq!(g.lookup("A"), Vec::<usize>::new());
+    }
+
+    #[test]
+    fn test_lookup_by_name_one() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph::new();
+        let a_id = g.add_node();
+        g.add_node();
+        g.set_node_name(a_id, "A".to_string());
+        assert_eq!(g.lookup("A"), vec![a_id]);
+    }
+
+    #[test]
+    fn test_lookup_by_name_multiple() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph::new();
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        g.set_node_name(a_id, "A".to_string());
+        g.set_node_name(b_id, "A".to_string());
+        assert_eq!(g.lookup("A"), vec![a_id, b_id]);
     }
 
     #[test]

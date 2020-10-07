@@ -34,6 +34,10 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
+    fn lookup(&self, _: &str) -> Vec<usize> {
+        panic!(Self::INVALID_MSG);
+    }
+
     fn add_edge(&mut self, _: usize, _: usize, _: usize) {
         panic!(Self::INVALID_MSG);
     }
