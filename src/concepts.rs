@@ -153,11 +153,15 @@ pub trait FormTrait: CommonNodeTrait {
         Tao::from(self.essence().clone())
     }
 
+    /// Set a parent archetype. The current archetype will inherit all attributes of the parent
+    /// archetype.
     fn add_parent(&mut self, parent: Archetype) {
         self.essence_mut()
             .add_outgoing(Inherits::TYPE_ID, parent.essence());
     }
 
+    /// Checks to see if another archetype is an ancestor of this one. If so, the current archetype
+    /// will inherit all attributes of the ancestor.
     fn has_ancestor(&self, possible_ancestor: Archetype) -> bool {
         self.essence()
             .inheritance_nodes()

@@ -7,6 +7,8 @@ use std::rc::{Rc, Weak};
 /// This is an implementation of
 /// [https://stackoverflow.com/a/42057047/257583](https://stackoverflow.com/a/42057047/257583).
 pub trait KBWrapper: Any {
+    /// Because Rust doesn't support upcasting at the moment, this allows us to manually upcast to
+    /// `Any` and then downcast to the desired struct thereafter.
     fn as_any(&self) -> &dyn Any;
 }
 
@@ -48,16 +50,19 @@ pub fn unwrap_strong<'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> Option
 /// KBWrapper for weak references to data.
 #[derive(Debug)]
 pub struct WeakWrapper<T: Any> {
-    pub item: Weak<T>,
+    item: Weak<T>,
 }
 
 impl<T: Any> WeakWrapper<T> {
+    /// Create a new KB wrapper that contains a weak reference to the given data.
     pub fn new(rc: &Rc<T>) -> Self {
         WeakWrapper {
             item: Rc::downgrade(rc),
         }
     }
 
+    /// Retrieve the value that this wrapper points to -- if it still exists, because the KB does
+    /// not own the data.
     pub fn value(&self) -> Option<Rc<T>> {
         self.item.upgrade()
     }
@@ -72,14 +77,17 @@ impl<'a, T: Any + 'static> KBWrapper for WeakWrapper<T> {
 /// KBWrapper for owned data.
 #[derive(Debug)]
 pub struct StrongWrapper<T: Any> {
-    pub item: T,
+    item: T,
 }
 
 impl<T: Any> StrongWrapper<T> {
+    /// Create a new KB wrapper that owns the given data.
     pub fn new(t: T) -> Self {
         StrongWrapper { item: t }
     }
 
+    /// Borrow the value that this wrapper owns. Guaranteed to still exist because the KB owns this
+    /// data.
     pub fn value(&self) -> &T {
         &self.item
     }

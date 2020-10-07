@@ -22,6 +22,7 @@ pub trait CommonNodeTrait {
     fn internal_name(&self) -> Option<Rc<String>>;
 }
 
+/// Helper function for implementing the Debug trait for a node wrapper.
 pub fn debug_wrapper(
     wrapper_type: &str,
     node: Box<&dyn CommonNodeTrait>,
