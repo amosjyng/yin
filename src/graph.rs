@@ -132,6 +132,10 @@ pub trait Graph {
     /// have a value.
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>>;
 
+    /// Look up a node ID based on name. A vec is returned because there are no constraints on name
+    /// uniqueness.
+    fn lookup(&self, name: &str) -> Vec<usize>;
+
     /// Add a labeled edge between two nodes. The label should be the ID of an existing node.
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize);
 

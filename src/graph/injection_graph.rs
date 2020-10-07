@@ -106,6 +106,10 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow().node_value(id).map(|r| r.clone()))
     }
 
+    fn lookup(&self, name: &str) -> Vec<usize> {
+        GRAPH.with(|g| g.borrow().lookup(name))
+    }
+
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
         GRAPH.with(|g| g.borrow_mut().add_edge(from, edge_type, to))
     }

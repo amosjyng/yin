@@ -106,6 +106,15 @@ impl Graph for CypherGraph {
         .map(|s| Rc::new(Box::new(StrongWrapper::new(s)) as Box<dyn KBWrapper>))
     }
 
+    fn lookup(&self, name: &str) -> Vec<usize> {
+        exec_db!(self.db, "MATCH (n) WHERE n.name = {name} RETURN ID(n) ORDER BY ID(n)", {
+            "name" => name
+        }, {
+            "ID(n)" => usize
+        })
+        .collect()
+    }
+
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
         exec_db!(
         self.db,
@@ -317,6 +326,29 @@ mod tests {
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
         assert_eq!(unwrap_strong(g.node_value(a_id)), Some(v));
+    }
+
+    #[test]
+    #[ignore]
+    fn test_lookup_by_name_none() {
+        bind_cypher_graph(TEST_DB_URI);
+        let mut g = InjectionGraph::new();
+        g.add_node();
+        g.add_node();
+        assert_eq!(g.lookup("B"), Vec::<usize>::new());
+    }
+
+    #[test]
+    #[ignore]
+    fn test_lookup_by_name_one() {
+        bind_cypher_graph(TEST_DB_URI);
+        let mut g = InjectionGraph::new();
+        let a_id = g.add_node();
+        g.add_node();
+        g.set_node_name(a_id, "A".to_string());
+        // Like with the size test, we cannot guarantee that this is the first run, so we test only
+        // that the query returns successfully
+        assert!(g.lookup("A").contains(&a_id));
     }
 
     #[test]
