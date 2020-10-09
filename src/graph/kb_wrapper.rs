@@ -98,3 +98,25 @@ impl<'a, T: Any + 'static> KBWrapper for StrongWrapper<T> {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_weak_wrapper() {
+        let item = Rc::new("something expensive".to_string());
+        let weak = WeakWrapper::new(&item);
+        assert_eq!(unwrap_weak(Some(Rc::new(Box::new(weak)))), Some(item));
+    }
+
+    #[test]
+    fn test_strong_wrapper() {
+        let item = "something owned".to_string();
+        let strong = StrongWrapper::new(item);
+        assert_eq!(
+            unwrap_strong(Some(Rc::new(Box::new(strong)))),
+            Some(Rc::new("something owned".to_string()))
+        );
+    }
+}
