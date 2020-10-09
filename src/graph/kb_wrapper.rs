@@ -33,17 +33,16 @@ pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> O
 }
 
 /// Similar to unwrap_weak, returns the value held by a String-valued StrongWrapper.
-pub fn unwrap_strong<'a>(wrapper: Option<Rc<Box<dyn KBWrapper + 'a>>>) -> Option<Rc<String>> {
+pub fn unwrap_strong<'a, 'b>(
+    wrapper: &'b Option<Rc<Box<dyn KBWrapper + 'a>>>,
+) -> Option<&'b String> {
     // todo: see if lifetime ugliness can be cleaned up without cloning. Ownership transfer may be
     // best here, seeing as CypherGraph doesn't care to own any of these strings.
-    wrapper.map(|v| {
-        Rc::new(
-            v.as_any()
-                .downcast_ref::<StrongWrapper<String>>()
-                .unwrap()
-                .value()
-                .clone(),
-        )
+    wrapper.as_ref().map(|v| {
+        v.as_any()
+            .downcast_ref::<StrongWrapper<String>>()
+            .unwrap()
+            .value()
     })
 }
 
@@ -86,10 +85,15 @@ impl<T: Any> StrongWrapper<T> {
         StrongWrapper { item: t }
     }
 
-    /// Borrow the value that this wrapper owns. Guaranteed to still exist because the KB owns this
-    /// data.
+    /// Get value that this wrapper owns. Guaranteed to still exist because the KB owns this data.
     pub fn value(&self) -> &T {
         &self.item
+    }
+
+    /// Get mutable value that this wrapper owns. Guaranteed to still exist because the KB owns
+    /// this data.
+    pub fn value_mut(&mut self) -> &mut T {
+        &mut self.item
     }
 }
 
@@ -115,8 +119,8 @@ mod tests {
         let item = "something owned".to_string();
         let strong = StrongWrapper::new(item);
         assert_eq!(
-            unwrap_strong(Some(Rc::new(Box::new(strong)))),
-            Some(Rc::new("something owned".to_string()))
+            unwrap_strong(&Some(Rc::new(Box::new(strong)))),
+            Some(&"something owned".to_string())
         );
     }
 }

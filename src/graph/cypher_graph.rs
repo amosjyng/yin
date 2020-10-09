@@ -301,7 +301,7 @@ mod tests {
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
-        assert_eq!(unwrap_strong(g.node_value(a_id)), Some(v));
+        assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
         assert_eq!(g.node_name(a_id), None);
     }
 
@@ -325,7 +325,7 @@ mod tests {
         g.set_node_name(a_id, "A".to_string());
         g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
-        assert_eq!(unwrap_strong(g.node_value(a_id)), Some(v));
+        assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
     }
 
     #[test]
