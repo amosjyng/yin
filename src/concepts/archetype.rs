@@ -1,6 +1,6 @@
 use crate::concepts::attributes::Inherits;
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
@@ -8,7 +8,7 @@ use std::rc::Rc;
 /// Represents an archetype from which various individual nodes can be derived.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Archetype {
-    base: FinalWrapper,
+    base: FinalNode,
 }
 
 impl Archetype {
@@ -27,11 +27,11 @@ impl Archetype {
     /// Individuals that adhere to this archetype. It is possible that some of these individuals
     /// might not be direct descendants of the archetype in question.
     pub fn individuals(&self) -> Vec<Tao> {
-        let mut visited: HashSet<FinalWrapper> = HashSet::new();
+        let mut visited: HashSet<FinalNode> = HashSet::new();
         visited.insert(*self.essence());
-        let mut to_be_visited: VecDeque<FinalWrapper> = VecDeque::new();
+        let mut to_be_visited: VecDeque<FinalNode> = VecDeque::new();
         to_be_visited.push_back(*self.essence());
-        let mut leaves: Vec<FinalWrapper> = Vec::new();
+        let mut leaves: Vec<FinalNode> = Vec::new();
         while let Some(next) = to_be_visited.pop_front() {
             let children = next.incoming_nodes(Inherits::TYPE_ID);
             if children.is_empty() {
@@ -60,13 +60,13 @@ impl Debug for Archetype {
 impl From<usize> for Archetype {
     fn from(id: usize) -> Self {
         Self {
-            base: FinalWrapper::from(id),
+            base: FinalNode::from(id),
         }
     }
 }
 
-impl From<FinalWrapper> for Archetype {
-    fn from(fw: FinalWrapper) -> Self {
+impl From<FinalNode> for Archetype {
+    fn from(fw: FinalNode) -> Self {
         Self { base: fw }
     }
 }
@@ -92,17 +92,17 @@ impl ArchetypeTrait<Archetype> for Archetype {
 
     fn individuate_with_parent(parent_id: usize) -> Self {
         Self {
-            base: FinalWrapper::new_with_inheritance(parent_id),
+            base: FinalNode::new_with_inheritance(parent_id),
         }
     }
 }
 
 impl FormTrait for Archetype {
-    fn essence(&self) -> &FinalWrapper {
+    fn essence(&self) -> &FinalNode {
         &self.base
     }
 
-    fn essence_mut(&mut self) -> &mut FinalWrapper {
+    fn essence_mut(&mut self) -> &mut FinalNode {
         &mut self.base
     }
 }

@@ -9,7 +9,7 @@ pub use owner::Owner;
 pub use value::Value;
 
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -32,7 +32,7 @@ pub trait AttributeTrait<T>: ArchetypeTrait<T> {
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Attribute {
     /// Wrapper that this abstraction is based on.
-    pub base: FinalWrapper,
+    pub base: FinalNode,
 }
 
 impl Debug for Attribute {
@@ -44,7 +44,7 @@ impl Debug for Attribute {
 impl From<usize> for Attribute {
     fn from(id: usize) -> Self {
         Self {
-            base: FinalWrapper::from(id),
+            base: FinalNode::from(id),
         }
     }
 }
@@ -70,17 +70,17 @@ impl ArchetypeTrait<Attribute> for Attribute {
 
     fn individuate_with_parent(parent_id: usize) -> Self {
         Self {
-            base: FinalWrapper::new_with_inheritance(parent_id),
+            base: FinalNode::new_with_inheritance(parent_id),
         }
     }
 }
 
 impl FormTrait for Attribute {
-    fn essence(&self) -> &FinalWrapper {
+    fn essence(&self) -> &FinalNode {
         &self.base
     }
 
-    fn essence_mut(&mut self) -> &mut FinalWrapper {
+    fn essence_mut(&mut self) -> &mut FinalNode {
         &mut self.base
     }
 }
