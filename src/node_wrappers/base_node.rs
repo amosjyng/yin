@@ -187,19 +187,19 @@ mod tests {
     }
 
     #[test]
-    fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
-        let mut node = BaseNode::new();
-        node.set_internal_name("A".to_string());
-        assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
-    }
-
-    #[test]
     fn from_name() {
         bind_in_memory_graph();
         let mut node = BaseNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(BaseNode::try_from("A"), Ok(node));
+    }
+
+    #[test]
+    fn create_and_retrieve_node_name() {
+        bind_in_memory_graph();
+        let mut node = BaseNode::new();
+        node.set_internal_name("A".to_string());
+        assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
     }
 
     #[test]

@@ -210,6 +210,14 @@ mod tests {
     }
 
     #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut node = InheritanceNode::new();
+        node.set_internal_name("A".to_string());
+        assert_eq!(InheritanceNode::try_from("A"), Ok(node));
+    }
+
+    #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
         let mut node = InheritanceNode::new();

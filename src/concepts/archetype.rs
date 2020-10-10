@@ -142,6 +142,14 @@ mod tests {
     }
 
     #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut concept = Archetype::individuate();
+        concept.set_internal_name("A".to_owned());
+        assert_eq!(Archetype::try_from("A"), Ok(concept));
+    }
+
+    #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
         let concept1 = Archetype::individuate();

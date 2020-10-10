@@ -143,6 +143,14 @@ mod tests {
     }
 
     #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut concept = Attribute::individuate();
+        concept.set_internal_name("A".to_owned());
+        assert_eq!(Attribute::try_from("A"), Ok(concept));
+    }
+
+    #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
         let concept1 = Attribute::individuate();
