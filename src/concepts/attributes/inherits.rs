@@ -1,6 +1,6 @@
 use super::{Attribute, AttributeTrait};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -51,11 +51,11 @@ impl ArchetypeTrait<Inherits> for Inherits {
 }
 
 impl FormTrait for Inherits {
-    fn essence(&self) -> &FinalWrapper {
+    fn essence(&self) -> &FinalNode {
         self.attr.essence()
     }
 
-    fn essence_mut(&mut self) -> &mut FinalWrapper {
+    fn essence_mut(&mut self) -> &mut FinalNode {
         self.attr.essence_mut()
     }
 }

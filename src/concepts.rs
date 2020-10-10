@@ -38,7 +38,7 @@
 //! # use zamm_yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
 //! # let mut concept = Tao::individuate();
-//! use zamm_yin::wrappers::CommonNodeTrait;
+//! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
 //! concept.set_internal_name("A".to_string());
@@ -49,7 +49,7 @@ mod archetype;
 pub mod attributes;
 mod tao;
 
-use crate::wrappers::{BaseNodeTrait, CommonNodeTrait, FinalWrapper, InheritanceNodeTrait};
+use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 pub use archetype::Archetype;
 use attributes::Inherits;
 pub use tao::Tao;
@@ -140,10 +140,10 @@ pub trait FormTrait: CommonNodeTrait {
     /// patience-building purposes only and are not intended to be a substitute for deep
     /// introspection. Peruse at your own existential risk. Not responsible for spiritual injuries
     /// or damnation resulting from lost Pascalian wagers.
-    fn essence(&self) -> &FinalWrapper;
+    fn essence(&self) -> &FinalNode;
 
     /// Mutable version of essence.
-    fn essence_mut(&mut self) -> &mut FinalWrapper;
+    fn essence_mut(&mut self) -> &mut FinalNode;
 
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or

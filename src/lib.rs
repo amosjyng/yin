@@ -5,7 +5,7 @@
 //! ```rust
 //! use zamm_yin::concepts::{ArchetypeTrait, FormTrait, Tao};
 //! use zamm_yin::graph::bind_in_memory_graph;
-//! use zamm_yin::wrappers::CommonNodeTrait;
+//! use zamm_yin::node_wrappers::CommonNodeTrait;
 //!
 //! fn main() {
 //!     // Initialize the knowledge-base
@@ -25,4 +25,4 @@
 
 pub mod concepts;
 pub mod graph;
-pub mod wrappers;
+pub mod node_wrappers;

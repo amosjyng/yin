@@ -1,4 +1,5 @@
-use super::{Graph, KBWrapper, StrongWrapper, WeakWrapper};
+use super::value_wrappers::{KBValue, StrongValue, WeakValue};
+use super::Graph;
 use rusted_cypher::cypher_stmt;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -55,16 +56,16 @@ impl Graph for CypherGraph {
             .unwrap()
     }
 
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBWrapper>) {
+    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
         // todo: see if lifetime ugliness can be cleaned up without cloning
-        let unwrapped_value = match value.as_any().downcast_ref::<WeakWrapper<String>>() {
+        let unwrapped_value = match value.as_any().downcast_ref::<WeakValue<String>>() {
             Some(ww) => {
                 let x = ww.value().unwrap().clone();
                 (*x).clone()
             }
             None => value
                 .as_any()
-                .downcast_ref::<StrongWrapper<String>>()
+                .downcast_ref::<StrongValue<String>>()
                 .unwrap()
                 .value()
                 .as_str()
@@ -95,7 +96,7 @@ impl Graph for CypherGraph {
         .map(|s| Rc::new(s))
     }
 
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} RETURN n.value", {
             "id" => id
         }, {
@@ -103,7 +104,7 @@ impl Graph for CypherGraph {
         })
         .next()
         .unwrap()
-        .map(|s| Rc::new(Box::new(StrongWrapper::new(s)) as Box<dyn KBWrapper>))
+        .map(|s| Rc::new(Box::new(StrongValue::new(s)) as Box<dyn KBValue>))
     }
 
     fn lookup(&self, name: &str) -> Vec<usize> {
@@ -240,6 +241,7 @@ impl Graph for CypherGraph {
 mod tests {
     use super::super::*;
     use super::*;
+    use crate::graph::value_wrappers::unwrap_strong;
     use std::collections::HashSet;
 
     /// Default Neo4j 3.x instance to connect to. Note that the local password should be changed to
@@ -300,8 +302,8 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
-        assert_eq!(unwrap_strong(g.node_value(a_id)), Some(v));
+        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+        assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
         assert_eq!(g.node_name(a_id), None);
     }
 
@@ -323,9 +325,9 @@ mod tests {
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
         g.set_node_name(a_id, "A".to_string());
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
-        assert_eq!(unwrap_strong(g.node_value(a_id)), Some(v));
+        assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
     }
 
     #[test]

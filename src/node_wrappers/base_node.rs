@@ -1,5 +1,6 @@
 use super::{debug_wrapper, CommonNodeTrait};
-use crate::graph::{Graph, InjectionGraph, KBWrapper};
+use crate::graph::value_wrappers::KBValue;
+use crate::graph::{Graph, InjectionGraph};
 use std::cmp::{Eq, Ordering, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
 use std::hash::{Hash, Hasher};
@@ -8,10 +9,10 @@ use std::rc::Rc;
 /// All low-level wrappers will have these functions available.
 pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Associate this node with a value.
-    fn set_value(&mut self, value: Box<dyn KBWrapper>);
+    fn set_value(&mut self, value: Box<dyn KBValue>);
 
     /// Retrieve the value associated with this node.
-    fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>>;
+    fn value(&self) -> Option<Rc<Box<dyn KBValue>>>;
 
     /// Link this node to another one via an outgoing edge.
     fn add_outgoing(&mut self, edge_type: usize, to: &T);
@@ -34,64 +35,64 @@ pub trait BaseNodeTrait<T>: CommonNodeTrait {
 
 /// Implementation for the most basic of node wrappers. Offers no additional functionality.
 #[derive(Copy, Clone)]
-pub struct BaseWrapper {
+pub struct BaseNode {
     graph: InjectionGraph,
     id: usize,
 }
 
-impl BaseWrapper {
+impl BaseNode {
     /// Create a new node.
     pub fn new() -> Self {
         let mut g = InjectionGraph::new();
-        BaseWrapper {
+        BaseNode {
             graph: g,
             id: g.add_node(),
         }
     }
 }
 
-impl From<usize> for BaseWrapper {
+impl From<usize> for BaseNode {
     fn from(id: usize) -> Self {
-        BaseWrapper {
+        BaseNode {
             graph: InjectionGraph::new(),
             id: id,
         }
     }
 }
 
-impl Debug for BaseWrapper {
+impl Debug for BaseNode {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("BWrapper", Box::new(self), f)
     }
 }
 
-impl Hash for BaseWrapper {
+impl Hash for BaseNode {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state);
     }
 }
 
-impl Eq for BaseWrapper {}
+impl Eq for BaseNode {}
 
-impl PartialEq for BaseWrapper {
+impl PartialEq for BaseNode {
     fn eq(&self, other: &Self) -> bool {
         self.id == other.id
     }
 }
 
-impl Ord for BaseWrapper {
+impl Ord for BaseNode {
     fn cmp(&self, other: &Self) -> Ordering {
         self.id.cmp(&other.id)
     }
 }
 
-impl PartialOrd for BaseWrapper {
+impl PartialOrd for BaseNode {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl CommonNodeTrait for BaseWrapper {
+impl CommonNodeTrait for BaseNode {
     fn id(&self) -> usize {
         self.id
     }
@@ -105,44 +106,44 @@ impl CommonNodeTrait for BaseWrapper {
     }
 }
 
-impl BaseNodeTrait<BaseWrapper> for BaseWrapper {
-    fn set_value(&mut self, value: Box<dyn KBWrapper>) {
+impl BaseNodeTrait<BaseNode> for BaseNode {
+    fn set_value(&mut self, value: Box<dyn KBValue>) {
         self.graph.set_node_value(self.id, value)
     }
 
-    fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn value(&self) -> Option<Rc<Box<dyn KBValue>>> {
         self.graph.node_value(self.id)
     }
 
-    fn add_outgoing(&mut self, edge_type: usize, to: &BaseWrapper) {
+    fn add_outgoing(&mut self, edge_type: usize, to: &BaseNode) {
         self.graph.add_edge(self.id(), edge_type, to.id())
     }
 
-    fn add_incoming(&mut self, edge_type: usize, from: &BaseWrapper) {
+    fn add_incoming(&mut self, edge_type: usize, from: &BaseNode) {
         self.graph.add_edge(from.id(), edge_type, self.id())
     }
 
-    fn has_outgoing(&self, edge_type: usize, to: &BaseWrapper) -> bool {
+    fn has_outgoing(&self, edge_type: usize, to: &BaseNode) -> bool {
         self.graph.has_edge(self.id, edge_type, to.id)
     }
 
-    fn has_incoming(&self, edge_type: usize, from: &BaseWrapper) -> bool {
+    fn has_incoming(&self, edge_type: usize, from: &BaseNode) -> bool {
         self.graph.has_edge(from.id, edge_type, self.id)
     }
 
-    fn outgoing_nodes(&self, edge_type: usize) -> Vec<BaseWrapper> {
+    fn outgoing_nodes(&self, edge_type: usize) -> Vec<BaseNode> {
         self.graph
             .outgoing_nodes(self.id(), edge_type)
             .into_iter()
-            .map(|id| BaseWrapper::from(id))
+            .map(|id| BaseNode::from(id))
             .collect()
     }
 
-    fn incoming_nodes(&self, edge_type: usize) -> Vec<BaseWrapper> {
+    fn incoming_nodes(&self, edge_type: usize) -> Vec<BaseNode> {
         self.graph
             .incoming_nodes(self.id(), edge_type)
             .into_iter()
-            .map(|id| BaseWrapper::from(id))
+            .map(|id| BaseNode::from(id))
             .collect()
     }
 }
@@ -150,28 +151,29 @@ impl BaseNodeTrait<BaseWrapper> for BaseWrapper {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
+    use crate::graph::bind_in_memory_graph;
+    use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
 
     #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
-        let node1 = BaseWrapper::new();
-        let node2 = BaseWrapper::new();
+        let node1 = BaseNode::new();
+        let node2 = BaseNode::new();
         assert_eq!(node1.id() + 1, node2.id());
     }
 
     #[test]
     fn from_node_id() {
         bind_in_memory_graph();
-        let node = BaseWrapper::new();
-        let node_copy = BaseWrapper::from(node.id());
+        let node = BaseNode::new();
+        let node_copy = BaseNode::from(node.id());
         assert_eq!(node.id(), node_copy.id());
     }
 
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut node = BaseWrapper::new();
+        let mut node = BaseNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
     }
@@ -179,29 +181,29 @@ mod tests {
     #[test]
     fn retrieve_node_value() {
         bind_in_memory_graph();
-        let mut node = BaseWrapper::new();
+        let mut node = BaseNode::new();
         let v = Rc::new(5);
-        node.set_value(Box::new(WeakWrapper::new(&v)));
+        node.set_value(Box::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
     }
 
     #[test]
     fn no_outgoing_nodes() {
         bind_in_memory_graph();
-        let a = BaseWrapper::new();
+        let a = BaseNode::new();
         assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
 
     #[test]
     fn outgoing_nodes() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::new();
-        let b = BaseWrapper::new();
-        let c = BaseWrapper::new();
-        let d = BaseWrapper::new();
-        let mut e = BaseWrapper::new();
-        let edge_type1 = BaseWrapper::new();
-        let edge_type2 = BaseWrapper::new();
+        let mut a = BaseNode::new();
+        let b = BaseNode::new();
+        let c = BaseNode::new();
+        let d = BaseNode::new();
+        let mut e = BaseNode::new();
+        let edge_type1 = BaseNode::new();
+        let edge_type2 = BaseNode::new();
         a.add_outgoing(edge_type1.id(), &b);
         a.add_outgoing(edge_type2.id(), &c);
         a.add_outgoing(edge_type1.id(), &d);
@@ -212,20 +214,20 @@ mod tests {
     #[test]
     fn no_incoming_nodes() {
         bind_in_memory_graph();
-        let a = BaseWrapper::new();
+        let a = BaseNode::new();
         assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
 
     #[test]
     fn incoming_nodes() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::new();
-        let b = BaseWrapper::new();
-        let c = BaseWrapper::new();
-        let d = BaseWrapper::new();
-        let mut e = BaseWrapper::new();
-        let edge_type1 = BaseWrapper::new();
-        let edge_type2 = BaseWrapper::new();
+        let mut a = BaseNode::new();
+        let b = BaseNode::new();
+        let c = BaseNode::new();
+        let d = BaseNode::new();
+        let mut e = BaseNode::new();
+        let edge_type1 = BaseNode::new();
+        let edge_type2 = BaseNode::new();
         a.add_incoming(edge_type1.id(), &b);
         a.add_incoming(edge_type2.id(), &c);
         a.add_incoming(edge_type1.id(), &d);
@@ -236,10 +238,10 @@ mod tests {
     #[test]
     fn test_has_outgoing() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::new();
-        let b = BaseWrapper::new();
-        let edge_type1 = BaseWrapper::new();
-        let edge_type2 = BaseWrapper::new();
+        let mut a = BaseNode::new();
+        let b = BaseNode::new();
+        let edge_type1 = BaseNode::new();
+        let edge_type2 = BaseNode::new();
         a.add_outgoing(edge_type1.id(), &b);
         assert!(a.has_outgoing(edge_type1.id(), &b));
         assert!(!a.has_outgoing(edge_type2.id(), &b));
@@ -249,10 +251,10 @@ mod tests {
     #[test]
     fn test_has_incoming() {
         bind_in_memory_graph();
-        let mut a = BaseWrapper::new();
-        let b = BaseWrapper::new();
-        let edge_type1 = BaseWrapper::new();
-        let edge_type2 = BaseWrapper::new();
+        let mut a = BaseNode::new();
+        let b = BaseNode::new();
+        let edge_type1 = BaseNode::new();
+        let edge_type2 = BaseNode::new();
         a.add_incoming(edge_type1.id(), &b);
         assert!(a.has_incoming(edge_type1.id(), &b));
         assert!(!a.has_incoming(edge_type2.id(), &b));

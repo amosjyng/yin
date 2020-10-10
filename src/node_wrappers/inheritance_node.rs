@@ -1,8 +1,8 @@
-use super::BaseWrapper;
+use super::BaseNode;
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::concepts::attributes::Inherits;
 use crate::concepts::ArchetypeTrait;
-use crate::graph::KBWrapper;
+use crate::graph::value_wrappers::KBValue;
 use std::cmp::{Eq, PartialEq};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
@@ -17,47 +17,47 @@ pub trait InheritanceNodeTrait<T>: BaseNodeTrait<T> {
 
 /// Implementation for a node wrapper that offers inheritance of nodes.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
-pub struct InheritanceWrapper {
-    base: BaseWrapper,
+pub struct InheritanceNode {
+    base: BaseNode,
 }
 
-impl InheritanceWrapper {
+impl InheritanceNode {
     /// Create a new node.
     pub fn new() -> Self {
-        InheritanceWrapper {
-            base: BaseWrapper::new(),
+        InheritanceNode {
+            base: BaseNode::new(),
         }
     }
 
     /// Create a new node with an inheritance relation.
     pub fn new_with_inheritance(type_id: usize) -> Self {
         let mut new_iw = Self::new();
-        new_iw.add_outgoing(Inherits::TYPE_ID, &InheritanceWrapper::from(type_id));
+        new_iw.add_outgoing(Inherits::TYPE_ID, &InheritanceNode::from(type_id));
         new_iw
     }
 }
 
-impl From<usize> for InheritanceWrapper {
+impl From<usize> for InheritanceNode {
     fn from(id: usize) -> Self {
-        InheritanceWrapper {
-            base: BaseWrapper::from(id),
+        InheritanceNode {
+            base: BaseNode::from(id),
         }
     }
 }
 
-impl From<BaseWrapper> for InheritanceWrapper {
-    fn from(b: BaseWrapper) -> Self {
-        InheritanceWrapper { base: b }
+impl From<BaseNode> for InheritanceNode {
+    fn from(b: BaseNode) -> Self {
+        InheritanceNode { base: b }
     }
 }
 
-impl Debug for InheritanceWrapper {
+impl Debug for InheritanceNode {
     fn fmt(&self, f: &mut Formatter) -> Result {
         debug_wrapper("IWrapper", Box::new(self), f)
     }
 }
 
-impl CommonNodeTrait for InheritanceWrapper {
+impl CommonNodeTrait for InheritanceNode {
     fn id(&self) -> usize {
         self.base.id()
     }
@@ -71,24 +71,24 @@ impl CommonNodeTrait for InheritanceWrapper {
     }
 }
 
-impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
-    fn set_value(&mut self, value: Box<dyn KBWrapper>) {
+impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
+    fn set_value(&mut self, value: Box<dyn KBValue>) {
         self.base.set_value(value)
     }
 
-    fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn value(&self) -> Option<Rc<Box<dyn KBValue>>> {
         self.base.value()
     }
 
-    fn add_outgoing(&mut self, edge_type: usize, to: &InheritanceWrapper) {
+    fn add_outgoing(&mut self, edge_type: usize, to: &InheritanceNode) {
         self.base.add_outgoing(edge_type, &to.base)
     }
 
-    fn add_incoming(&mut self, edge_type: usize, from: &InheritanceWrapper) {
+    fn add_incoming(&mut self, edge_type: usize, from: &InheritanceNode) {
         self.base.add_incoming(edge_type, &from.base)
     }
 
-    fn has_outgoing(&self, edge_type: usize, to: &InheritanceWrapper) -> bool {
+    fn has_outgoing(&self, edge_type: usize, to: &InheritanceNode) -> bool {
         if edge_type == Inherits::TYPE_ID {
             self.base.has_outgoing(edge_type, &to.base)
         } else {
@@ -98,7 +98,7 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
         }
     }
 
-    fn has_incoming(&self, edge_type: usize, from: &InheritanceWrapper) -> bool {
+    fn has_incoming(&self, edge_type: usize, from: &InheritanceNode) -> bool {
         if edge_type == Inherits::TYPE_ID {
             self.base.has_incoming(edge_type, &from.base)
         } else {
@@ -108,12 +108,12 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
         }
     }
 
-    fn outgoing_nodes(&self, edge_type: usize) -> Vec<InheritanceWrapper> {
+    fn outgoing_nodes(&self, edge_type: usize) -> Vec<InheritanceNode> {
         if edge_type == Inherits::TYPE_ID {
             self.base
                 .outgoing_nodes(edge_type)
                 .into_iter()
-                .map(|b| InheritanceWrapper::from(b))
+                .map(|b| InheritanceNode::from(b))
                 .collect()
         } else {
             let mut nodes = self
@@ -122,20 +122,20 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
                 .map(|iw| iw.base.outgoing_nodes(edge_type))
                 .into_iter()
                 .flatten()
-                .map(|b| InheritanceWrapper::from(b))
-                .collect::<Vec<InheritanceWrapper>>();
+                .map(|b| InheritanceNode::from(b))
+                .collect::<Vec<InheritanceNode>>();
             nodes.sort();
             nodes.dedup();
             nodes
         }
     }
 
-    fn incoming_nodes(&self, edge_type: usize) -> Vec<InheritanceWrapper> {
+    fn incoming_nodes(&self, edge_type: usize) -> Vec<InheritanceNode> {
         if edge_type == Inherits::TYPE_ID {
             self.base
                 .incoming_nodes(edge_type)
                 .into_iter()
-                .map(|b| InheritanceWrapper::from(b))
+                .map(|b| InheritanceNode::from(b))
                 .collect()
         } else {
             let mut nodes = self
@@ -144,8 +144,8 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
                 .map(|iw| iw.base.incoming_nodes(edge_type))
                 .into_iter()
                 .flatten()
-                .map(|b| InheritanceWrapper::from(b))
-                .collect::<Vec<InheritanceWrapper>>();
+                .map(|b| InheritanceNode::from(b))
+                .collect::<Vec<InheritanceNode>>();
             nodes.sort();
             nodes.dedup();
             nodes
@@ -153,8 +153,8 @@ impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
     }
 }
 
-impl InheritanceNodeTrait<InheritanceWrapper> for InheritanceWrapper {
-    fn inheritance_nodes(&self) -> Vec<InheritanceWrapper> {
+impl InheritanceNodeTrait<InheritanceNode> for InheritanceNode {
+    fn inheritance_nodes(&self) -> Vec<InheritanceNode> {
         let mut visited = HashSet::new();
         visited.insert(self.base);
         let mut to_be_visited = VecDeque::new();
@@ -167,9 +167,9 @@ impl InheritanceNodeTrait<InheritanceWrapper> for InheritanceWrapper {
                 }
             }
         }
-        let mut result: Vec<InheritanceWrapper> = visited
+        let mut result: Vec<InheritanceNode> = visited
             .into_iter()
-            .map(|b| InheritanceWrapper::from(b))
+            .map(|b| InheritanceNode::from(b))
             .collect();
         result.sort();
         result
@@ -180,28 +180,29 @@ impl InheritanceNodeTrait<InheritanceWrapper> for InheritanceWrapper {
 mod tests {
     use super::*;
     use crate::concepts::attributes::Owner;
-    use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
+    use crate::graph::bind_in_memory_graph;
+    use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
 
     #[test]
     fn create_and_retrieve_node_id() {
         bind_in_memory_graph();
-        let node1 = InheritanceWrapper::new();
-        let node2 = InheritanceWrapper::new();
+        let node1 = InheritanceNode::new();
+        let node2 = InheritanceNode::new();
         assert_eq!(node1.id() + 1, node2.id());
     }
 
     #[test]
     fn from_node_id() {
         bind_in_memory_graph();
-        let node = InheritanceWrapper::new();
-        let node_copy = InheritanceWrapper::from(node.id());
+        let node = InheritanceNode::new();
+        let node_copy = InheritanceNode::from(node.id());
         assert_eq!(node.id(), node_copy.id());
     }
 
     #[test]
     fn create_and_retrieve_node_name() {
         bind_in_memory_graph();
-        let mut node = InheritanceWrapper::new();
+        let mut node = InheritanceNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
     }
@@ -209,28 +210,28 @@ mod tests {
     #[test]
     fn retrieve_node_value() {
         bind_in_memory_graph();
-        let mut node = InheritanceWrapper::new();
+        let mut node = InheritanceNode::new();
         let v = Rc::new(5);
-        node.set_value(Box::new(WeakWrapper::new(&v)));
+        node.set_value(Box::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
     }
 
     #[test]
     fn create_with_inheritance() {
         bind_in_memory_graph();
-        let owner = InheritanceWrapper::new();
-        let mut type1 = InheritanceWrapper::new();
+        let owner = InheritanceNode::new();
+        let mut type1 = InheritanceNode::new();
         type1.add_outgoing(Owner::TYPE_ID, &owner);
-        let node = InheritanceWrapper::new_with_inheritance(type1.id());
+        let node = InheritanceNode::new_with_inheritance(type1.id());
         assert!(node.has_outgoing(Owner::TYPE_ID, &owner));
     }
 
     #[test]
     fn check_inheritance_nodes() {
         bind_in_memory_graph();
-        let type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
+        let type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
         type2.add_outgoing(Inherits::TYPE_ID, &type1);
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         assert_eq!(a.inheritance_nodes(), vec![type1, type2, a]);
@@ -241,20 +242,20 @@ mod tests {
     #[test]
     fn no_outgoing_nodes() {
         bind_in_memory_graph();
-        let a = InheritanceWrapper::new();
+        let a = InheritanceNode::new();
         assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
 
     #[test]
     fn outgoing_nodes() {
         bind_in_memory_graph();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let c = InheritanceWrapper::new();
-        let d = InheritanceWrapper::new();
-        let mut e = InheritanceWrapper::new();
-        let edge_type1 = InheritanceWrapper::new();
-        let edge_type2 = InheritanceWrapper::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let c = InheritanceNode::new();
+        let d = InheritanceNode::new();
+        let mut e = InheritanceNode::new();
+        let edge_type1 = InheritanceNode::new();
+        let edge_type2 = InheritanceNode::new();
         a.add_outgoing(edge_type1.id(), &b);
         a.add_outgoing(edge_type2.id(), &c);
         a.add_outgoing(edge_type1.id(), &d);
@@ -265,13 +266,13 @@ mod tests {
     #[test]
     fn inherited_outgoing_nodes() {
         bind_in_memory_graph();
-        let mut type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let c = InheritanceWrapper::new();
-        let mut d = InheritanceWrapper::new();
-        let edge_type = InheritanceWrapper::new();
+        let mut type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let c = InheritanceNode::new();
+        let mut d = InheritanceNode::new();
+        let edge_type = InheritanceNode::new();
         a.add_outgoing(edge_type.id(), &b);
         type1.add_outgoing(edge_type.id(), &c);
         type2.add_outgoing(edge_type.id(), &c);
@@ -286,9 +287,9 @@ mod tests {
     #[test]
     fn not_inherit_inheritance_attr_outgoing() {
         bind_in_memory_graph();
-        let type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
+        let type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
         type2.add_outgoing(Inherits::TYPE_ID, &type1);
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         // the inherit edge should be treated specially and not inherited by lower levels
@@ -299,20 +300,20 @@ mod tests {
     #[test]
     fn no_incoming_nodes() {
         bind_in_memory_graph();
-        let a = InheritanceWrapper::new();
+        let a = InheritanceNode::new();
         assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
 
     #[test]
     fn incoming_nodes() {
         bind_in_memory_graph();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let c = InheritanceWrapper::new();
-        let d = InheritanceWrapper::new();
-        let mut e = InheritanceWrapper::new();
-        let edge_type1 = InheritanceWrapper::new();
-        let edge_type2 = InheritanceWrapper::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let c = InheritanceNode::new();
+        let d = InheritanceNode::new();
+        let mut e = InheritanceNode::new();
+        let edge_type1 = InheritanceNode::new();
+        let edge_type2 = InheritanceNode::new();
         a.add_incoming(edge_type1.id(), &b);
         a.add_incoming(edge_type2.id(), &c);
         a.add_incoming(edge_type1.id(), &d);
@@ -323,13 +324,13 @@ mod tests {
     #[test]
     fn inherited_incoming_nodes() {
         bind_in_memory_graph();
-        let mut type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let c = InheritanceWrapper::new();
-        let mut d = InheritanceWrapper::new();
-        let edge_type = InheritanceWrapper::new();
+        let mut type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let c = InheritanceNode::new();
+        let mut d = InheritanceNode::new();
+        let edge_type = InheritanceNode::new();
         a.add_incoming(edge_type.id(), &b);
         type1.add_incoming(edge_type.id(), &c);
         type2.add_incoming(edge_type.id(), &c);
@@ -345,9 +346,9 @@ mod tests {
     #[test]
     fn not_inherit_inheritance_attr_incoming() {
         bind_in_memory_graph();
-        let type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
+        let type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
         type2.add_outgoing(Inherits::TYPE_ID, &type1);
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         // the inherit edge should be treated specially and not inherited by lower levels
@@ -358,10 +359,10 @@ mod tests {
     #[test]
     fn test_has_outgoing() {
         bind_in_memory_graph();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let edge_type1 = InheritanceWrapper::new();
-        let edge_type2 = InheritanceWrapper::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let edge_type1 = InheritanceNode::new();
+        let edge_type2 = InheritanceNode::new();
         a.add_outgoing(edge_type1.id(), &b);
         assert!(a.has_outgoing(edge_type1.id(), &b));
         assert!(!a.has_outgoing(edge_type2.id(), &b));
@@ -371,10 +372,10 @@ mod tests {
     #[test]
     fn test_has_incoming() {
         bind_in_memory_graph();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let edge_type1 = InheritanceWrapper::new();
-        let edge_type2 = InheritanceWrapper::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let edge_type1 = InheritanceNode::new();
+        let edge_type2 = InheritanceNode::new();
         a.add_incoming(edge_type1.id(), &b);
         assert!(a.has_incoming(edge_type1.id(), &b));
         assert!(!a.has_incoming(edge_type2.id(), &b));
@@ -384,12 +385,12 @@ mod tests {
     #[test]
     fn inherited_has_outgoing() {
         bind_in_memory_graph();
-        let mut type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let c = InheritanceWrapper::new();
-        let edge_type = InheritanceWrapper::new();
+        let mut type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let c = InheritanceNode::new();
+        let edge_type = InheritanceNode::new();
         type1.add_outgoing(edge_type.id(), &b);
         type1.add_incoming(edge_type.id(), &c);
 
@@ -403,9 +404,9 @@ mod tests {
     #[test]
     fn not_inherit_inheritance_attr_has_outgoing() {
         bind_in_memory_graph();
-        let type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
+        let type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
         type2.add_outgoing(Inherits::TYPE_ID, &type1);
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         // the inherit edge should be treated specially and not inherited by lower levels
@@ -416,12 +417,12 @@ mod tests {
     #[test]
     fn inherited_has_incoming() {
         bind_in_memory_graph();
-        let mut type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
-        let b = InheritanceWrapper::new();
-        let c = InheritanceWrapper::new();
-        let edge_type = InheritanceWrapper::new();
+        let mut type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
+        let b = InheritanceNode::new();
+        let c = InheritanceNode::new();
+        let edge_type = InheritanceNode::new();
         type1.add_outgoing(edge_type.id(), &b);
         type1.add_incoming(edge_type.id(), &c);
 
@@ -435,9 +436,9 @@ mod tests {
     #[test]
     fn not_inherit_inheritance_attr_has_incoming() {
         bind_in_memory_graph();
-        let type1 = InheritanceWrapper::new();
-        let mut type2 = InheritanceWrapper::new();
-        let mut a = InheritanceWrapper::new();
+        let type1 = InheritanceNode::new();
+        let mut type2 = InheritanceNode::new();
+        let mut a = InheritanceNode::new();
         type2.add_outgoing(Inherits::TYPE_ID, &type1);
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         // the inherit edge should be treated specially and not inherited by lower levels

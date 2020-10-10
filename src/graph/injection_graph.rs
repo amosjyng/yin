@@ -2,7 +2,7 @@
 use super::cypher_graph::CypherGraph;
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
-use super::{Graph, KBWrapper};
+use super::{Graph, KBValue};
 use crate::concepts::attributes::{Attribute, Inherits, Owner, Value};
 use crate::concepts::{Archetype, ArchetypeTrait, Tao};
 use std::cell::RefCell;
@@ -90,7 +90,7 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow_mut().add_node().clone())
     }
 
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBWrapper>) {
+    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
         GRAPH.with(|g| g.borrow_mut().set_node_value(id, value))
     }
 
@@ -102,7 +102,7 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow().node_name(id))
     }
 
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
         GRAPH.with(|g| g.borrow().node_value(id).map(|r| r.clone()))
     }
 

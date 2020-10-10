@@ -1,5 +1,5 @@
 use super::Graph;
-use super::KBWrapper;
+use super::KBValue;
 use std::rc::Rc;
 
 /// Invalid default graph.
@@ -18,7 +18,7 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
-    fn set_node_value(&mut self, _: usize, _: Box<dyn KBWrapper>) {
+    fn set_node_value(&mut self, _: usize, _: Box<dyn KBValue>) {
         panic!(Self::INVALID_MSG);
     }
 
@@ -30,7 +30,7 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
-    fn node_value(&self, _: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn node_value(&self, _: usize) -> Option<Rc<Box<dyn KBValue>>> {
         panic!(Self::INVALID_MSG);
     }
 

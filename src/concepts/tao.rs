@@ -1,5 +1,5 @@
 use crate::concepts::{Archetype, ArchetypeTrait, FormTrait};
-use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 
@@ -17,7 +17,7 @@ use std::rc::Rc;
 /// you're going to tell me not to GPL this motherfucker.)
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Tao {
-    base: FinalWrapper,
+    base: FinalNode,
 }
 
 impl Debug for Tao {
@@ -29,13 +29,13 @@ impl Debug for Tao {
 impl From<usize> for Tao {
     fn from(id: usize) -> Self {
         Self {
-            base: FinalWrapper::from(id),
+            base: FinalNode::from(id),
         }
     }
 }
 
-impl From<FinalWrapper> for Tao {
-    fn from(bw: FinalWrapper) -> Self {
+impl From<FinalNode> for Tao {
+    fn from(bw: FinalNode) -> Self {
         Self { base: bw }
     }
 }
@@ -66,17 +66,17 @@ impl ArchetypeTrait<Tao> for Tao {
 
     fn individuate_with_parent(parent_id: usize) -> Self {
         Self {
-            base: FinalWrapper::new_with_inheritance(parent_id),
+            base: FinalNode::new_with_inheritance(parent_id),
         }
     }
 }
 
 impl FormTrait for Tao {
-    fn essence(&self) -> &FinalWrapper {
+    fn essence(&self) -> &FinalNode {
         &self.base
     }
 
-    fn essence_mut(&mut self) -> &mut FinalWrapper {
+    fn essence_mut(&mut self) -> &mut FinalNode {
         &mut self.base
     }
 }
