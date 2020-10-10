@@ -2,7 +2,7 @@ use super::BaseWrapper;
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::concepts::attributes::Inherits;
 use crate::concepts::ArchetypeTrait;
-use crate::graph::kb_wrapper::KBWrapper;
+use crate::graph::value_wrappers::KBValue;
 use std::cmp::{Eq, PartialEq};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
@@ -72,11 +72,11 @@ impl CommonNodeTrait for InheritanceWrapper {
 }
 
 impl BaseNodeTrait<InheritanceWrapper> for InheritanceWrapper {
-    fn set_value(&mut self, value: Box<dyn KBWrapper>) {
+    fn set_value(&mut self, value: Box<dyn KBValue>) {
         self.base.set_value(value)
     }
 
-    fn value(&self) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn value(&self) -> Option<Rc<Box<dyn KBValue>>> {
         self.base.value()
     }
 
@@ -181,7 +181,7 @@ mod tests {
     use super::*;
     use crate::concepts::attributes::Owner;
     use crate::graph::bind_in_memory_graph;
-    use crate::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
+    use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
 
     #[test]
     fn create_and_retrieve_node_id() {
@@ -212,7 +212,7 @@ mod tests {
         bind_in_memory_graph();
         let mut node = InheritanceWrapper::new();
         let v = Rc::new(5);
-        node.set_value(Box::new(WeakWrapper::new(&v)));
+        node.set_value(Box::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
     }
 

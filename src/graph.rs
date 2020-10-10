@@ -53,11 +53,11 @@
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
-//! use zamm_yin::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
+//! use zamm_yin::graph::value_wrappers::{unwrap_weak, WeakValue};
 //! use std::rc::Rc;
 //!
 //! let v = Rc::new(5);
-//! g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+//! g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
 //! assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
 //! ```
 //!
@@ -102,12 +102,12 @@
 //!
 //! ```rust
 //! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
-//! # use zamm_yin::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
+//! # use zamm_yin::graph::value_wrappers::{unwrap_weak, WeakValue};
 //! # use std::rc::Rc;
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
-//! use zamm_yin::graph::kb_wrapper::{StrongWrapper, KBClosure, unwrap_closure};
+//! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};
 //! use zamm_yin::{define_closure, run_closure};
 //! use zamm_yin::wrappers::BaseNodeTrait;
 //! use std::any::Any;
@@ -115,7 +115,7 @@
 //!
 //! let count_id = g.add_node();
 //! let count_value: Rc<i64> = Rc::new(5);
-//! g.set_node_value(count_id, Box::new(WeakWrapper::new(&count_value)));
+//! g.set_node_value(count_id, Box::new(WeakValue::new(&count_value)));
 //!
 //! let mut triple_id = g.add_node();
 //! g.set_node_value(triple_id, define_closure!(|t: Tao| {
@@ -142,10 +142,11 @@ mod invalid_graph;
 /// [`wrappers`](../wrappers/index.html) package because this abstraction only wraps the
 /// values associated with nodes, while the other one wraps the nodes themselves.
 ///
-/// Due to Rust restrictions around upcasting to Any, it appears necessary to create an extra wrapper.
-pub mod kb_wrapper;
+/// Due to Rust restrictions around upcasting to Any, it appears necessary to create an extra 
+/// wrapper.
+pub mod value_wrappers;
 
-use crate::graph::kb_wrapper::KBWrapper;
+use crate::graph::value_wrappers::KBValue;
 #[cfg(feature = "cypher")]
 pub use injection_graph::bind_cypher_graph;
 pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGraph};
@@ -161,7 +162,7 @@ pub trait Graph {
     fn add_node(&mut self) -> usize;
 
     /// Sets the value for a given node. Values can only be set once.
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBWrapper>);
+    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>);
 
     /// Sets the name for a given node. Names can only be set once.
     fn set_node_name(&mut self, id: usize, name: String);
@@ -171,7 +172,7 @@ pub trait Graph {
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>>;
+    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>>;
 
     /// Look up a node ID based on name. A vec is returned because there are no constraints on name
     /// uniqueness.

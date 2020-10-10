@@ -1,4 +1,4 @@
-use super::{Graph, KBWrapper};
+use super::{Graph, KBValue};
 use petgraph::dot::Dot;
 use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
@@ -21,7 +21,7 @@ struct NodeInfo {
     /// assigned.
     id: usize,
     name: Rc<RefCell<NodeName>>,
-    value: Option<Rc<Box<dyn KBWrapper>>>,
+    value: Option<Rc<Box<dyn KBValue>>>,
 }
 
 impl<'a> Display for NodeInfo {
@@ -76,7 +76,7 @@ impl Graph for InMemoryGraph {
         new_id.index()
     }
 
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBWrapper>) {
+    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
         self.graph
             .node_weight_mut(NodeIndex::new(id))
             .unwrap()
@@ -106,7 +106,7 @@ impl Graph for InMemoryGraph {
             .flatten()
     }
 
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBWrapper>>> {
+    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
         self.graph
             .node_weight(NodeIndex::new(id))
             .map(|info| info.value.as_ref().map(|v| v.clone()))
@@ -197,7 +197,7 @@ impl Graph for InMemoryGraph {
 mod tests {
     use super::super::*;
     use super::*;
-    use crate::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
+    use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
 
     #[test]
     fn test_create() {
@@ -228,7 +228,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new(5);
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
@@ -239,7 +239,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new("5");
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<&str>(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
@@ -260,7 +260,7 @@ mod tests {
         let a_id = g.add_node();
         let v = Rc::new(5);
         g.set_node_name(a_id, "A".to_string());
-        g.set_node_value(a_id, Box::new(WeakWrapper::new(&v)));
+        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
         assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
     }
