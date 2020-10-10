@@ -215,6 +215,7 @@ mod tests {
         let mut node = InheritanceNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(InheritanceNode::try_from("A"), Ok(node));
+        assert!(InheritanceNode::try_from("B").is_err());
     }
 
     #[test]

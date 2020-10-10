@@ -152,6 +152,7 @@ mod tests {
         let mut node = FinalNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(FinalNode::try_from("A"), Ok(node));
+        assert!(FinalNode::try_from("B").is_err());
     }
 
     #[test]

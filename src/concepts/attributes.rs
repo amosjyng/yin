@@ -148,6 +148,7 @@ mod tests {
         let mut concept = Attribute::individuate();
         concept.set_internal_name("A".to_owned());
         assert_eq!(Attribute::try_from("A"), Ok(concept));
+        assert!(Attribute::try_from("B").is_err());
     }
 
     #[test]

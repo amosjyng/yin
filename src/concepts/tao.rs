@@ -120,6 +120,7 @@ mod tests {
         let mut concept = Tao::individuate();
         concept.set_internal_name("A".to_owned());
         assert_eq!(Tao::try_from("A"), Ok(concept));
+        assert!(Tao::try_from("B").is_err());
     }
 
     #[test]

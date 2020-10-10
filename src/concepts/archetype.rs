@@ -147,6 +147,7 @@ mod tests {
         let mut concept = Archetype::individuate();
         concept.set_internal_name("A".to_owned());
         assert_eq!(Archetype::try_from("A"), Ok(concept));
+        assert!(Archetype::try_from("B").is_err());
     }
 
     #[test]
