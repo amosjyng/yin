@@ -10,7 +10,9 @@ pub use value::Value;
 
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 /// Interface for all attributes.
@@ -36,7 +38,7 @@ pub struct Attribute {
 }
 
 impl Debug for Attribute {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("Attribute", Box::new(self), f)
     }
 }
@@ -46,6 +48,14 @@ impl From<usize> for Attribute {
         Self {
             base: FinalNode::from(id),
         }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for Attribute {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        FinalNode::try_from(name).map(|n| Self { base: n })
     }
 }
 

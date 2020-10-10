@@ -1,6 +1,8 @@
 use crate::concepts::{Archetype, ArchetypeTrait, FormTrait};
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 /// The Tao that can be made into a `struct` is not the eternal Tao.
@@ -21,7 +23,7 @@ pub struct Tao {
 }
 
 impl Debug for Tao {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("Tao", Box::new(self), f)
     }
 }
@@ -37,6 +39,14 @@ impl From<usize> for Tao {
 impl From<FinalNode> for Tao {
     fn from(bw: FinalNode) -> Self {
         Self { base: bw }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for Tao {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        FinalNode::try_from(name).map(|n| Self { base: n })
     }
 }
 
