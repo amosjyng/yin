@@ -1,5 +1,10 @@
+use crate::concepts::Tao;
 use std::any::Any;
+use std::cell::{RefCell, RefMut};
 use std::rc::{Rc, Weak};
+
+/// Closure stored inside the KB.
+pub type KBClosure = Box<dyn FnMut(Tao) -> Box<dyn Any>>;
 
 /// Wrapper for KB values, because Rust doesn't support upcasting at the moment, and the KB should
 /// support referring to external data structures that it doesn't own itself.
@@ -44,6 +49,45 @@ pub fn unwrap_strong<'a, 'b>(
             .unwrap()
             .value()
     })
+}
+
+/// Returns the value held by a closure StrongWrapper. We need a RefCell here because somehow
+/// closures are mutable when called, and the Rc that wraps a KBWrapper prevents mutability.
+pub fn unwrap_closure<'a, 'b, 'c>(
+    wrapper: &'b Option<Rc<Box<dyn KBWrapper + 'a>>>,
+) -> Option<RefMut<'b, KBClosure>> {
+    wrapper.as_ref().map(|v| {
+        let any: &'b dyn Any = v.as_any();
+        let kb_wrapper: &'b StrongWrapper<RefCell<KBClosure>> = any
+            .downcast_ref::<StrongWrapper<RefCell<KBClosure>>>()
+            .unwrap();
+        let closure_ref: &'b RefCell<KBClosure> = kb_wrapper.value();
+        let closure: RefMut<'b, KBClosure> = closure_ref.borrow_mut();
+        closure
+    })
+}
+
+/// Unwrap a StrongWrapper holding a closure, and return the result after running on the input.
+#[macro_export]
+macro_rules! define_closure {
+    ($closure:expr) => {{
+        // explicitly declare the type to help the Rust compiler understand
+        let strong: Box<StrongWrapper<RefCell<KBClosure>>> =
+            Box::new(StrongWrapper::new(RefCell::new(Box::new($closure))));
+        strong
+    }};
+}
+
+/// Unwrap a StrongWrapper holding a closure, and return the result after running on the input.
+#[macro_export]
+macro_rules! run_closure {
+    ($wrapper:expr, $input:expr, $t:ty) => {
+        unwrap_closure($wrapper).map(|mut c: RefMut<'_, KBClosure>| {
+            let result: Box<dyn Any> = c($input.ego_death());
+            let cast_result: Box<$t> = result.downcast().expect("Downcast type failure");
+            cast_result
+        })
+    };
 }
 
 /// KBWrapper for weak references to data.
@@ -106,6 +150,10 @@ impl<'a, T: Any + 'static> KBWrapper for StrongWrapper<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::attributes::Inherits;
+    use crate::concepts::{ArchetypeTrait, FormTrait};
+    use crate::graph::bind_in_memory_graph;
+    use crate::wrappers::CommonNodeTrait;
 
     #[test]
     fn test_weak_wrapper() {
@@ -121,6 +169,19 @@ mod tests {
         assert_eq!(
             unwrap_strong(&Some(Rc::new(Box::new(strong)))),
             Some(&"something owned".to_string())
+        );
+    }
+
+    #[test]
+    fn test_function_wrapper() {
+        bind_in_memory_graph();
+        let i = Inherits::archetype();
+        let kb_result: Option<Rc<Box<dyn KBWrapper>>> = Some(Rc::new(define_closure!(|t: Tao| {
+            Box::new(t.internal_name().unwrap())
+        })));
+        assert_eq!(
+            run_closure!(&kb_result, i, Rc<String>),
+            Some(Box::new(Rc::new("Inherits".to_string())))
         );
     }
 }

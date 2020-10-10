@@ -96,6 +96,42 @@
 //! assert_eq!(g.all_outgoing_nodes(b_id), vec![a_id]);
 //! assert_eq!(g.outgoing_nodes(c_id, edge_type2), vec![a_id]);
 //! ```
+//!
+//! We can also use the KB to invoke certain functionality. Note that we are passing in a `Tao`
+//! concept to the callback function because that's the only supported function at this moment.
+//!
+//! ```rust
+//! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
+//! # use zamm_yin::graph::{WeakWrapper, unwrap_weak};
+//! # use std::rc::Rc;
+//! # bind_in_memory_graph();
+//! # let mut g = InjectionGraph::new();
+//! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
+//! use zamm_yin::graph::{StrongWrapper, KBClosure, unwrap_closure};
+//! use zamm_yin::{define_closure, run_closure};
+//! use zamm_yin::wrappers::BaseNodeTrait;
+//! use std::any::Any;
+//! use std::cell::{RefCell, RefMut};
+//!
+//! let count_id = g.add_node();
+//! let count_value: Rc<i64> = Rc::new(5);
+//! g.set_node_value(count_id, Box::new(WeakWrapper::new(&count_value)));
+//!
+//! let mut triple_id = g.add_node();
+//! g.set_node_value(triple_id, define_closure!(|t: Tao| {
+//!     Box::new(*unwrap_weak::<i64>(t.essence().value()).unwrap() * 3)
+//! }));
+//! assert_eq!(
+//!     run_closure!(&g.node_value(triple_id), Tao::from(count_id), i64),
+//!     Some(Box::new(15))
+//! );
+//! ```
+//!
+//! In general, it's recommended to only use the KB to decide what to do at a very high level, and
+//! not to actually do things via the KB. For example, perhaps we could use the KB to decide to run
+//! Dijkstra's. We could even use the KB to design and debug an implementation of Dijkstra's. But
+//! the actual computation of Dijkstra's algorithm should involve low-level data structures and
+//! logic outside of the KB.
 
 #[cfg(feature = "cypher")]
 mod cypher_graph;
@@ -107,7 +143,9 @@ mod kb_wrapper;
 #[cfg(feature = "cypher")]
 pub use injection_graph::bind_cypher_graph;
 pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGraph};
-pub use kb_wrapper::{unwrap_strong, unwrap_weak, KBWrapper, StrongWrapper, WeakWrapper};
+pub use kb_wrapper::{
+    unwrap_closure, unwrap_strong, unwrap_weak, KBClosure, KBWrapper, StrongWrapper, WeakWrapper,
+};
 
 use std::rc::Rc;
 
