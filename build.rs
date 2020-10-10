@@ -1,4 +1,5 @@
 use std::env;
+use std::ffi::OsStr;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
@@ -20,6 +21,23 @@ const BINARY_EXT: &str = ".exe";
 
 /// The version of the Yang that will be used to generate build files.
 const YANG_DEP_VERSION: &str = "0.0.3";
+
+/// Call out to the commandline version of yang.
+fn run_yang<I, S>(yang_binary: &str, args: I)
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let result = Command::new(yang_binary).args(args).output().expect(
+        format!(
+            "Could not generate attribute `Target` using yang binary located at {}",
+            yang_binary
+        )
+        .as_str(),
+    );
+
+    print!("{}", std::str::from_utf8(&result.stdout).unwrap());
+}
 
 /// Build `yang` using itself.
 fn main() {
@@ -80,23 +98,27 @@ fn main() {
 
     println!("==================== RUNNING YANG ====================");
 
-    let result = Command::new(&yang_binary)
-        .args(&[
+    run_yang(
+        &yang_binary,
+        &[
             "Owner",
             "--id",
             "3",
             "-d",
             "The owner/source/from-node of an attribute.",
             "--yin",
-        ])
-        .output()
-        .expect(
-            format!(
-                "Could not generate attribute `Target` using yang binary located at {}",
-                yang_binary
-            )
-            .as_str(),
-        );
+        ],
+    );
 
-    print!("{}", std::str::from_utf8(&result.stdout).unwrap());
+    run_yang(
+        &yang_binary,
+        &[
+            "Value",
+            "--id",
+            "4",
+            "-d",
+            "The value/target/to-node of an attribute.",
+            "--yin",
+        ],
+    );
 }
