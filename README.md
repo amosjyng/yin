@@ -8,7 +8,7 @@ Yin is a rudimentary, experimental knowledge base. It is inspired by [Scone](htt
 
 Functionality is basically non-existent at the moment. Please do not use this library.
 
-See the [Hello World](examples/hello_world.rs) program for an example of how to use the library.
+See [the docs](https://docs.rs/zamm_yin/) for an example of how to use the library.
 
 ### Initialization and concept creation
 
