@@ -37,16 +37,15 @@ pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBValue + 'a>>>) -> Opt
         .flatten()
 }
 
-/// Similar to unwrap_weak, returns the value held by a String-valued StrongValue.
-pub fn unwrap_strong<'a, 'b>(wrapper: &'b Option<Rc<Box<dyn KBValue + 'a>>>) -> Option<&'b String> {
+/// Similar to unwrap_weak, returns the value held by a StrongValue.
+pub fn unwrap_strong<'a, 'b, T: 'static>(
+    wrapper: &'b Option<Rc<Box<dyn KBValue + 'a>>>,
+) -> Option<&'b T> {
     // todo: see if lifetime ugliness can be cleaned up without cloning. Ownership transfer may be
     // best here, seeing as CypherGraph doesn't care to own any of these strings.
-    wrapper.as_ref().map(|v| {
-        v.as_any()
-            .downcast_ref::<StrongValue<String>>()
-            .unwrap()
-            .value()
-    })
+    wrapper
+        .as_ref()
+        .map(|v| v.as_any().downcast_ref::<StrongValue<T>>().unwrap().value())
 }
 
 /// Returns the value held by a closure StrongValue. We need a RefCell here because somehow
@@ -167,6 +166,16 @@ mod tests {
         assert_eq!(
             unwrap_strong(&Some(Rc::new(Box::new(strong)))),
             Some(&"something owned".to_string())
+        );
+    }
+
+    #[test]
+    fn test_strong_value_int() {
+        let item: i64 = -5;
+        let strong = StrongValue::new(item);
+        assert_eq!(
+            unwrap_strong::<i64>(&Some(Rc::new(Box::new(strong)))),
+            Some(&-5)
         );
     }
 
