@@ -2,7 +2,9 @@ use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use super::{InheritanceNode, InheritanceNodeTrait};
 use crate::graph::value_wrappers::KBValue;
 use std::cmp::{Eq, PartialEq};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::hash::Hash;
 use std::rc::Rc;
 
@@ -34,6 +36,14 @@ impl From<usize> for FinalNode {
     }
 }
 
+impl<'a> TryFrom<&'a str> for FinalNode {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        InheritanceNode::try_from(name).map(|n| FinalNode { base: n })
+    }
+}
+
 impl From<InheritanceNode> for FinalNode {
     fn from(b: InheritanceNode) -> Self {
         FinalNode { base: b }
@@ -41,7 +51,7 @@ impl From<InheritanceNode> for FinalNode {
 }
 
 impl Debug for FinalNode {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("FWrapper", Box::new(self), f)
     }
 }

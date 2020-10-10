@@ -2,7 +2,9 @@ use super::{debug_wrapper, CommonNodeTrait};
 use crate::graph::value_wrappers::KBValue;
 use crate::graph::{Graph, InjectionGraph};
 use std::cmp::{Eq, Ordering, PartialEq};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
@@ -60,8 +62,22 @@ impl From<usize> for BaseNode {
     }
 }
 
+impl<'a> TryFrom<&'a str> for BaseNode {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        let g = InjectionGraph {};
+        // The last ID will be the most recently added node. We want later nodes to override
+        // earlier ones.
+        match g.lookup(name).last() {
+            Some(id) => Ok(BaseNode { graph: g, id: *id }),
+            None => Err(format!("No node with name \"{}\" found.", name)),
+        }
+    }
+}
+
 impl Debug for BaseNode {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("BWrapper", Box::new(self), f)
     }
 }
@@ -176,6 +192,14 @@ mod tests {
         let mut node = BaseNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
+    }
+
+    #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut node = BaseNode::new();
+        node.set_internal_name("A".to_string());
+        assert_eq!(BaseNode::try_from("A"), Ok(node));
     }
 
     #[test]
