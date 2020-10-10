@@ -197,6 +197,7 @@ impl Graph for InMemoryGraph {
 mod tests {
     use super::super::*;
     use super::*;
+    use crate::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
 
     #[test]
     fn test_create() {

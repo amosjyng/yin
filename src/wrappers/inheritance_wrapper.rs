@@ -2,7 +2,7 @@ use super::BaseWrapper;
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::concepts::attributes::Inherits;
 use crate::concepts::ArchetypeTrait;
-use crate::graph::KBWrapper;
+use crate::graph::kb_wrapper::KBWrapper;
 use std::cmp::{Eq, PartialEq};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
@@ -180,7 +180,8 @@ impl InheritanceNodeTrait<InheritanceWrapper> for InheritanceWrapper {
 mod tests {
     use super::*;
     use crate::concepts::attributes::Owner;
-    use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
+    use crate::graph::bind_in_memory_graph;
+    use crate::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
 
     #[test]
     fn create_and_retrieve_node_id() {

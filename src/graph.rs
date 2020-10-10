@@ -53,7 +53,7 @@
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
-//! use zamm_yin::graph::{WeakWrapper, unwrap_weak};
+//! use zamm_yin::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
 //! use std::rc::Rc;
 //!
 //! let v = Rc::new(5);
@@ -102,12 +102,12 @@
 //!
 //! ```rust
 //! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
-//! # use zamm_yin::graph::{WeakWrapper, unwrap_weak};
+//! # use zamm_yin::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
 //! # use std::rc::Rc;
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
-//! use zamm_yin::graph::{StrongWrapper, KBClosure, unwrap_closure};
+//! use zamm_yin::graph::kb_wrapper::{StrongWrapper, KBClosure, unwrap_closure};
 //! use zamm_yin::{define_closure, run_closure};
 //! use zamm_yin::wrappers::BaseNodeTrait;
 //! use std::any::Any;
@@ -138,14 +138,17 @@ mod cypher_graph;
 mod in_memory_graph;
 mod injection_graph;
 mod invalid_graph;
-mod kb_wrapper;
+/// Wrappers around values associated with nodes in the KB. This differs from the other
+/// [`wrappers`](../wrappers/index.html) package because this abstraction only wraps the
+/// values associated with nodes, while the other one wraps the nodes themselves.
+///
+/// Due to Rust restrictions around upcasting to Any, it appears necessary to create an extra wrapper.
+pub mod kb_wrapper;
 
+use crate::graph::kb_wrapper::KBWrapper;
 #[cfg(feature = "cypher")]
 pub use injection_graph::bind_cypher_graph;
 pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGraph};
-pub use kb_wrapper::{
-    unwrap_closure, unwrap_strong, unwrap_weak, KBClosure, KBWrapper, StrongWrapper, WeakWrapper,
-};
 
 use std::rc::Rc;
 

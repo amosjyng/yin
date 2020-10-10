@@ -1,4 +1,5 @@
-use super::{Graph, KBWrapper, StrongWrapper, WeakWrapper};
+use super::kb_wrapper::{KBWrapper, StrongWrapper, WeakWrapper};
+use super::Graph;
 use rusted_cypher::cypher_stmt;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -240,6 +241,7 @@ impl Graph for CypherGraph {
 mod tests {
     use super::super::*;
     use super::*;
+    use crate::graph::kb_wrapper::unwrap_strong;
     use std::collections::HashSet;
 
     /// Default Neo4j 3.x instance to connect to. Note that the local password should be changed to

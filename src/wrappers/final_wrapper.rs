@@ -1,6 +1,6 @@
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use super::{InheritanceNodeTrait, InheritanceWrapper};
-use crate::graph::KBWrapper;
+use crate::graph::kb_wrapper::KBWrapper;
 use std::cmp::{Eq, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
 use std::hash::Hash;
@@ -117,7 +117,8 @@ mod tests {
     use super::*;
     use crate::concepts::attributes::{Inherits, Owner};
     use crate::concepts::ArchetypeTrait;
-    use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
+    use crate::graph::bind_in_memory_graph;
+    use crate::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
 
     #[test]
     fn create_and_retrieve_node_id() {

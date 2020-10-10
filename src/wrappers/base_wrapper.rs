@@ -1,5 +1,6 @@
 use super::{debug_wrapper, CommonNodeTrait};
-use crate::graph::{Graph, InjectionGraph, KBWrapper};
+use crate::graph::kb_wrapper::KBWrapper;
+use crate::graph::{Graph, InjectionGraph};
 use std::cmp::{Eq, Ordering, PartialEq};
 use std::fmt::{Debug, Formatter, Result};
 use std::hash::{Hash, Hasher};
@@ -150,7 +151,8 @@ impl BaseNodeTrait<BaseWrapper> for BaseWrapper {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::{bind_in_memory_graph, unwrap_weak, WeakWrapper};
+    use crate::graph::bind_in_memory_graph;
+    use crate::graph::kb_wrapper::{unwrap_weak, WeakWrapper};
 
     #[test]
     fn create_and_retrieve_node_id() {
