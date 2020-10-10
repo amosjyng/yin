@@ -151,7 +151,7 @@ mod tests {
     use crate::concepts::attributes::Inherits;
     use crate::concepts::{ArchetypeTrait, FormTrait};
     use crate::graph::bind_in_memory_graph;
-    use crate::wrappers::CommonNodeTrait;
+    use crate::node_wrappers::CommonNodeTrait;
 
     #[test]
     fn test_weak_value() {

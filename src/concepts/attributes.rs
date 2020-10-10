@@ -9,7 +9,7 @@ pub use owner::Owner;
 pub use value::Value;
 
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 

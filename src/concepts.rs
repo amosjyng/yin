@@ -38,7 +38,7 @@
 //! # use zamm_yin::graph::bind_in_memory_graph;
 //! # bind_in_memory_graph();
 //! # let mut concept = Tao::individuate();
-//! use zamm_yin::wrappers::CommonNodeTrait;
+//! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
 //! concept.set_internal_name("A".to_string());
@@ -49,7 +49,7 @@ mod archetype;
 pub mod attributes;
 mod tao;
 
-use crate::wrappers::{BaseNodeTrait, CommonNodeTrait, FinalWrapper, InheritanceNodeTrait};
+use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalWrapper, InheritanceNodeTrait};
 pub use archetype::Archetype;
 use attributes::Inherits;
 pub use tao::Tao;

@@ -109,7 +109,7 @@
 //! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
 //! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};
 //! use zamm_yin::{define_closure, run_closure};
-//! use zamm_yin::wrappers::BaseNodeTrait;
+//! use zamm_yin::node_wrappers::BaseNodeTrait;
 //! use std::any::Any;
 //! use std::cell::{RefCell, RefMut};
 //!
@@ -142,7 +142,7 @@ mod invalid_graph;
 /// [`wrappers`](../wrappers/index.html) package because this abstraction only wraps the
 /// values associated with nodes, while the other one wraps the nodes themselves.
 ///
-/// Due to Rust restrictions around upcasting to Any, it appears necessary to create an extra 
+/// Due to Rust restrictions around upcasting to Any, it appears necessary to create an extra
 /// wrapper.
 pub mod value_wrappers;
 

@@ -1,6 +1,6 @@
 use super::{Attribute, AttributeTrait};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 

@@ -1,6 +1,6 @@
 use crate::concepts::attributes::Inherits;
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalWrapper};
 use std::collections::{HashSet, VecDeque};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;

@@ -1,5 +1,5 @@
 use crate::concepts::{Archetype, ArchetypeTrait, FormTrait};
-use crate::wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
+use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalWrapper};
 use std::fmt::{Debug, Formatter, Result};
 use std::rc::Rc;
 

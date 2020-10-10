@@ -4,4 +4,4 @@
 
 pub mod concepts;
 pub mod graph;
-pub mod wrappers;
+pub mod node_wrappers;
