@@ -10,7 +10,9 @@ pub use value::Value;
 
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 /// Interface for all attributes.
@@ -36,7 +38,7 @@ pub struct Attribute {
 }
 
 impl Debug for Attribute {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("Attribute", Box::new(self), f)
     }
 }
@@ -46,6 +48,14 @@ impl From<usize> for Attribute {
         Self {
             base: FinalNode::from(id),
         }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for Attribute {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        FinalNode::try_from(name).map(|n| Self { base: n })
     }
 }
 
@@ -130,6 +140,14 @@ mod tests {
         let concept = Attribute::individuate();
         let concept_copy = Attribute::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut concept = Attribute::individuate();
+        concept.set_internal_name("A".to_owned());
+        assert_eq!(Attribute::try_from("A"), Ok(concept));
     }
 
     #[test]

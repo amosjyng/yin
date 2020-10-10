@@ -2,7 +2,9 @@ use crate::concepts::attributes::Inherits;
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::collections::{HashSet, VecDeque};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 /// Represents an archetype from which various individual nodes can be derived.
@@ -52,7 +54,7 @@ impl Archetype {
 }
 
 impl Debug for Archetype {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("Archetype", Box::new(self), f)
     }
 }
@@ -68,6 +70,14 @@ impl From<usize> for Archetype {
 impl From<FinalNode> for Archetype {
     fn from(fw: FinalNode) -> Self {
         Self { base: fw }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for Archetype {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        FinalNode::try_from(name).map(|n| Self { base: n })
     }
 }
 
@@ -129,6 +139,14 @@ mod tests {
         let concept = Archetype::individuate();
         let concept_copy = Archetype::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut concept = Archetype::individuate();
+        concept.set_internal_name("A".to_owned());
+        assert_eq!(Archetype::try_from("A"), Ok(concept));
     }
 
     #[test]

@@ -5,7 +5,9 @@ use crate::concepts::ArchetypeTrait;
 use crate::graph::value_wrappers::KBValue;
 use std::cmp::{Eq, PartialEq};
 use std::collections::{HashSet, VecDeque};
-use std::fmt::{Debug, Formatter, Result};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::hash::Hash;
 use std::rc::Rc;
 
@@ -45,6 +47,14 @@ impl From<usize> for InheritanceNode {
     }
 }
 
+impl<'a> TryFrom<&'a str> for InheritanceNode {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        BaseNode::try_from(name).map(|n| InheritanceNode { base: n })
+    }
+}
+
 impl From<BaseNode> for InheritanceNode {
     fn from(b: BaseNode) -> Self {
         InheritanceNode { base: b }
@@ -52,7 +62,7 @@ impl From<BaseNode> for InheritanceNode {
 }
 
 impl Debug for InheritanceNode {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         debug_wrapper("IWrapper", Box::new(self), f)
     }
 }
@@ -197,6 +207,14 @@ mod tests {
         let node = InheritanceNode::new();
         let node_copy = InheritanceNode::from(node.id());
         assert_eq!(node.id(), node_copy.id());
+    }
+
+    #[test]
+    fn from_name() {
+        bind_in_memory_graph();
+        let mut node = InheritanceNode::new();
+        node.set_internal_name("A".to_string());
+        assert_eq!(InheritanceNode::try_from("A"), Ok(node));
     }
 
     #[test]
