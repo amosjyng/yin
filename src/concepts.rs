@@ -127,7 +127,8 @@ pub trait FormTrait: CommonNodeTrait {
     /// abstraction. The yin to the yang of mathematical realism is Berkeleyan immaterialism. All
     /// external perception can be faked, all internal reasoning can be faulty. The only truth
     /// to be found in all of existence is qualia, and it too humbly proffers itself up as nothing
-    /// more than a God of the gaps.
+    /// more than a God of the gaps. But then again, if the self is merely an illusion, then who is
+    /// this entity that's being fooled? Perhaps it should really be "I *feel*, therefore I am."
     ///
     /// In between the Platonic purity of the duals lies an entire spectrum of rich philosophical
     /// thought. That spectrum, much like the entirety of this comment and others like it in this
