@@ -242,7 +242,7 @@ mod tests {
     /// Default Neo4j 3.x instance to connect to. Note that the local password should be changed to
     /// dummy_password first. All tests in this section are ignored by default to allow tests to
     /// pass even when there is no local instance of Neo4j running.
-    const TEST_DB_URI: &'static str = "http://neo4j:dummy_password@127.0.0.1:7474/db/data";
+    const TEST_DB_URI: &str = "http://neo4j:dummy_password@127.0.0.1:7474/db/data";
 
     /// Convert a vec of IDs to a set because Neo4j isn't guaranteed to create nodes with
     /// sequential IDs.
@@ -287,7 +287,7 @@ mod tests {
         // guarantee that another node won't be added in the meantime when tests run in parallel.
         // However, we can still test that the queries are returning successfully, at least.
         dbg!("Initial {} turned into {}", initial_size, g.size());
-        assert!(g.size() >= initial_size + 1);
+        assert!(g.size() > initial_size);
     }
 
     #[test]

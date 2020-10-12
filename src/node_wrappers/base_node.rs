@@ -221,6 +221,7 @@ mod tests {
         assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
 
+    #[allow(clippy::many_single_char_names)]
     #[test]
     fn outgoing_nodes() {
         bind_in_memory_graph();
@@ -245,6 +246,7 @@ mod tests {
         assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
 
+    #[allow(clippy::many_single_char_names)]
     #[test]
     fn incoming_nodes() {
         bind_in_memory_graph();
