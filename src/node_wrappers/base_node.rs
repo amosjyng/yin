@@ -9,13 +9,12 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// All low-level wrappers will have these functions available.
-#[allow(clippy::redundant_allocation)]
 pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Associate this node with a value.
-    fn set_value(&mut self, value: Box<dyn KBValue>);
+    fn set_value(&mut self, value: Rc<dyn KBValue>);
 
     /// Retrieve the value associated with this node.
-    fn value(&self) -> Option<Rc<Box<dyn KBValue>>>;
+    fn value(&self) -> Option<Rc<dyn KBValue>>;
 
     /// Link this node to another one via an outgoing edge.
     fn add_outgoing(&mut self, edge_type: usize, to: &T);
@@ -125,11 +124,11 @@ impl CommonNodeTrait for BaseNode {
 }
 
 impl BaseNodeTrait<BaseNode> for BaseNode {
-    fn set_value(&mut self, value: Box<dyn KBValue>) {
+    fn set_value(&mut self, value: Rc<dyn KBValue>) {
         self.graph.set_node_value(self.id, value)
     }
 
-    fn value(&self) -> Option<Rc<Box<dyn KBValue>>> {
+    fn value(&self) -> Option<Rc<dyn KBValue>> {
         self.graph.node_value(self.id)
     }
 
@@ -210,7 +209,7 @@ mod tests {
         bind_in_memory_graph();
         let mut node = BaseNode::new();
         let v = Rc::new(5);
-        node.set_value(Box::new(WeakValue::new(&v)));
+        node.set_value(Rc::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
     }
 
