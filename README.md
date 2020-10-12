@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/amosjyng/yin.svg?branch=master)](https://travis-ci.com/amosjyng/yin)
 
-Yin is a rudimentary, experimental knowledge base. It is inspired by [Scone](https://github.com/sfahlman/scone), but is not meant to be a replacement/clone of Scone and its functionality. Yin is both used by, and depends on, [Yang](https://crates.io/crates/zamm_yang) for code generation.
+Yin is a rudimentary, experimental knowledge base. It is inspired by [Scone](https://github.com/sfahlman/scone), but is not meant to be a replacement/clone of Scone and its functionality. Yin is both used by, and depends on, [Yang](https://crates.io/crates/zamm_yang) for code generation. See the [internal documentation](yin.md) for more.
 
 Functionality is basically non-existent at the moment. Please do not use this library.
 

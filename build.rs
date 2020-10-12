@@ -20,7 +20,7 @@ const BINARY_EXT: &str = "";
 const BINARY_EXT: &str = ".exe";
 
 /// The version of the Yang that will be used to generate build files.
-const YANG_DEP_VERSION: &str = "0.0.3";
+const YANG_DEP_VERSION: &str = "0.0.4";
 
 /// Call out to the commandline version of yang.
 fn run_yang<I, S>(yang_binary: &str, args: I)
@@ -28,13 +28,15 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let result = Command::new(yang_binary).args(args).output().expect(
-        format!(
-            "Could not generate attribute `Target` using yang binary located at {}",
-            yang_binary
-        )
-        .as_str(),
-    );
+    let result = Command::new(yang_binary)
+        .args(args)
+        .output()
+        .unwrap_or_else(|_| {
+            panic!(
+                "Could not generate attribute `Target` using yang binary located at {}",
+                yang_binary
+            )
+        });
 
     print!("{}", std::str::from_utf8(&result.stdout).unwrap());
 }
@@ -72,7 +74,7 @@ fn main() {
             .bytes()
             .expect("Cannot get yang bytes after download.");
         binary_output
-            .write(&yang_bytes)
+            .write_all(&yang_bytes)
             .expect("Cannot write yang bytes to binary.");
         binary_output
             .flush()
