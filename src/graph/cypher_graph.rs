@@ -1,4 +1,4 @@
-use super::value_wrappers::{KBValue, StrongValue, WeakValue};
+use super::value_wrappers::{unwrap_strong, KBValue, StrongValue, WeakValue};
 use super::Graph;
 use rusted_cypher::cypher_stmt;
 use std::collections::HashMap;
@@ -60,17 +60,12 @@ impl Graph for CypherGraph {
         // todo: see if lifetime ugliness can be cleaned up without cloning
         let unwrapped_value = match value.as_any().downcast_ref::<WeakValue<String>>() {
             Some(ww) => {
-                let x = ww.value().unwrap().clone();
+                let x = ww.value().unwrap();
                 (*x).clone()
             }
-            None => value
-                .as_any()
-                .downcast_ref::<StrongValue<String>>()
+            None => unwrap_strong::<String>(&Some(Rc::new(value)))
                 .unwrap()
-                .value()
-                .as_str()
-                .clone()
-                .to_string(),
+                .clone(),
         };
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} SET n.value = {value}", {
             "id" => id,
@@ -93,7 +88,7 @@ impl Graph for CypherGraph {
         })
         .next()
         .unwrap()
-        .map(|s| Rc::new(s))
+        .map(Rc::new)
     }
 
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {

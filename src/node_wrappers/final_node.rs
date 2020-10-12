@@ -14,6 +14,7 @@ pub struct FinalNode {
     base: InheritanceNode,
 }
 
+#[allow(clippy::new_without_default)]
 impl FinalNode {
     /// Create a new node.
     pub fn new() -> Self {
@@ -52,7 +53,7 @@ impl From<InheritanceNode> for FinalNode {
 
 impl Debug for FinalNode {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debug_wrapper("FWrapper", Box::new(self), f)
+        debug_wrapper("FWrapper", self, f)
     }
 }
 
@@ -99,7 +100,7 @@ impl BaseNodeTrait<FinalNode> for FinalNode {
         self.base
             .outgoing_nodes(edge_type)
             .into_iter()
-            .map(|b| FinalNode::from(b))
+            .map(FinalNode::from)
             .collect()
     }
 
@@ -107,7 +108,7 @@ impl BaseNodeTrait<FinalNode> for FinalNode {
         self.base
             .incoming_nodes(edge_type)
             .into_iter()
-            .map(|b| FinalNode::from(b))
+            .map(FinalNode::from)
             .collect()
     }
 }
@@ -117,7 +118,7 @@ impl InheritanceNodeTrait<FinalNode> for FinalNode {
         self.base
             .inheritance_nodes()
             .into_iter()
-            .map(|b| FinalNode::from(b))
+            .map(FinalNode::from)
             .collect()
     }
 }

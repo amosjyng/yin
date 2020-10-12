@@ -23,11 +23,7 @@ pub trait CommonNodeTrait {
 }
 
 /// Helper function for implementing the Debug trait for a node wrapper.
-pub fn debug_wrapper(
-    wrapper_type: &str,
-    node: Box<&dyn CommonNodeTrait>,
-    f: &mut Formatter,
-) -> Result {
+pub fn debug_wrapper(wrapper_type: &str, node: &dyn CommonNodeTrait, f: &mut Formatter) -> Result {
     match node.internal_name() {
         Some(name) => f.write_fmt(format_args!("{}({},{})", wrapper_type, node.id(), name)),
         None => f.write_fmt(format_args!("{}({})", wrapper_type, node.id())),

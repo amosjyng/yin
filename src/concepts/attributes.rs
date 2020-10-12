@@ -18,13 +18,13 @@ use std::rc::Rc;
 /// Interface for all attributes.
 pub trait AttributeTrait<T>: ArchetypeTrait<T> {
     /// Set the owner for this attribute.
-    fn set_owner(&mut self, owner: Box<&dyn FormTrait>);
+    fn set_owner(&mut self, owner: &dyn FormTrait);
 
     /// The owner of an attribute, if it exists.
     fn owner(&self) -> Option<Tao>;
 
     /// Set the value for this attribute.
-    fn set_value(&mut self, value: Box<&dyn FormTrait>);
+    fn set_value(&mut self, value: &dyn FormTrait);
 
     /// The value of an attribute, if it exists.
     fn value(&self) -> Option<Tao>;
@@ -39,7 +39,7 @@ pub struct Attribute {
 
 impl Debug for Attribute {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debug_wrapper("Attribute", Box::new(self), f)
+        debug_wrapper("Attribute", self, f)
     }
 }
 
@@ -96,7 +96,7 @@ impl FormTrait for Attribute {
 }
 
 impl AttributeTrait<Attribute> for Attribute {
-    fn set_owner(&mut self, owner: Box<&dyn FormTrait>) {
+    fn set_owner(&mut self, owner: &dyn FormTrait) {
         self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
     }
 
@@ -107,7 +107,7 @@ impl AttributeTrait<Attribute> for Attribute {
             .map(|n| Tao::from(*n))
     }
 
-    fn set_value(&mut self, value: Box<&dyn FormTrait>) {
+    fn set_value(&mut self, value: &dyn FormTrait) {
         self.base.add_outgoing(Value::TYPE_ID, value.essence());
     }
 
@@ -172,7 +172,7 @@ mod tests {
         bind_in_memory_graph();
         let mut attr_instance = Attribute::individuate();
         let owner_of_attr = Attribute::individuate();
-        attr_instance.set_owner(Box::new(&owner_of_attr));
+        attr_instance.set_owner(&owner_of_attr);
         assert_eq!(attr_instance.owner(), Some(owner_of_attr.ego_death()));
         assert_eq!(attr_instance.value(), None);
     }
@@ -182,7 +182,7 @@ mod tests {
         bind_in_memory_graph();
         let mut attr_instance = Attribute::individuate();
         let value_of_attr = Attribute::individuate();
-        attr_instance.set_value(Box::new(&value_of_attr));
+        attr_instance.set_value(&value_of_attr);
         assert_eq!(attr_instance.owner(), None);
         assert_eq!(attr_instance.value(), Some(value_of_attr.ego_death()));
     }

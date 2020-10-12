@@ -21,6 +21,7 @@
 //! }
 //! ```
 
+#![allow(clippy::needless_doctest_main)]
 #![warn(missing_docs)]
 
 pub mod concepts;

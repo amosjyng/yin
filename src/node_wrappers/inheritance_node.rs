@@ -23,6 +23,7 @@ pub struct InheritanceNode {
     base: BaseNode,
 }
 
+#[allow(clippy::new_without_default)]
 impl InheritanceNode {
     /// Create a new node.
     pub fn new() -> Self {
@@ -63,7 +64,7 @@ impl From<BaseNode> for InheritanceNode {
 
 impl Debug for InheritanceNode {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debug_wrapper("IWrapper", Box::new(self), f)
+        debug_wrapper("IWrapper", self, f)
     }
 }
 
@@ -123,16 +124,15 @@ impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
             self.base
                 .outgoing_nodes(edge_type)
                 .into_iter()
-                .map(|b| InheritanceNode::from(b))
+                .map(InheritanceNode::from)
                 .collect()
         } else {
             let mut nodes = self
                 .inheritance_nodes()
                 .into_iter()
                 .map(|iw| iw.base.outgoing_nodes(edge_type))
-                .into_iter()
                 .flatten()
-                .map(|b| InheritanceNode::from(b))
+                .map(InheritanceNode::from)
                 .collect::<Vec<InheritanceNode>>();
             nodes.sort();
             nodes.dedup();
@@ -145,16 +145,15 @@ impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
             self.base
                 .incoming_nodes(edge_type)
                 .into_iter()
-                .map(|b| InheritanceNode::from(b))
+                .map(InheritanceNode::from)
                 .collect()
         } else {
             let mut nodes = self
                 .inheritance_nodes()
                 .into_iter()
                 .map(|iw| iw.base.incoming_nodes(edge_type))
-                .into_iter()
                 .flatten()
-                .map(|b| InheritanceNode::from(b))
+                .map(InheritanceNode::from)
                 .collect::<Vec<InheritanceNode>>();
             nodes.sort();
             nodes.dedup();
@@ -177,10 +176,8 @@ impl InheritanceNodeTrait<InheritanceNode> for InheritanceNode {
                 }
             }
         }
-        let mut result: Vec<InheritanceNode> = visited
-            .into_iter()
-            .map(|b| InheritanceNode::from(b))
-            .collect();
+        let mut result: Vec<InheritanceNode> =
+            visited.into_iter().map(InheritanceNode::from).collect();
         result.sort();
         result
     }
