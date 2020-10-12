@@ -53,5 +53,5 @@ Let's implement the rest of what we've learned:
 - parent: Implement
   target: Inherits
   output_id: 5
-  documentation: Describes the owner as inheriting all attributes of the value. BOLO
+  documentation: Describes the owner as inheriting all attributes of the value.
 ```
