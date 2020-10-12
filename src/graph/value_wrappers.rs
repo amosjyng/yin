@@ -31,6 +31,7 @@ pub trait KBValue: Any {
 ///     guaranteed to return a value even if there was originally one associated with the node.
 ///
 /// This function encapsulates all of the above into one simpler return value.
+#[allow(clippy::redundant_allocation)]
 pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBValue + 'a>>>) -> Option<Rc<T>> {
     wrapper
         .map(|v| v.as_any().downcast_ref::<WeakValue<T>>().unwrap().value())
@@ -38,6 +39,7 @@ pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBValue + 'a>>>) -> Opt
 }
 
 /// Similar to unwrap_weak, returns the value held by a StrongValue.
+#[allow(clippy::redundant_allocation)]
 pub fn unwrap_strong<'a, 'b, T: 'static>(
     wrapper: &'b Option<Rc<Box<dyn KBValue + 'a>>>,
 ) -> Option<&'b T> {
@@ -50,7 +52,8 @@ pub fn unwrap_strong<'a, 'b, T: 'static>(
 
 /// Returns the value held by a closure StrongValue. We need a RefCell here because somehow
 /// closures are mutable when called, and the Rc that wraps a KBValue prevents mutability.
-pub fn unwrap_closure<'a, 'b, 'c>(
+#[allow(clippy::redundant_allocation)]
+pub fn unwrap_closure<'a, 'b>(
     wrapper: &'b Option<Rc<Box<dyn KBValue + 'a>>>,
 ) -> Option<RefMut<'b, KBClosure>> {
     wrapper.as_ref().map(|v| {

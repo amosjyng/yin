@@ -195,7 +195,7 @@ impl Graph for CypherGraph {
                 let name = r
                     .get::<Option<String>>("n.name")
                     .unwrap()
-                    .unwrap_or(id.to_string());
+                    .unwrap_or_else(|| id.to_string());
                 let row_str = format!("    {} [ label = \"{}\" ]\n", id, name);
                 node_names.insert(id, name);
                 row_str

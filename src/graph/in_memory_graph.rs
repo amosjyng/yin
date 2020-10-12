@@ -15,6 +15,7 @@ struct NodeName {
     name: Option<Rc<String>>,
 }
 
+#[allow(clippy::redundant_allocation)]
 #[derive(Default)]
 struct NodeInfo {
     /// Store ID here as well in order to allow printing the ID as a label when no internal name is
@@ -102,14 +103,14 @@ impl Graph for InMemoryGraph {
     fn node_name(&self, id: usize) -> Option<Rc<String>> {
         self.graph
             .node_weight(NodeIndex::new(id))
-            .map(|info| info.name.borrow().name.as_ref().map(|rc| rc.clone()))
+            .map(|info| info.name.borrow().name.as_ref().cloned())
             .flatten()
     }
 
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
         self.graph
             .node_weight(NodeIndex::new(id))
-            .map(|info| info.value.as_ref().map(|v| v.clone()))
+            .map(|info| info.value.as_ref().cloned())
             .flatten()
     }
 
@@ -117,8 +118,8 @@ impl Graph for InMemoryGraph {
         let mut ids = self
             .names
             .get(&Rc::new(name.to_string()))
-            .map(|v| v.clone())
-            .unwrap_or(Vec::new());
+            .cloned()
+            .unwrap_or_default();
         ids.sort();
         ids
     }
@@ -141,9 +142,7 @@ impl Graph for InMemoryGraph {
         // can't use petgraph's find_edge because it doesn't take into account the edge label
         self.graph
             .edges_connecting(NodeIndex::new(from), NodeIndex::new(to))
-            .filter(|e| e.weight().type_id == edge_type)
-            .next()
-            .is_some()
+            .any(|e| e.weight().type_id == edge_type)
     }
 
     fn outgoing_nodes(&self, from: usize, edge_type: usize) -> Vec<usize> {

@@ -71,7 +71,7 @@ pub fn bind_cypher_graph(uri: &str) {
 }
 
 /// Graph usable with dependency injection.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct InjectionGraph {}
 
 impl InjectionGraph {
@@ -87,7 +87,7 @@ impl Graph for InjectionGraph {
     }
 
     fn add_node(&mut self) -> usize {
-        GRAPH.with(|g| g.borrow_mut().add_node().clone())
+        GRAPH.with(|g| g.borrow_mut().add_node())
     }
 
     fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
@@ -103,7 +103,7 @@ impl Graph for InjectionGraph {
     }
 
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
-        GRAPH.with(|g| g.borrow().node_value(id).map(|r| r.clone()))
+        GRAPH.with(|g| g.borrow().node_value(id))
     }
 
     fn lookup(&self, name: &str) -> Vec<usize> {

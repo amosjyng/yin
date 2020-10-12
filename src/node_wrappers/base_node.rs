@@ -9,6 +9,7 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// All low-level wrappers will have these functions available.
+#[allow(clippy::redundant_allocation)]
 pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Associate this node with a value.
     fn set_value(&mut self, value: Box<dyn KBValue>);
