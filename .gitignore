@@ -1,7 +1,5 @@
 /target
-src/concepts/attributes/inherits.rs
-src/concepts/attributes/owner.rs
-src/concepts/attributes/value.rs
 Cargo.lock
 .vscode
 *.log
+.autogen.txt

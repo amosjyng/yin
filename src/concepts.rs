@@ -151,7 +151,7 @@ pub trait FormTrait: CommonNodeTrait {
     /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
     /// boundaries, be at peace with the universe again.
     fn ego_death(&self) -> Tao {
-        Tao::from(self.essence().clone())
+        Tao::from(*self.essence())
     }
 
     /// Set a parent archetype. The current archetype will inherit all attributes of the parent
@@ -190,7 +190,7 @@ mod tests {
         assert_eq!(owner.owner(), None);
 
         let attr = Owner::individuate();
-        Owner::from(Owner::TYPE_ID).set_owner(Box::new(&attr));
+        Owner::from(Owner::TYPE_ID).set_owner(&attr);
         assert_eq!(owner.owner(), Some(attr.ego_death()));
     }
 

@@ -154,6 +154,7 @@ pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGrap
 use std::rc::Rc;
 
 /// A classic directed Graph with nodes and labeled links.
+#[allow(clippy::redundant_allocation)]
 pub trait Graph {
     /// The number of nodes in the graph.
     fn size(&self) -> usize;

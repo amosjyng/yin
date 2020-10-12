@@ -47,7 +47,7 @@ impl Archetype {
                 }
             }
         }
-        let mut result: Vec<Tao> = leaves.into_iter().map(|fw| Tao::from(fw)).collect();
+        let mut result: Vec<Tao> = leaves.into_iter().map(Tao::from).collect();
         result.sort();
         result
     }
@@ -55,7 +55,7 @@ impl Archetype {
 
 impl Debug for Archetype {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debug_wrapper("Archetype", Box::new(self), f)
+        debug_wrapper("Archetype", self, f)
     }
 }
 

@@ -24,7 +24,7 @@ pub struct Tao {
 
 impl Debug for Tao {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debug_wrapper("Tao", Box::new(self), f)
+        debug_wrapper("Tao", self, f)
     }
 }
 

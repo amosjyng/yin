@@ -1,4 +1,4 @@
-use super::value_wrappers::{KBValue, StrongValue, WeakValue};
+use super::value_wrappers::{unwrap_strong, KBValue, StrongValue, WeakValue};
 use super::Graph;
 use rusted_cypher::cypher_stmt;
 use std::collections::HashMap;
@@ -60,17 +60,12 @@ impl Graph for CypherGraph {
         // todo: see if lifetime ugliness can be cleaned up without cloning
         let unwrapped_value = match value.as_any().downcast_ref::<WeakValue<String>>() {
             Some(ww) => {
-                let x = ww.value().unwrap().clone();
+                let x = ww.value().unwrap();
                 (*x).clone()
             }
-            None => value
-                .as_any()
-                .downcast_ref::<StrongValue<String>>()
+            None => unwrap_strong::<String>(&Some(Rc::new(value)))
                 .unwrap()
-                .value()
-                .as_str()
-                .clone()
-                .to_string(),
+                .clone(),
         };
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} SET n.value = {value}", {
             "id" => id,
@@ -93,7 +88,7 @@ impl Graph for CypherGraph {
         })
         .next()
         .unwrap()
-        .map(|s| Rc::new(s))
+        .map(Rc::new)
     }
 
     fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
@@ -200,7 +195,7 @@ impl Graph for CypherGraph {
                 let name = r
                     .get::<Option<String>>("n.name")
                     .unwrap()
-                    .unwrap_or(id.to_string());
+                    .unwrap_or_else(|| id.to_string());
                 let row_str = format!("    {} [ label = \"{}\" ]\n", id, name);
                 node_names.insert(id, name);
                 row_str
@@ -247,7 +242,7 @@ mod tests {
     /// Default Neo4j 3.x instance to connect to. Note that the local password should be changed to
     /// dummy_password first. All tests in this section are ignored by default to allow tests to
     /// pass even when there is no local instance of Neo4j running.
-    const TEST_DB_URI: &'static str = "http://neo4j:dummy_password@127.0.0.1:7474/db/data";
+    const TEST_DB_URI: &str = "http://neo4j:dummy_password@127.0.0.1:7474/db/data";
 
     /// Convert a vec of IDs to a set because Neo4j isn't guaranteed to create nodes with
     /// sequential IDs.
@@ -292,7 +287,7 @@ mod tests {
         // guarantee that another node won't be added in the meantime when tests run in parallel.
         // However, we can still test that the queries are returning successfully, at least.
         dbg!("Initial {} turned into {}", initial_size, g.size());
-        assert!(g.size() >= initial_size + 1);
+        assert!(g.size() > initial_size);
     }
 
     #[test]

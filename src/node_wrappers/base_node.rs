@@ -9,6 +9,7 @@ use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
 /// All low-level wrappers will have these functions available.
+#[allow(clippy::redundant_allocation)]
 pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Associate this node with a value.
     fn set_value(&mut self, value: Box<dyn KBValue>);
@@ -42,6 +43,7 @@ pub struct BaseNode {
     id: usize,
 }
 
+#[allow(clippy::new_without_default)]
 impl BaseNode {
     /// Create a new node.
     pub fn new() -> Self {
@@ -57,7 +59,7 @@ impl From<usize> for BaseNode {
     fn from(id: usize) -> Self {
         BaseNode {
             graph: InjectionGraph::new(),
-            id: id,
+            id,
         }
     }
 }
@@ -78,7 +80,7 @@ impl<'a> TryFrom<&'a str> for BaseNode {
 
 impl Debug for BaseNode {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        debug_wrapper("BWrapper", Box::new(self), f)
+        debug_wrapper("BWrapper", self, f)
     }
 }
 
@@ -118,7 +120,7 @@ impl CommonNodeTrait for BaseNode {
     }
 
     fn internal_name(&self) -> Option<Rc<String>> {
-        self.graph.node_name(self.id).map(|n| n.clone())
+        self.graph.node_name(self.id)
     }
 }
 
@@ -151,7 +153,7 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
         self.graph
             .outgoing_nodes(self.id(), edge_type)
             .into_iter()
-            .map(|id| BaseNode::from(id))
+            .map(BaseNode::from)
             .collect()
     }
 
@@ -159,7 +161,7 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
         self.graph
             .incoming_nodes(self.id(), edge_type)
             .into_iter()
-            .map(|id| BaseNode::from(id))
+            .map(BaseNode::from)
             .collect()
     }
 }
@@ -219,6 +221,7 @@ mod tests {
         assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
 
+    #[allow(clippy::many_single_char_names)]
     #[test]
     fn outgoing_nodes() {
         bind_in_memory_graph();
@@ -243,6 +246,7 @@ mod tests {
         assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
 
+    #[allow(clippy::many_single_char_names)]
     #[test]
     fn incoming_nodes() {
         bind_in_memory_graph();
