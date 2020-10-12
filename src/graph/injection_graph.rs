@@ -90,7 +90,7 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow_mut().add_node())
     }
 
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
+    fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>) {
         GRAPH.with(|g| g.borrow_mut().set_node_value(id, value))
     }
 
@@ -102,7 +102,7 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow().node_name(id))
     }
 
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
+    fn node_value(&self, id: usize) -> Option<Rc<dyn KBValue>> {
         GRAPH.with(|g| g.borrow().node_value(id))
     }
 

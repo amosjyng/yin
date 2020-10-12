@@ -15,14 +15,13 @@ struct NodeName {
     name: Option<Rc<String>>,
 }
 
-#[allow(clippy::redundant_allocation)]
 #[derive(Default)]
 struct NodeInfo {
     /// Store ID here as well in order to allow printing the ID as a label when no internal name is
     /// assigned.
     id: usize,
     name: Rc<RefCell<NodeName>>,
-    value: Option<Rc<Box<dyn KBValue>>>,
+    value: Option<Rc<dyn KBValue>>,
 }
 
 impl<'a> Display for NodeInfo {
@@ -77,11 +76,11 @@ impl Graph for InMemoryGraph {
         new_id.index()
     }
 
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
+    fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>) {
         self.graph
             .node_weight_mut(NodeIndex::new(id))
             .unwrap()
-            .value = Some(Rc::new(value));
+            .value = Some(value);
     }
 
     fn set_node_name(&mut self, id: usize, name: String) {
@@ -107,7 +106,7 @@ impl Graph for InMemoryGraph {
             .flatten()
     }
 
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
+    fn node_value(&self, id: usize) -> Option<Rc<dyn KBValue>> {
         self.graph
             .node_weight(NodeIndex::new(id))
             .map(|info| info.value.as_ref().cloned())
@@ -227,7 +226,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new(5);
-        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+        g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
@@ -238,7 +237,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new("5");
-        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+        g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<&str>(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
@@ -259,7 +258,7 @@ mod tests {
         let a_id = g.add_node();
         let v = Rc::new(5);
         g.set_node_name(a_id, "A".to_string());
-        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+        g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
         assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
     }
