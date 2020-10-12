@@ -120,7 +120,7 @@ impl Graph for InMemoryGraph {
             .get(&Rc::new(name.to_string()))
             .cloned()
             .unwrap_or_default();
-        ids.sort();
+        ids.sort_unstable();
         ids
     }
 
@@ -152,7 +152,7 @@ impl Graph for InMemoryGraph {
             .filter(|e| e.weight().type_id == edge_type)
             .map(|e| e.target().index())
             .collect();
-        result.sort(); // sort for determinism
+        result.sort_unstable(); // sort for determinism
         result
     }
 
@@ -163,7 +163,7 @@ impl Graph for InMemoryGraph {
             .filter(|e| e.weight().type_id == edge_type)
             .map(|e| e.source().index())
             .collect();
-        result.sort(); // sort for determinism
+        result.sort_unstable(); // sort for determinism
         result
     }
 
@@ -173,7 +173,7 @@ impl Graph for InMemoryGraph {
             .edges_directed(NodeIndex::new(from), Direction::Outgoing)
             .map(|e| e.target().index())
             .collect();
-        result.sort(); // sort for determinism
+        result.sort_unstable(); // sort for determinism
         result
     }
 
@@ -183,7 +183,7 @@ impl Graph for InMemoryGraph {
             .edges_directed(NodeIndex::new(to), Direction::Incoming)
             .map(|e| e.source().index())
             .collect();
-        result.sort(); // sort for determinism
+        result.sort_unstable(); // sort for determinism
         result
     }
 
