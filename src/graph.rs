@@ -57,7 +57,7 @@
 //! use std::rc::Rc;
 //!
 //! let v = Rc::new(5);
-//! g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+//! g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
 //! assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
 //! ```
 //!
@@ -115,7 +115,7 @@
 //!
 //! let count_id = g.add_node();
 //! let count_value: Rc<i64> = Rc::new(5);
-//! g.set_node_value(count_id, Box::new(WeakValue::new(&count_value)));
+//! g.set_node_value(count_id, Rc::new(WeakValue::new(&count_value)));
 //!
 //! let mut triple_id = g.add_node();
 //! g.set_node_value(triple_id, define_closure!(|t: Tao| {
@@ -154,7 +154,6 @@ pub use injection_graph::{bind_in_memory_graph, print_graph_debug, InjectionGrap
 use std::rc::Rc;
 
 /// A classic directed Graph with nodes and labeled links.
-#[allow(clippy::redundant_allocation)]
 pub trait Graph {
     /// The number of nodes in the graph.
     fn size(&self) -> usize;
@@ -163,7 +162,7 @@ pub trait Graph {
     fn add_node(&mut self) -> usize;
 
     /// Sets the value for a given node. Values can only be set once.
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>);
+    fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>);
 
     /// Sets the name for a given node. Names can only be set once.
     fn set_node_name(&mut self, id: usize, name: String);
@@ -173,7 +172,7 @@ pub trait Graph {
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>>;
+    fn node_value(&self, id: usize) -> Option<Rc<dyn KBValue>>;
 
     /// Look up a node ID based on name. A vec is returned because there are no constraints on name
     /// uniqueness.

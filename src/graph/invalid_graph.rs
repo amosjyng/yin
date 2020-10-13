@@ -18,7 +18,7 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
-    fn set_node_value(&mut self, _: usize, _: Box<dyn KBValue>) {
+    fn set_node_value(&mut self, _: usize, _: Rc<dyn KBValue>) {
         panic!(Self::INVALID_MSG);
     }
 
@@ -30,7 +30,7 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
-    fn node_value(&self, _: usize) -> Option<Rc<Box<dyn KBValue>>> {
+    fn node_value(&self, _: usize) -> Option<Rc<dyn KBValue>> {
         panic!(Self::INVALID_MSG);
     }
 

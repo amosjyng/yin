@@ -31,17 +31,15 @@ pub trait KBValue: Any {
 ///     guaranteed to return a value even if there was originally one associated with the node.
 ///
 /// This function encapsulates all of the above into one simpler return value.
-#[allow(clippy::redundant_allocation)]
-pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<Box<dyn KBValue + 'a>>>) -> Option<Rc<T>> {
+pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
     wrapper
         .map(|v| v.as_any().downcast_ref::<WeakValue<T>>().unwrap().value())
         .flatten()
 }
 
 /// Similar to unwrap_weak, returns the value held by a StrongValue.
-#[allow(clippy::redundant_allocation)]
 pub fn unwrap_strong<'a, 'b, T: 'static>(
-    wrapper: &'b Option<Rc<Box<dyn KBValue + 'a>>>,
+    wrapper: &'b Option<Rc<dyn KBValue + 'a>>,
 ) -> Option<&'b T> {
     // todo: see if lifetime ugliness can be cleaned up without cloning. Ownership transfer may be
     // best here, seeing as CypherGraph doesn't care to own any of these strings.
@@ -52,9 +50,8 @@ pub fn unwrap_strong<'a, 'b, T: 'static>(
 
 /// Returns the value held by a closure StrongValue. We need a RefCell here because somehow
 /// closures are mutable when called, and the Rc that wraps a KBValue prevents mutability.
-#[allow(clippy::redundant_allocation)]
 pub fn unwrap_closure<'a, 'b>(
-    wrapper: &'b Option<Rc<Box<dyn KBValue + 'a>>>,
+    wrapper: &'b Option<Rc<dyn KBValue + 'a>>,
 ) -> Option<RefMut<'b, KBClosure>> {
     wrapper.as_ref().map(|v| {
         let any: &'b dyn Any = v.as_any();
@@ -72,8 +69,8 @@ pub fn unwrap_closure<'a, 'b>(
 macro_rules! define_closure {
     ($closure:expr) => {{
         // explicitly declare the type to help the Rust compiler understand
-        let strong: Box<StrongValue<RefCell<KBClosure>>> =
-            Box::new(StrongValue::new(RefCell::new(Box::new($closure))));
+        let strong: Rc<StrongValue<RefCell<KBClosure>>> =
+            Rc::new(StrongValue::new(RefCell::new(Box::new($closure))));
         strong
     }};
 }
@@ -159,7 +156,7 @@ mod tests {
     fn test_weak_value() {
         let item = Rc::new("something expensive".to_string());
         let weak = WeakValue::new(&item);
-        assert_eq!(unwrap_weak(Some(Rc::new(Box::new(weak)))), Some(item));
+        assert_eq!(unwrap_weak(Some(Rc::new(weak))), Some(item));
     }
 
     #[test]
@@ -167,7 +164,7 @@ mod tests {
         let item = "something owned".to_string();
         let strong = StrongValue::new(item);
         assert_eq!(
-            unwrap_strong(&Some(Rc::new(Box::new(strong)))),
+            unwrap_strong(&Some(Rc::new(strong))),
             Some(&"something owned".to_string())
         );
     }
@@ -176,19 +173,16 @@ mod tests {
     fn test_strong_value_int() {
         let item: i64 = -5;
         let strong = StrongValue::new(item);
-        assert_eq!(
-            unwrap_strong::<i64>(&Some(Rc::new(Box::new(strong)))),
-            Some(&-5)
-        );
+        assert_eq!(unwrap_strong::<i64>(&Some(Rc::new(strong))), Some(&-5));
     }
 
     #[test]
     fn test_function_value() {
         bind_in_memory_graph();
         let i = Inherits::archetype();
-        let kb_result: Option<Rc<Box<dyn KBValue>>> = Some(Rc::new(define_closure!(|t: Tao| {
+        let kb_result: Option<Rc<dyn KBValue>> = Some(define_closure!(|t: Tao| {
             Box::new(t.internal_name().unwrap())
-        })));
+        }));
         assert_eq!(
             run_closure!(&kb_result, i, Rc<String>),
             Some(Box::new(Rc::new("inherits".to_string())))

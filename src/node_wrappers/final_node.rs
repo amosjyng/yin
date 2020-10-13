@@ -72,11 +72,11 @@ impl CommonNodeTrait for FinalNode {
 }
 
 impl BaseNodeTrait<FinalNode> for FinalNode {
-    fn set_value(&mut self, value: Box<dyn KBValue>) {
+    fn set_value(&mut self, value: Rc<dyn KBValue>) {
         self.base.set_value(value)
     }
 
-    fn value(&self) -> Option<Rc<Box<dyn KBValue>>> {
+    fn value(&self) -> Option<Rc<dyn KBValue>> {
         self.base.value()
     }
 
@@ -169,7 +169,7 @@ mod tests {
         bind_in_memory_graph();
         let mut node = FinalNode::new();
         let v = Rc::new(5);
-        node.set_value(Box::new(WeakValue::new(&v)));
+        node.set_value(Rc::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
     }
 

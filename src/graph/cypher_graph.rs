@@ -56,16 +56,14 @@ impl Graph for CypherGraph {
             .unwrap()
     }
 
-    fn set_node_value(&mut self, id: usize, value: Box<dyn KBValue>) {
+    fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>) {
         // todo: see if lifetime ugliness can be cleaned up without cloning
         let unwrapped_value = match value.as_any().downcast_ref::<WeakValue<String>>() {
             Some(ww) => {
                 let x = ww.value().unwrap();
                 (*x).clone()
             }
-            None => unwrap_strong::<String>(&Some(Rc::new(value)))
-                .unwrap()
-                .clone(),
+            None => unwrap_strong::<String>(&Some(value)).unwrap().clone(),
         };
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} SET n.value = {value}", {
             "id" => id,
@@ -91,7 +89,7 @@ impl Graph for CypherGraph {
         .map(Rc::new)
     }
 
-    fn node_value(&self, id: usize) -> Option<Rc<Box<dyn KBValue>>> {
+    fn node_value(&self, id: usize) -> Option<Rc<dyn KBValue>> {
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} RETURN n.value", {
             "id" => id
         }, {
@@ -99,7 +97,11 @@ impl Graph for CypherGraph {
         })
         .next()
         .unwrap()
-        .map(|s| Rc::new(Box::new(StrongValue::new(s)) as Box<dyn KBValue>))
+        .map(|s| {
+            // define rc before returning to help compiler with typing here
+            let rc: Rc<dyn KBValue> = Rc::new(StrongValue::new(s));
+            rc
+        })
     }
 
     fn lookup(&self, name: &str) -> Vec<usize> {
@@ -297,7 +299,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
-        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+        g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
         assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
         assert_eq!(g.node_name(a_id), None);
     }
@@ -320,7 +322,7 @@ mod tests {
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
         g.set_node_name(a_id, "A".to_string());
-        g.set_node_value(a_id, Box::new(WeakValue::new(&v)));
+        g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
         assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
     }
