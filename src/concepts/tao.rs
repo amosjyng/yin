@@ -64,7 +64,7 @@ impl CommonNodeTrait for Tao {
     }
 }
 
-impl ArchetypeTrait<Tao> for Tao {
+impl<'a> ArchetypeTrait<'a, Tao> for Tao {
     const TYPE_ID: usize = 0;
     const TYPE_NAME: &'static str = "Tao";
     // It seems fitting, albeit meaningless, to make the Tao inherit its own properties.

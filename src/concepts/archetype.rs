@@ -95,7 +95,7 @@ impl CommonNodeTrait for Archetype {
     }
 }
 
-impl ArchetypeTrait<Archetype> for Archetype {
+impl<'a> ArchetypeTrait<'a, Archetype> for Archetype {
     const TYPE_ID: usize = 1;
     const TYPE_NAME: &'static str = "Archetype";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;

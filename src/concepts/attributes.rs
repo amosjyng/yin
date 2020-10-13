@@ -16,7 +16,7 @@ use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 /// Interface for all attributes.
-pub trait AttributeTrait<T>: ArchetypeTrait<T> {
+pub trait AttributeTrait<'a, T>: ArchetypeTrait<'a, T> {
     /// Set the owner for this attribute.
     fn set_owner(&mut self, owner: &dyn FormTrait);
 
@@ -73,7 +73,7 @@ impl CommonNodeTrait for Attribute {
     }
 }
 
-impl ArchetypeTrait<Attribute> for Attribute {
+impl<'a> ArchetypeTrait<'a, Attribute> for Attribute {
     const TYPE_ID: usize = 2;
     const TYPE_NAME: &'static str = "Attribute";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
@@ -95,7 +95,7 @@ impl FormTrait for Attribute {
     }
 }
 
-impl AttributeTrait<Attribute> for Attribute {
+impl<'a> AttributeTrait<'a, Attribute> for Attribute {
     fn set_owner(&mut self, owner: &dyn FormTrait) {
         self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
     }
