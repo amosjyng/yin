@@ -52,6 +52,7 @@ mod tao;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 pub use archetype::Archetype;
 use attributes::Inherits;
+use std::convert::TryFrom;
 pub use tao::Tao;
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
@@ -59,7 +60,7 @@ pub use tao::Tao;
 pub const YIN_MAX_ID: usize = 5;
 
 /// All formally defined archetypes should be describable by these properties.
-pub trait ArchetypeTrait<T>: From<usize> {
+pub trait ArchetypeTrait<'a, T>: From<usize> + TryFrom<&'a str> {
     /// The ID for this archetype.
     const TYPE_ID: usize;
 
