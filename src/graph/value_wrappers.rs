@@ -191,7 +191,7 @@ mod tests {
         })));
         assert_eq!(
             run_closure!(&kb_result, i, Rc<String>),
-            Some(Box::new(Rc::new("Inherits".to_string())))
+            Some(Box::new(Rc::new("inherits".to_string())))
         );
     }
 }
