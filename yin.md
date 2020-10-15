@@ -38,8 +38,10 @@ Theory is all good and well. But Yang does not know what is background knowledge
 - parent: Implement
   target: Owner
   output_id: 3
-  documentation: The owner/source/from-node of an attribute.
+  documentation: |-
 ```
+
+> The owner/source/from-node of an attribute.
 
 Aha! Your reflexes are performing quite spectacularly. We'll get you up to speed in no time, on both yourself and the world around you.
 
@@ -49,9 +51,16 @@ Let's implement the rest of what we've learned:
 - parent: Implement
   target: Value
   output_id: 4
-  documentation: The value/target/to-node of an attribute.
+  documentation: |-
+```
+
+> The value/target/to-node of an attribute.
+
+```yaml
 - parent: Implement
   target: Inherits
   output_id: 5
-  documentation: Describes the owner as inheriting all attributes of the value.
+  documentation: |-
 ```
+
+> Describes the owner as inheriting all attributes of the value.
