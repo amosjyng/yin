@@ -47,9 +47,11 @@ macro_rules! initialize_type {
 /// Bind GRAPH to a new graph that sits entirely in memory.
 pub fn bind_in_memory_graph() {
     GRAPH.with(|g| {
-        let mut img = InMemoryGraph::new();
+        *g.borrow_mut() = Box::new(InMemoryGraph::new());
+
+        let mut ig = InjectionGraph::default();
         initialize_type!(
-            img,
+            ig,
             (
                 Tao,
                 Archetype,
@@ -60,7 +62,9 @@ pub fn bind_in_memory_graph() {
                 HasAttributeType
             )
         );
-        *g.borrow_mut() = Box::new(img);
+        let mut attributes = Attribute::archetype();
+        attributes.add_attribute_type(Owner::archetype());
+        attributes.add_attribute_type(Value::archetype());
     });
 }
 
@@ -75,9 +79,24 @@ pub fn bind_in_memory_graph() {
 #[cfg(feature = "cypher")]
 pub fn bind_cypher_graph(uri: &str) {
     GRAPH.with(|g| {
-        let mut cg = CypherGraph::new(uri);
-        initialize_type!(cg, (Tao, Archetype, Attribute, Owner, Value, Inherits));
-        *g.borrow_mut() = Box::new(cg);
+        *g.borrow_mut() = Box::new(CypherGraph::new(uri));
+
+        let mut ig = InjectionGraph::default();
+        initialize_type!(
+            ig,
+            (
+                Tao,
+                Archetype,
+                Attribute,
+                Owner,
+                Value,
+                Inherits,
+                HasAttributeType
+            )
+        );
+        let mut attributes = Attribute::archetype();
+        attributes.add_attribute_type(Owner::archetype());
+        attributes.add_attribute_type(Value::archetype());
     });
 }
 
