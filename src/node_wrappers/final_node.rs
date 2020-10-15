@@ -146,13 +146,12 @@ impl InheritanceNodeTrait<FinalNode> for FinalNode {
 mod tests {
     use super::*;
     use crate::concepts::attributes::{Inherits, Owner};
-    use crate::concepts::ArchetypeTrait;
-    use crate::graph::bind_in_memory_graph;
+    use crate::concepts::{initialize_kb, ArchetypeTrait};
     use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
 
     #[test]
     fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let node1 = FinalNode::new();
         let node2 = FinalNode::new();
         assert_eq!(node1.id() + 1, node2.id());
@@ -160,7 +159,7 @@ mod tests {
 
     #[test]
     fn from_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let node = FinalNode::new();
         let node_copy = FinalNode::from(node.id());
         assert_eq!(node.id(), node_copy.id());
@@ -168,7 +167,7 @@ mod tests {
 
     #[test]
     fn from_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut node = FinalNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(FinalNode::try_from("A"), Ok(node));
@@ -177,7 +176,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut node = FinalNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
@@ -185,7 +184,7 @@ mod tests {
 
     #[test]
     fn retrieve_node_value() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut node = FinalNode::new();
         let v = Rc::new(5);
         node.set_value(Rc::new(WeakValue::new(&v)));
@@ -194,7 +193,7 @@ mod tests {
 
     #[test]
     fn create_with_inheritance() {
-        bind_in_memory_graph();
+        initialize_kb();
         let owner = FinalNode::new();
         let mut type1 = FinalNode::new();
         type1.add_outgoing(Owner::TYPE_ID, &owner);
@@ -204,7 +203,7 @@ mod tests {
 
     #[test]
     fn check_inheritance_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let type1 = InheritanceNode::new();
         let mut type2 = InheritanceNode::new();
         let mut a = InheritanceNode::new();
@@ -217,7 +216,7 @@ mod tests {
 
     #[test]
     fn no_outgoing_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let a = FinalNode::new();
         assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
@@ -225,7 +224,7 @@ mod tests {
     #[allow(clippy::many_single_char_names)]
     #[test]
     fn outgoing_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = FinalNode::new();
         let b = FinalNode::new();
         let c = FinalNode::new();
@@ -242,7 +241,7 @@ mod tests {
 
     #[test]
     fn inherited_outgoing_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = FinalNode::new();
         let mut type2 = FinalNode::new();
         let mut a = FinalNode::new();
@@ -263,7 +262,7 @@ mod tests {
 
     #[test]
     fn no_incoming_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let a = FinalNode::new();
         assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
@@ -271,7 +270,7 @@ mod tests {
     #[allow(clippy::many_single_char_names)]
     #[test]
     fn incoming_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = FinalNode::new();
         let b = FinalNode::new();
         let c = FinalNode::new();
@@ -288,7 +287,7 @@ mod tests {
 
     #[test]
     fn inherited_incoming_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = FinalNode::new();
         let mut type2 = FinalNode::new();
         let mut a = FinalNode::new();
@@ -310,7 +309,7 @@ mod tests {
 
     #[test]
     fn test_has_outgoing() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = FinalNode::new();
         let b = FinalNode::new();
         let edge_type1 = FinalNode::new();
@@ -323,7 +322,7 @@ mod tests {
 
     #[test]
     fn test_has_incoming() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = FinalNode::new();
         let b = FinalNode::new();
         let edge_type1 = FinalNode::new();
@@ -336,7 +335,7 @@ mod tests {
 
     #[test]
     fn inherited_has_outgoing() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = FinalNode::new();
         let mut type2 = FinalNode::new();
         let mut a = FinalNode::new();
@@ -355,7 +354,7 @@ mod tests {
 
     #[test]
     fn inherited_has_incoming() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = FinalNode::new();
         let mut type2 = FinalNode::new();
         let mut a = FinalNode::new();

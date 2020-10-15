@@ -15,16 +15,16 @@
 //! implementations should be logically equivalent. Let's use the in-memory one for simplicity:
 //!
 //! ```rust
-//! use zamm_yin::graph::bind_in_memory_graph;
+//! use zamm_yin::concepts::initialize_kb;
 //!
-//! bind_in_memory_graph();
+//! initialize_kb();
 //! ```
 //!
 //! Now, we can create a new concept:
 //!
 //! ```rust
-//! # use zamm_yin::graph::bind_in_memory_graph;
-//! # bind_in_memory_graph();
+//! # use zamm_yin::concepts::initialize_kb;
+//! # initialize_kb();
 //! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
 //!
 //! let mut concept = Tao::individuate();
@@ -35,8 +35,8 @@
 //!
 //! ```rust
 //! # use zamm_yin::concepts::{Tao, ArchetypeTrait};
-//! # use zamm_yin::graph::bind_in_memory_graph;
-//! # bind_in_memory_graph();
+//! # use zamm_yin::concepts::initialize_kb;
+//! # initialize_kb();
 //! # let mut concept = Tao::individuate();
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
@@ -49,9 +49,10 @@ mod archetype;
 pub mod attributes;
 mod tao;
 
+use crate::graph::{bind_cypher_graph, bind_in_memory_graph, Graph, InjectionGraph};
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 pub use archetype::Archetype;
-use attributes::{HasAttributeType, Inherits};
+use attributes::{Attribute, HasAttributeType, Inherits, Owner, Value};
 use std::convert::TryFrom;
 pub use tao::Tao;
 
@@ -203,22 +204,93 @@ pub trait FormTrait: CommonNodeTrait {
     }
 }
 
+/// Add the given Concept type to the KB.
+///
+/// # Examples
+///
+/// Note: do not actually run this on existing types, since they are automatically added when the
+/// KB is initialized.
+///
+/// ```rust
+/// # use zamm_yin::concepts::initialize_kb;
+/// # initialize_kb();
+/// use zamm_yin::initialize_type;
+/// use zamm_yin::concepts::ArchetypeTrait;
+/// use zamm_yin::concepts::attributes::Inherits;
+/// use zamm_yin::concepts::{Archetype, Tao}; // import your own types instead
+/// use zamm_yin::graph::{Graph, InjectionGraph};
+///
+/// let mut ig = InjectionGraph::new();
+/// initialize_type!(ig, (Archetype, Tao));
+/// ```
+#[macro_export]
+macro_rules! initialize_type {
+    ($g:expr, ($($t:ty),*)) => {
+        $(
+            $g.add_node();
+            $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
+        )*
+        // set edges later, since edges contain references to node names, and that will be
+        // impossible if the nodes themselves don't exist yet
+        $($g.add_edge(<$t>::TYPE_ID, Inherits::TYPE_ID, <$t>::PARENT_TYPE_ID);)*
+    };
+}
+
+/// Adds all concepts and relations to graph.
+fn initialize_types() {
+    let mut ig = InjectionGraph::default();
+    initialize_type!(
+        ig,
+        (
+            Tao,
+            Archetype,
+            Attribute,
+            Owner,
+            Value,
+            Inherits,
+            HasAttributeType
+        )
+    );
+
+    let mut attributes = Attribute::archetype();
+    attributes.add_attribute_type(Owner::archetype());
+    attributes.add_attribute_type(Value::archetype());
+}
+
+/// Initialize Yin with an in-memory graph database.
+///
+/// This not only creates the graph for Yin to act on, but also seeds the graph with initial
+/// concepts and relationships.
+pub fn initialize_kb() {
+    bind_in_memory_graph();
+    initialize_types();
+}
+
+/// Initialize Yin with a Neo4j-backed graph database.
+///
+/// This not only creates the graph for Yin to act on, but also seeds the graph with initial
+/// concepts and relationships.
+pub fn initialize_cypher_kb(uri: &str) {
+    bind_cypher_graph(uri);
+    initialize_types();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::concepts::attributes::{AttributeTrait, Owner, Value};
-    use crate::graph::{bind_in_memory_graph, Graph, InjectionGraph};
+    use crate::graph::{Graph, InjectionGraph};
 
     #[test]
     fn test_yin_size() {
-        bind_in_memory_graph();
+        initialize_kb();
         let g = InjectionGraph::new();
         assert_eq!(g.size(), crate::concepts::YIN_MAX_ID + 1); // node IDs are zero-indexed
     }
 
     #[test]
     fn test_new_node_inheritance() {
-        bind_in_memory_graph();
+        initialize_kb();
         let owner = Owner::individuate();
         assert_eq!(owner.owner(), None);
 
@@ -229,14 +301,14 @@ mod tests {
 
     #[test]
     fn test_parents() {
-        bind_in_memory_graph();
+        initialize_kb();
         let owner = Owner::individuate();
         assert_eq!(owner.parents(), vec![Owner::archetype()]);
     }
 
     #[test]
     fn test_multiple_parents() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut owner = Owner::individuate();
         owner.add_parent(Value::archetype()); // nonsensical, but okay for tests
         assert_eq!(
@@ -247,7 +319,7 @@ mod tests {
 
     #[test]
     fn test_parenthood() {
-        bind_in_memory_graph();
+        initialize_kb();
         let owner = Owner::individuate();
         assert!(owner.has_parent(Owner::archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
@@ -256,7 +328,7 @@ mod tests {
 
     #[test]
     fn test_multiple_parenthood() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut owner = Owner::individuate();
         owner.add_parent(Value::archetype()); // nonsensical, but okay for tests
         assert!(owner.has_parent(Owner::archetype()));
@@ -266,7 +338,7 @@ mod tests {
 
     #[test]
     fn test_ancestry() {
-        bind_in_memory_graph();
+        initialize_kb();
         let owner = Owner::individuate();
         assert!(owner.has_ancestor(Owner::archetype()));
         assert!(owner.has_ancestor(Tao::archetype()));
@@ -275,7 +347,7 @@ mod tests {
 
     #[test]
     fn test_attribute_types() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = Tao::archetype().individuate_as_archetype();
         let type2 = Tao::archetype().individuate_as_archetype();
         type1.add_attribute_type(type2);
@@ -288,7 +360,7 @@ mod tests {
 
     #[test]
     fn test_attribute_types_inherited() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = Tao::archetype().individuate_as_archetype();
         let type2 = Tao::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
