@@ -1,4 +1,4 @@
-use crate::concepts::attributes::Inherits;
+use crate::concepts::attributes::{HasAttributeType, Inherits};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::collections::{HashSet, VecDeque};
@@ -50,6 +50,24 @@ impl Archetype {
         let mut result: Vec<Tao> = leaves.into_iter().map(Tao::from).collect();
         result.sort();
         result
+    }
+
+    /// Add an attribute type to this archetype.
+    pub fn add_attribute_type(&mut self, attribute_type: Archetype) {
+        self.essence_mut()
+            .add_outgoing(HasAttributeType::TYPE_ID, attribute_type.essence());
+    }
+
+    /// Retrieve non-inherited attribute types that are introduced by this archetype to all
+    /// descendant archetypes. Attribute types introduced by an ancestor do not count.
+    pub fn introduced_attribute_types(&self) -> Vec<Archetype> {
+        self.essence()
+            .base_wrapper()
+            .outgoing_nodes(HasAttributeType::TYPE_ID)
+            .into_iter()
+            .map(FinalNode::from)
+            .map(Archetype::from)
+            .collect()
     }
 }
 
@@ -187,5 +205,27 @@ mod tests {
         let type2_instance = type2.individuate_as_tao();
         assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
         assert_eq!(type2.individuals(), vec![type2_instance]);
+    }
+
+    #[test]
+    fn test_attribute_types() {
+        bind_in_memory_graph();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        assert_eq!(type1.introduced_attribute_types(), Vec::<Archetype>::new());
+
+        type1.add_attribute_type(type2);
+        assert_eq!(type1.introduced_attribute_types(), vec!(type2));
+    }
+
+    #[test]
+    fn test_attribute_types_not_inherited() {
+        bind_in_memory_graph();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_attribute_type(type2);
+
+        assert_eq!(type3.introduced_attribute_types(), Vec::<Archetype>::new());
     }
 }

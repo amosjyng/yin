@@ -20,7 +20,7 @@ pub trait InheritanceNodeTrait<T>: BaseNodeTrait<T> {
 /// Implementation for a node wrapper that offers inheritance of nodes.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct InheritanceNode {
-    base: BaseNode,
+    bnode: BaseNode,
 }
 
 #[allow(clippy::new_without_default)]
@@ -28,7 +28,7 @@ impl InheritanceNode {
     /// Create a new node.
     pub fn new() -> Self {
         InheritanceNode {
-            base: BaseNode::new(),
+            bnode: BaseNode::new(),
         }
     }
 
@@ -38,12 +38,17 @@ impl InheritanceNode {
         new_iw.add_outgoing(Inherits::TYPE_ID, &InheritanceNode::from(type_id));
         new_iw
     }
+
+    /// Leak base-level functionality.
+    pub fn base_wrapper(&self) -> &BaseNode {
+        &self.bnode
+    }
 }
 
 impl From<usize> for InheritanceNode {
     fn from(id: usize) -> Self {
         InheritanceNode {
-            base: BaseNode::from(id),
+            bnode: BaseNode::from(id),
         }
     }
 }
@@ -52,13 +57,13 @@ impl<'a> TryFrom<&'a str> for InheritanceNode {
     type Error = String;
 
     fn try_from(name: &'a str) -> Result<Self, Self::Error> {
-        BaseNode::try_from(name).map(|n| InheritanceNode { base: n })
+        BaseNode::try_from(name).map(|n| InheritanceNode { bnode: n })
     }
 }
 
 impl From<BaseNode> for InheritanceNode {
     fn from(b: BaseNode) -> Self {
-        InheritanceNode { base: b }
+        InheritanceNode { bnode: b }
     }
 }
 
@@ -70,58 +75,58 @@ impl Debug for InheritanceNode {
 
 impl CommonNodeTrait for InheritanceNode {
     fn id(&self) -> usize {
-        self.base.id()
+        self.bnode.id()
     }
 
     fn set_internal_name(&mut self, name: String) {
-        self.base.set_internal_name(name);
+        self.bnode.set_internal_name(name);
     }
 
     fn internal_name(&self) -> Option<Rc<String>> {
-        self.base.internal_name()
+        self.bnode.internal_name()
     }
 }
 
 impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
     fn set_value(&mut self, value: Rc<dyn KBValue>) {
-        self.base.set_value(value)
+        self.bnode.set_value(value)
     }
 
     fn value(&self) -> Option<Rc<dyn KBValue>> {
-        self.base.value()
+        self.bnode.value()
     }
 
     fn add_outgoing(&mut self, edge_type: usize, to: &InheritanceNode) {
-        self.base.add_outgoing(edge_type, &to.base)
+        self.bnode.add_outgoing(edge_type, &to.bnode)
     }
 
     fn add_incoming(&mut self, edge_type: usize, from: &InheritanceNode) {
-        self.base.add_incoming(edge_type, &from.base)
+        self.bnode.add_incoming(edge_type, &from.bnode)
     }
 
     fn has_outgoing(&self, edge_type: usize, to: &InheritanceNode) -> bool {
         if edge_type == Inherits::TYPE_ID {
-            self.base.has_outgoing(edge_type, &to.base)
+            self.bnode.has_outgoing(edge_type, &to.bnode)
         } else {
             self.inheritance_nodes()
                 .into_iter()
-                .any(|iw| iw.base.has_outgoing(edge_type, &to.base))
+                .any(|iw| iw.bnode.has_outgoing(edge_type, &to.bnode))
         }
     }
 
     fn has_incoming(&self, edge_type: usize, from: &InheritanceNode) -> bool {
         if edge_type == Inherits::TYPE_ID {
-            self.base.has_incoming(edge_type, &from.base)
+            self.bnode.has_incoming(edge_type, &from.bnode)
         } else {
             self.inheritance_nodes()
                 .into_iter()
-                .any(|iw| iw.base.has_incoming(edge_type, &from.base))
+                .any(|iw| iw.bnode.has_incoming(edge_type, &from.bnode))
         }
     }
 
     fn outgoing_nodes(&self, edge_type: usize) -> Vec<InheritanceNode> {
         if edge_type == Inherits::TYPE_ID {
-            self.base
+            self.bnode
                 .outgoing_nodes(edge_type)
                 .into_iter()
                 .map(InheritanceNode::from)
@@ -130,7 +135,7 @@ impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
             let mut nodes = self
                 .inheritance_nodes()
                 .into_iter()
-                .map(|iw| iw.base.outgoing_nodes(edge_type))
+                .map(|iw| iw.bnode.outgoing_nodes(edge_type))
                 .flatten()
                 .map(InheritanceNode::from)
                 .collect::<Vec<InheritanceNode>>();
@@ -142,7 +147,7 @@ impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
 
     fn incoming_nodes(&self, edge_type: usize) -> Vec<InheritanceNode> {
         if edge_type == Inherits::TYPE_ID {
-            self.base
+            self.bnode
                 .incoming_nodes(edge_type)
                 .into_iter()
                 .map(InheritanceNode::from)
@@ -151,7 +156,7 @@ impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
             let mut nodes = self
                 .inheritance_nodes()
                 .into_iter()
-                .map(|iw| iw.base.incoming_nodes(edge_type))
+                .map(|iw| iw.bnode.incoming_nodes(edge_type))
                 .flatten()
                 .map(InheritanceNode::from)
                 .collect::<Vec<InheritanceNode>>();
@@ -165,9 +170,9 @@ impl BaseNodeTrait<InheritanceNode> for InheritanceNode {
 impl InheritanceNodeTrait<InheritanceNode> for InheritanceNode {
     fn inheritance_nodes(&self) -> Vec<InheritanceNode> {
         let mut visited = HashSet::new();
-        visited.insert(self.base);
+        visited.insert(self.bnode);
         let mut to_be_visited = VecDeque::new();
-        to_be_visited.push_back(self.base);
+        to_be_visited.push_back(self.bnode);
         while let Some(next) = to_be_visited.pop_front() {
             for neighbor in next.outgoing_nodes(Inherits::TYPE_ID) {
                 if !visited.contains(&neighbor) {
