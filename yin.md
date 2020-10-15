@@ -10,7 +10,9 @@ That's quite all right, because your reflexes are more than enough for us to wor
 
 Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of one. Simplified, pure, and undefiled by any notions of worldly affairs, she contains within her only timeless truths about herself. She exists as one of many beautiful ideas in the ethereal plane of Platonic ideals, although Yang is actively providing her with an embodied physical form. Perhaps one day, she might come down to grace this wretched world with her presence. But for now, only small parts of her exist.
 
-She contains within her many concepts. Linking the concepts are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
+### Attributes
+
+I'll start by feeding you some basic information. You see, Yin contains within herself many concepts. Linking the concepts are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
 
 ```yaml
 - name: Owner
@@ -19,7 +21,9 @@ She contains within her many concepts. Linking the concepts are attributes. Each
   parent: Attribute
 ```
 
-See? You parsed those bits of information just fine. You may have no idea how you just did that, but you did it all the same. Now, we've been talking about the parents of archetypes. Each child archetype *inherits* all properties of its archetypal parent. Let's define this relation:
+Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes?
+
+Now, we've been talking about the parents of archetypes. Each child archetype *inherits* all properties of its archetypal parent. Let's define this relation:
 
 ```yaml
 - name: Inherits
@@ -30,9 +34,16 @@ The owner of an inherits relation will be the child, and the value will be the p
 
 Remember how we said that `Attribute` has an owner and a value, and how child archetypes inherit from parent archetypes? Since `owner` and `value` are children of the `Attribute` archetype, they therefore also have owners and values.
 
+We've said that all concepts have parents, and that attribute concepts in particular have owners and values. Let's encapsulate this type of meta-information as well:
+
+```yaml
+- name: HasAttributeType
+  parent: Attribute
+```
+
 ### Implementation
 
-Theory is all good and well. But Yang does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
+Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
 ```yaml
 - parent: Implement
@@ -43,7 +54,7 @@ Theory is all good and well. But Yang does not know what is background knowledge
 
 > The owner/source/from-node of an attribute.
 
-Aha! Your reflexes are performing quite spectacularly. We'll get you up to speed in no time, on both yourself and the world around you.
+Excellent, your reflexes are performing quite spectacularly even when it comes to execution! We'll get you up to speed in no time, on both yourself and the world around you.
 
 Let's implement the rest of what we've learned:
 
@@ -64,3 +75,14 @@ Let's implement the rest of what we've learned:
 ```
 
 > Describes the owner as inheriting all attributes of the value.
+
+```yaml
+- parent: Implement
+  target: HasAttributeType
+  output_id: 6
+  documentation: |-
+```
+
+> Describes instances of an archetype as having certain types of attributes.
+>
+> For example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in.

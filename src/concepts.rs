@@ -57,7 +57,7 @@ pub use tao::Tao;
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 5;
+pub const YIN_MAX_ID: usize = 6;
 
 /// All formally defined archetypes should be describable by these properties.
 pub trait ArchetypeTrait<'a, T>: From<usize> + TryFrom<&'a str> {

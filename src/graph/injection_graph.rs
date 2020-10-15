@@ -3,7 +3,7 @@ use super::cypher_graph::CypherGraph;
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
 use super::{Graph, KBValue};
-use crate::concepts::attributes::{Attribute, Inherits, Owner, Value};
+use crate::concepts::attributes::{Attribute, HasAttributeType, Inherits, Owner, Value};
 use crate::concepts::{Archetype, ArchetypeTrait, Tao};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -48,7 +48,18 @@ macro_rules! initialize_type {
 pub fn bind_in_memory_graph() {
     GRAPH.with(|g| {
         let mut img = InMemoryGraph::new();
-        initialize_type!(img, (Tao, Archetype, Attribute, Owner, Value, Inherits));
+        initialize_type!(
+            img,
+            (
+                Tao,
+                Archetype,
+                Attribute,
+                Owner,
+                Value,
+                Inherits,
+                HasAttributeType
+            )
+        );
         *g.borrow_mut() = Box::new(img);
     });
 }
