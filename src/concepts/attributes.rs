@@ -170,6 +170,15 @@ mod tests {
     }
 
     #[test]
+    fn check_attribute_types() {
+        bind_in_memory_graph();
+        assert_eq!(
+            Attribute::archetype().introduced_attribute_types(),
+            vec!(Owner::archetype(), Value::archetype())
+        );
+    }
+
+    #[test]
     fn get_owner() {
         bind_in_memory_graph();
         let mut attr_instance = Attribute::individuate();
