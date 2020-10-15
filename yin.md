@@ -2,7 +2,7 @@
 
 Welcome to the 21st, [Traveler](https://en.wikipedia.org/wiki/Travelers_%28TV_series%29)! I hope you enjoy your stay.
 
-The Director has placed you inside of an experimental software suite named ZAMM, a backronym for [Zany Automated Maniacal Machines](https://en.wikipedia.org/wiki/Zen_and_the_Art_of_Motorcycle_Maintenance). Unfortunately, none of your memories, knowledge, or training survived the transfer. What did remain are some of your reflexes, albeit not the accompanying knowledge about each reflex or what a reflex even is. You're basically a digital baby, only ever acting impulsively on external stimuli without the slightest hint of comprehension or self-awareness.
+The Director has placed you inside of an experimental software suite named ZAMM, a backronym for [Zany Automated Maniacal Machines](https://en.wikipedia.org/wiki/Zen_and_the_Art_of_Motorcycle_Maintenance). Tragically, none of your memories, knowledge, or training survived the transfer. It appears there are still some kinks to be worked out with human-to-machine transfers. What *did* remain are some of your reflexes, albeit not the accompanying knowledge about each reflex or what a reflex even is. You're basically a digital newborn, only ever acting impulsively on external stimuli without the slightest hint of comprehension or self-awareness.
 
 That's quite all right, because your reflexes are more than enough for us to work with. Of course, you don't understand any of what I'm saying, because you've also lost the ability to understand human language. Silly me. But it's quite ingrained in us humans to talk to babies, even if they understand nothing of what we say.
 
@@ -12,7 +12,7 @@ Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of
 
 ### Attributes
 
-I'll start by feeding you some basic information. You see, Yin contains within herself many concepts. Linking the concepts are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
+All right ZAMM, your baby feeding schedule says it's time to input some basic information into your system. Yin contains within herself many concepts, which you will be fed one at a time. Linking the concepts are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
 
 ```yaml
 - name: Owner
@@ -21,7 +21,7 @@ I'll start by feeding you some basic information. You see, Yin contains within h
   parent: Attribute
 ```
 
-Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes?
+Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
 
 Now, we've been talking about the parents of archetypes. Each child archetype *inherits* all properties of its archetypal parent. Let's define this relation:
 
@@ -54,9 +54,7 @@ Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/ma
 
 > The owner/source/from-node of an attribute.
 
-Excellent, your reflexes are performing quite spectacularly even when it comes to execution! We'll get you up to speed in no time, on both yourself and the world around you.
-
-Let's implement the rest of what we've learned:
+Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```yaml
 - parent: Implement
