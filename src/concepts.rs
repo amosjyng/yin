@@ -162,6 +162,22 @@ pub trait FormTrait: CommonNodeTrait {
             .add_outgoing(Inherits::TYPE_ID, parent.essence());
     }
 
+    /// Get all direct parent archetypes of this concept.
+    fn parents(&self) -> Vec<Archetype> {
+        self.essence()
+            .outgoing_nodes(Inherits::TYPE_ID)
+            .into_iter()
+            .map(Archetype::from)
+            .collect()
+    }
+
+    /// Checks to see if another archetype is a direct parent of this one.
+    fn has_parent(&self, possible_ancestor: Archetype) -> bool {
+        self.essence()
+            .outgoing_nodes(Inherits::TYPE_ID)
+            .contains(possible_ancestor.essence())
+    }
+
     /// Checks to see if another archetype is an ancestor of this one. If so, the current archetype
     /// will inherit all attributes of the ancestor.
     fn has_ancestor(&self, possible_ancestor: Archetype) -> bool {
@@ -196,7 +212,44 @@ mod tests {
     }
 
     #[test]
+    fn test_parents() {
+        bind_in_memory_graph();
+        let owner = Owner::individuate();
+        assert_eq!(owner.parents(), vec![Owner::archetype()]);
+    }
+
+    #[test]
+    fn test_multiple_parents() {
+        bind_in_memory_graph();
+        let mut owner = Owner::individuate();
+        owner.add_parent(Value::archetype()); // nonsensical, but okay for tests
+        assert_eq!(
+            owner.parents(),
+            vec![Owner::archetype(), Value::archetype()]
+        );
+    }
+
+    #[test]
     fn test_parenthood() {
+        bind_in_memory_graph();
+        let owner = Owner::individuate();
+        assert!(owner.has_parent(Owner::archetype()));
+        assert!(!owner.has_parent(Tao::archetype()));
+        assert!(!owner.has_parent(Value::archetype()));
+    }
+
+    #[test]
+    fn test_multiple_parenthood() {
+        bind_in_memory_graph();
+        let mut owner = Owner::individuate();
+        owner.add_parent(Value::archetype()); // nonsensical, but okay for tests
+        assert!(owner.has_parent(Owner::archetype()));
+        assert!(!owner.has_parent(Tao::archetype()));
+        assert!(owner.has_parent(Value::archetype()));
+    }
+
+    #[test]
+    fn test_ancestry() {
         bind_in_memory_graph();
         let owner = Owner::individuate();
         assert!(owner.has_ancestor(Owner::archetype()));
