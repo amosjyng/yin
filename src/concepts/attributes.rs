@@ -1,9 +1,11 @@
 //! Contains all attribute archetypes.
 
+mod has_attribute_type;
 mod inherits;
 mod owner;
 mod value;
 
+pub use has_attribute_type::HasAttributeType;
 pub use inherits::Inherits;
 pub use owner::Owner;
 pub use value::Value;

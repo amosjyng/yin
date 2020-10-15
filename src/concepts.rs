@@ -51,13 +51,13 @@ mod tao;
 
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 pub use archetype::Archetype;
-use attributes::Inherits;
+use attributes::{HasAttributeType, Inherits};
 use std::convert::TryFrom;
 pub use tao::Tao;
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 5;
+pub const YIN_MAX_ID: usize = 6;
 
 /// All formally defined archetypes should be describable by these properties.
 pub trait ArchetypeTrait<'a, T>: From<usize> + TryFrom<&'a str> {
@@ -185,6 +185,15 @@ pub trait FormTrait: CommonNodeTrait {
             .inheritance_nodes()
             .contains(possible_ancestor.essence())
     }
+
+    /// Get all the types of attributes that this concept is predefined to potentially have.
+    fn attribute_types(&self) -> Vec<Archetype> {
+        self.essence()
+            .outgoing_nodes(HasAttributeType::TYPE_ID)
+            .into_iter()
+            .map(Archetype::from)
+            .collect()
+    }
 }
 
 #[cfg(test)]
@@ -255,5 +264,28 @@ mod tests {
         assert!(owner.has_ancestor(Owner::archetype()));
         assert!(owner.has_ancestor(Tao::archetype()));
         assert!(!owner.has_ancestor(Value::archetype()));
+    }
+
+    #[test]
+    fn test_attribute_types() {
+        bind_in_memory_graph();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        type1.add_attribute_type(type2);
+        let instance = type1.individuate_as_tao();
+
+        assert_eq!(instance.attribute_types(), vec!(type2));
+    }
+
+    #[test]
+    fn test_attribute_types_inherited() {
+        bind_in_memory_graph();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_attribute_type(type2);
+        let instance = type3.individuate_as_tao();
+
+        assert_eq!(instance.attribute_types(), vec!(type2));
     }
 }

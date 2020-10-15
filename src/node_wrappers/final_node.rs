@@ -1,5 +1,6 @@
-use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
-use super::{InheritanceNode, InheritanceNodeTrait};
+use super::{
+    debug_wrapper, BaseNode, BaseNodeTrait, CommonNodeTrait, InheritanceNode, InheritanceNodeTrait,
+};
 use crate::graph::value_wrappers::KBValue;
 use std::cmp::{Eq, PartialEq};
 use std::convert::TryFrom;
@@ -11,7 +12,7 @@ use std::rc::Rc;
 /// Final node wrapper that offers a stable API for all concept abstractions dependent on it.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct FinalNode {
-    base: InheritanceNode,
+    inode: InheritanceNode,
 }
 
 #[allow(clippy::new_without_default)]
@@ -19,7 +20,7 @@ impl FinalNode {
     /// Create a new node.
     pub fn new() -> Self {
         FinalNode {
-            base: InheritanceNode::new(),
+            inode: InheritanceNode::new(),
         }
     }
 
@@ -27,13 +28,37 @@ impl FinalNode {
     pub fn new_with_inheritance(type_id: usize) -> Self {
         Self::from(InheritanceNode::new_with_inheritance(type_id))
     }
+
+    /// Leak inheritance-level functionality.
+    pub fn inheritance_wrapper(&self) -> &InheritanceNode {
+        &self.inode
+    }
+
+    /// Leak base-level functionality.
+    pub fn base_wrapper(&self) -> &BaseNode {
+        &self.inode.base_wrapper()
+    }
 }
 
 impl From<usize> for FinalNode {
     fn from(id: usize) -> Self {
         FinalNode {
-            base: InheritanceNode::from(id),
+            inode: InheritanceNode::from(id),
         }
+    }
+}
+
+impl From<BaseNode> for FinalNode {
+    fn from(b: BaseNode) -> Self {
+        FinalNode {
+            inode: InheritanceNode::from(b),
+        }
+    }
+}
+
+impl From<InheritanceNode> for FinalNode {
+    fn from(b: InheritanceNode) -> Self {
+        FinalNode { inode: b }
     }
 }
 
@@ -41,13 +66,7 @@ impl<'a> TryFrom<&'a str> for FinalNode {
     type Error = String;
 
     fn try_from(name: &'a str) -> Result<Self, Self::Error> {
-        InheritanceNode::try_from(name).map(|n| FinalNode { base: n })
-    }
-}
-
-impl From<InheritanceNode> for FinalNode {
-    fn from(b: InheritanceNode) -> Self {
-        FinalNode { base: b }
+        InheritanceNode::try_from(name).map(|n| FinalNode { inode: n })
     }
 }
 
@@ -59,45 +78,45 @@ impl Debug for FinalNode {
 
 impl CommonNodeTrait for FinalNode {
     fn id(&self) -> usize {
-        self.base.id()
+        self.inode.id()
     }
 
     fn set_internal_name(&mut self, name: String) {
-        self.base.set_internal_name(name);
+        self.inode.set_internal_name(name);
     }
 
     fn internal_name(&self) -> Option<Rc<String>> {
-        self.base.internal_name()
+        self.inode.internal_name()
     }
 }
 
 impl BaseNodeTrait<FinalNode> for FinalNode {
     fn set_value(&mut self, value: Rc<dyn KBValue>) {
-        self.base.set_value(value)
+        self.inode.set_value(value)
     }
 
     fn value(&self) -> Option<Rc<dyn KBValue>> {
-        self.base.value()
+        self.inode.value()
     }
 
     fn add_outgoing(&mut self, edge_type: usize, to: &FinalNode) {
-        self.base.add_outgoing(edge_type, &to.base)
+        self.inode.add_outgoing(edge_type, &to.inode)
     }
 
     fn add_incoming(&mut self, edge_type: usize, from: &FinalNode) {
-        self.base.add_incoming(edge_type, &from.base)
+        self.inode.add_incoming(edge_type, &from.inode)
     }
 
     fn has_outgoing(&self, edge_type: usize, to: &FinalNode) -> bool {
-        self.base.has_outgoing(edge_type, &to.base)
+        self.inode.has_outgoing(edge_type, &to.inode)
     }
 
     fn has_incoming(&self, edge_type: usize, from: &FinalNode) -> bool {
-        self.base.has_incoming(edge_type, &from.base)
+        self.inode.has_incoming(edge_type, &from.inode)
     }
 
     fn outgoing_nodes(&self, edge_type: usize) -> Vec<FinalNode> {
-        self.base
+        self.inode
             .outgoing_nodes(edge_type)
             .into_iter()
             .map(FinalNode::from)
@@ -105,7 +124,7 @@ impl BaseNodeTrait<FinalNode> for FinalNode {
     }
 
     fn incoming_nodes(&self, edge_type: usize) -> Vec<FinalNode> {
-        self.base
+        self.inode
             .incoming_nodes(edge_type)
             .into_iter()
             .map(FinalNode::from)
@@ -115,7 +134,7 @@ impl BaseNodeTrait<FinalNode> for FinalNode {
 
 impl InheritanceNodeTrait<FinalNode> for FinalNode {
     fn inheritance_nodes(&self) -> Vec<FinalNode> {
-        self.base
+        self.inode
             .inheritance_nodes()
             .into_iter()
             .map(FinalNode::from)
