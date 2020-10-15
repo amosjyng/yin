@@ -4,12 +4,12 @@
 //!
 //! ```rust
 //! use zamm_yin::concepts::{ArchetypeTrait, FormTrait, Tao};
-//! use zamm_yin::graph::bind_in_memory_graph;
+//! use zamm_yin::concepts::initialize_kb;
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //!
 //! fn main() {
 //!     // Initialize the knowledge-base
-//!     bind_in_memory_graph();
+//!     initialize_kb();
 //!
 //!     // Create a new concept
 //!     let mut concept = Tao::individuate();

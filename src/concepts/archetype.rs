@@ -139,11 +139,11 @@ impl FormTrait for Archetype {
 mod tests {
     use super::*;
     use crate::concepts::attributes::{Owner, Value};
-    use crate::graph::bind_in_memory_graph;
+    use crate::concepts::initialize_kb;
 
     #[test]
     fn check_type_created() {
-        bind_in_memory_graph();
+        initialize_kb();
         assert_eq!(Archetype::archetype().id(), Archetype::TYPE_ID);
         assert_eq!(
             Archetype::archetype().internal_name(),
@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn from_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let concept = Archetype::individuate();
         let concept_copy = Archetype::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
@@ -161,7 +161,7 @@ mod tests {
 
     #[test]
     fn from_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut concept = Archetype::individuate();
         concept.set_internal_name("A".to_owned());
         assert_eq!(Archetype::try_from("A"), Ok(concept));
@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let concept1 = Archetype::individuate();
         let concept2 = Archetype::individuate();
         assert_eq!(concept1.id() + 1, concept2.id());
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut concept = Archetype::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
@@ -186,7 +186,7 @@ mod tests {
 
     #[test]
     fn test_individuation() {
-        bind_in_memory_graph();
+        initialize_kb();
         let type1 = Owner::archetype().individuate_as_archetype();
         let type1_instance = type1.individuate_as_tao();
         assert!(type1.has_ancestor(Owner::archetype()));
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn test_individuals() {
-        bind_in_memory_graph();
+        initialize_kb();
         let type1 = Tao::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let type1_instance = type1.individuate_as_tao();
@@ -209,7 +209,7 @@ mod tests {
 
     #[test]
     fn test_attribute_types() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = Tao::archetype().individuate_as_archetype();
         let type2 = Tao::archetype().individuate_as_archetype();
         assert_eq!(type1.introduced_attribute_types(), Vec::<Archetype>::new());
@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_attribute_types_not_inherited() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut type1 = Tao::archetype().individuate_as_archetype();
         let type2 = Tao::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();

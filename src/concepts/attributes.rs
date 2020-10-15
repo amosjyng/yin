@@ -124,11 +124,11 @@ impl<'a> AttributeTrait<'a, Attribute> for Attribute {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::bind_in_memory_graph;
+    use crate::concepts::initialize_kb;
 
     #[test]
     fn check_type_created() {
-        bind_in_memory_graph();
+        initialize_kb();
         assert_eq!(Attribute::archetype().id(), Attribute::TYPE_ID);
         assert_eq!(
             Attribute::archetype().internal_name(),
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn from_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let concept = Attribute::individuate();
         let concept_copy = Attribute::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
@@ -146,7 +146,7 @@ mod tests {
 
     #[test]
     fn from_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut concept = Attribute::individuate();
         concept.set_internal_name("A".to_owned());
         assert_eq!(Attribute::try_from("A"), Ok(concept));
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let concept1 = Attribute::individuate();
         let concept2 = Attribute::individuate();
         assert_eq!(concept1.id() + 1, concept2.id());
@@ -163,7 +163,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut concept = Attribute::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
@@ -171,7 +171,7 @@ mod tests {
 
     #[test]
     fn get_owner() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut attr_instance = Attribute::individuate();
         let owner_of_attr = Attribute::individuate();
         attr_instance.set_owner(&owner_of_attr);
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn get_value() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut attr_instance = Attribute::individuate();
         let value_of_attr = Attribute::individuate();
         attr_instance.set_value(&value_of_attr);

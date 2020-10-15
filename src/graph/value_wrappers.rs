@@ -148,8 +148,7 @@ impl<'a, T: Any + 'static> KBValue for StrongValue<T> {
 mod tests {
     use super::*;
     use crate::concepts::attributes::Inherits;
-    use crate::concepts::{ArchetypeTrait, FormTrait};
-    use crate::graph::bind_in_memory_graph;
+    use crate::concepts::{initialize_kb, ArchetypeTrait, FormTrait};
     use crate::node_wrappers::CommonNodeTrait;
 
     #[test]
@@ -178,7 +177,7 @@ mod tests {
 
     #[test]
     fn test_function_value() {
-        bind_in_memory_graph();
+        initialize_kb();
         let i = Inherits::archetype();
         let kb_result: Option<Rc<dyn KBValue>> = Some(define_closure!(|t: Tao| {
             Box::new(t.internal_name().unwrap())

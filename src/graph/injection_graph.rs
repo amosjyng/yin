@@ -3,8 +3,6 @@ use super::cypher_graph::CypherGraph;
 use super::in_memory_graph::InMemoryGraph;
 use super::invalid_graph::InvalidGraph;
 use super::{Graph, KBValue};
-use crate::concepts::attributes::{Attribute, HasAttributeType, Inherits, Owner, Value};
-use crate::concepts::{Archetype, ArchetypeTrait, Tao};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -12,56 +10,9 @@ thread_local! {
     static GRAPH: RefCell<Box<dyn Graph>> = RefCell::new(Box::new(InvalidGraph{}));
 }
 
-/// Add the given Concept type to the KB.
-///
-/// # Examples
-///
-/// Note: do not actually run this on existing types, since they are automatically added when the
-/// KB is initialized.
-///
-/// ```rust
-/// # use zamm_yin::graph::bind_in_memory_graph;
-/// # bind_in_memory_graph();
-/// use zamm_yin::initialize_type;
-/// use zamm_yin::concepts::ArchetypeTrait;
-/// use zamm_yin::concepts::attributes::Inherits;
-/// use zamm_yin::concepts::{Archetype, Tao}; // import your own types instead
-/// use zamm_yin::graph::{Graph, InjectionGraph};
-///
-/// let mut ig = InjectionGraph::new();
-/// initialize_type!(ig, (Archetype, Tao));
-/// ```
-#[macro_export]
-macro_rules! initialize_type {
-    ($g:expr, ($($t:ty),*)) => {
-        $(
-            $g.add_node();
-            $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
-        )*
-        // set edges later, since edges contain references to node names, and that will be
-        // impossible if the nodes themselves don't exist yet
-        $($g.add_edge(<$t>::TYPE_ID, Inherits::TYPE_ID, <$t>::PARENT_TYPE_ID);)*
-    };
-}
-
 /// Bind GRAPH to a new graph that sits entirely in memory.
 pub fn bind_in_memory_graph() {
-    GRAPH.with(|g| {
-        let mut img = InMemoryGraph::new();
-        initialize_type!(
-            img,
-            (
-                Tao,
-                Archetype,
-                Attribute,
-                Owner,
-                Value,
-                Inherits,
-                HasAttributeType
-            )
-        );
-        *g.borrow_mut() = Box::new(img);
-    });
+    GRAPH.with(|g| *g.borrow_mut() = Box::new(InMemoryGraph::new()));
 }
 
 /// Bind GRAPH to an external Neo4j database.
@@ -74,11 +25,7 @@ pub fn bind_in_memory_graph() {
 ///  * Only string values can be attached to nodes.
 #[cfg(feature = "cypher")]
 pub fn bind_cypher_graph(uri: &str) {
-    GRAPH.with(|g| {
-        let mut cg = CypherGraph::new(uri);
-        initialize_type!(cg, (Tao, Archetype, Attribute, Owner, Value, Inherits));
-        *g.borrow_mut() = Box::new(cg);
-    });
+    GRAPH.with(|g| *g.borrow_mut() = Box::new(CypherGraph::new(uri)));
 }
 
 /// Graph usable with dependency injection.

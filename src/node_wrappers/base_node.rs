@@ -168,12 +168,12 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::bind_in_memory_graph;
+    use crate::concepts::initialize_kb;
     use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
 
     #[test]
     fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let node1 = BaseNode::new();
         let node2 = BaseNode::new();
         assert_eq!(node1.id() + 1, node2.id());
@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn from_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let node = BaseNode::new();
         let node_copy = BaseNode::from(node.id());
         assert_eq!(node.id(), node_copy.id());
@@ -189,7 +189,7 @@ mod tests {
 
     #[test]
     fn from_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut node = BaseNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(BaseNode::try_from("A"), Ok(node));
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut node = BaseNode::new();
         node.set_internal_name("A".to_string());
         assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
@@ -206,7 +206,7 @@ mod tests {
 
     #[test]
     fn retrieve_node_value() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut node = BaseNode::new();
         let v = Rc::new(5);
         node.set_value(Rc::new(WeakValue::new(&v)));
@@ -215,7 +215,7 @@ mod tests {
 
     #[test]
     fn no_outgoing_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let a = BaseNode::new();
         assert_eq!(a.outgoing_nodes(a.id()), Vec::new());
     }
@@ -223,7 +223,7 @@ mod tests {
     #[allow(clippy::many_single_char_names)]
     #[test]
     fn outgoing_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = BaseNode::new();
         let b = BaseNode::new();
         let c = BaseNode::new();
@@ -240,7 +240,7 @@ mod tests {
 
     #[test]
     fn no_incoming_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let a = BaseNode::new();
         assert_eq!(a.incoming_nodes(a.id()), Vec::new());
     }
@@ -248,7 +248,7 @@ mod tests {
     #[allow(clippy::many_single_char_names)]
     #[test]
     fn incoming_nodes() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = BaseNode::new();
         let b = BaseNode::new();
         let c = BaseNode::new();
@@ -265,7 +265,7 @@ mod tests {
 
     #[test]
     fn test_has_outgoing() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = BaseNode::new();
         let b = BaseNode::new();
         let edge_type1 = BaseNode::new();
@@ -278,7 +278,7 @@ mod tests {
 
     #[test]
     fn test_has_incoming() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut a = BaseNode::new();
         let b = BaseNode::new();
         let edge_type1 = BaseNode::new();

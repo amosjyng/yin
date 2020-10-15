@@ -94,11 +94,11 @@ impl FormTrait for Tao {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::bind_in_memory_graph;
+    use crate::concepts::initialize_kb;
 
     #[test]
     fn check_type_created() {
-        bind_in_memory_graph();
+        initialize_kb();
         assert_eq!(Tao::archetype().id(), Tao::TYPE_ID);
         assert_eq!(
             Tao::archetype().internal_name(),
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn from_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let concept = Tao::individuate();
         let concept_copy = Tao::from(concept.id());
         assert_eq!(concept.id(), concept_copy.id());
@@ -116,7 +116,7 @@ mod tests {
 
     #[test]
     fn from_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut concept = Tao::individuate();
         concept.set_internal_name("A".to_owned());
         assert_eq!(Tao::try_from("A"), Ok(concept));
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_id() {
-        bind_in_memory_graph();
+        initialize_kb();
         let concept1 = Tao::individuate();
         let concept2 = Tao::individuate();
         assert_eq!(concept1.id() + 1, concept2.id());
@@ -133,7 +133,7 @@ mod tests {
 
     #[test]
     fn create_and_retrieve_node_name() {
-        bind_in_memory_graph();
+        initialize_kb();
         let mut concept = Tao::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
