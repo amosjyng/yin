@@ -170,6 +170,15 @@ mod tests {
     }
 
     #[test]
+    fn check_attribute_types() {
+        initialize_kb();
+        assert_eq!(
+            Attribute::archetype().introduced_attribute_types(),
+            vec!(Owner::archetype(), Value::archetype())
+        );
+    }
+
+    #[test]
     fn get_owner() {
         initialize_kb();
         let mut attr_instance = Attribute::individuate();

@@ -195,6 +195,13 @@ pub trait FormTrait: CommonNodeTrait {
             .map(Archetype::from)
             .collect()
     }
+
+    /// Checks to see if an archetype is one of the possible attribute types this concept could
+    /// have.
+    fn has_attribute_type(&self, possible_type: Archetype) -> bool {
+        self.essence()
+            .has_outgoing(HasAttributeType::TYPE_ID, possible_type.essence())
+    }
 }
 
 /// Add the given Concept type to the KB.
@@ -229,11 +236,11 @@ macro_rules! initialize_type {
     };
 }
 
-/// Adds all concepts to graph.
+/// Adds all concepts and relations to graph.
 fn initialize_types() {
-    let mut g = InjectionGraph::default();
+    let mut ig = InjectionGraph::default();
     initialize_type!(
-        g,
+        ig,
         (
             Tao,
             Archetype,
@@ -244,6 +251,10 @@ fn initialize_types() {
             HasAttributeType
         )
     );
+
+    let mut attributes = Attribute::archetype();
+    attributes.add_attribute_type(Owner::archetype());
+    attributes.add_attribute_type(Value::archetype());
 }
 
 /// Initialize Yin with an in-memory graph database.
@@ -343,6 +354,8 @@ mod tests {
         let instance = type1.individuate_as_tao();
 
         assert_eq!(instance.attribute_types(), vec!(type2));
+        assert!(!instance.has_attribute_type(type1));
+        assert!(instance.has_attribute_type(type2));
     }
 
     #[test]
@@ -355,5 +368,7 @@ mod tests {
         let instance = type3.individuate_as_tao();
 
         assert_eq!(instance.attribute_types(), vec!(type2));
+        assert!(!instance.has_attribute_type(type1));
+        assert!(instance.has_attribute_type(type2));
     }
 }

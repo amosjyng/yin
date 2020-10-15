@@ -3,7 +3,6 @@ use std::ffi::OsStr;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use std::process::exit;
 use std::process::Command;
 
 /// Which OS we're running on -- not the OS that we're targeting for potential cross-compilation.
