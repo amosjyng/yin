@@ -47,7 +47,11 @@ impl Archetype {
                 }
             }
         }
-        let mut result: Vec<Tao> = leaves.into_iter().map(Tao::from).collect();
+        let mut result: Vec<Tao> = leaves
+            .into_iter()
+            .filter(|l| l != self.essence()) // never return self, even if it's the only leaf
+            .map(Tao::from)
+            .collect();
         result.sort();
         result
     }
@@ -205,6 +209,13 @@ mod tests {
         let type2_instance = type2.individuate_as_tao();
         assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
         assert_eq!(type2.individuals(), vec![type2_instance]);
+    }
+
+    #[test]
+    fn test_individuals_not_self() {
+        initialize_kb();
+        let childless_type = Tao::archetype().individuate_as_archetype();
+        assert_eq!(childless_type.individuals(), Vec::<Tao>::new())
     }
 
     #[test]
