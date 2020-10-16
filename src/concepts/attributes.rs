@@ -33,7 +33,7 @@ pub trait AttributeTrait<'a, T>: ArchetypeTrait<'a, T> {
 }
 
 /// Represents either a unary or binary relation.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Attribute {
     /// Wrapper that this abstraction is based on.
     pub base: FinalNode,
