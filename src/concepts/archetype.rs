@@ -47,9 +47,22 @@ impl Archetype {
                 }
             }
         }
-        let mut result: Vec<Tao> = leaves.into_iter().map(Tao::from).collect();
+        let mut result: Vec<Tao> = leaves
+            .into_iter()
+            .filter(|l| l != self.essence()) // never return self, even if it's the only leaf
+            .map(Tao::from)
+            .collect();
         result.sort();
         result
+    }
+
+    /// Retrieve child archetypes.
+    pub fn child_archetypes(&self) -> Vec<Archetype> {
+        self.essence()
+            .incoming_nodes(Inherits::TYPE_ID)
+            .iter()
+            .map(|c| Archetype::from(*c))
+            .collect()
     }
 
     /// Add an attribute type to this archetype.
@@ -205,6 +218,22 @@ mod tests {
         let type2_instance = type2.individuate_as_tao();
         assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
         assert_eq!(type2.individuals(), vec![type2_instance]);
+    }
+
+    #[test]
+    fn test_individuals_not_self() {
+        initialize_kb();
+        let childless_type = Tao::archetype().individuate_as_archetype();
+        assert_eq!(childless_type.individuals(), Vec::<Tao>::new())
+    }
+
+    #[test]
+    fn test_child_archetypes() {
+        initialize_kb();
+        let type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = type1.individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        assert_eq!(type1.child_archetypes(), vec![type2, type3]);
     }
 
     #[test]
