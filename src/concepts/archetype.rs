@@ -56,6 +56,15 @@ impl Archetype {
         result
     }
 
+    /// Retrieve child archetypes.
+    pub fn child_archetypes(&self) -> Vec<Archetype> {
+        self.essence()
+            .incoming_nodes(Inherits::TYPE_ID)
+            .iter()
+            .map(|c| Archetype::from(c.clone()))
+            .collect()
+    }
+
     /// Add an attribute type to this archetype.
     pub fn add_attribute_type(&mut self, attribute_type: Archetype) {
         self.essence_mut()
@@ -216,6 +225,15 @@ mod tests {
         initialize_kb();
         let childless_type = Tao::archetype().individuate_as_archetype();
         assert_eq!(childless_type.individuals(), Vec::<Tao>::new())
+    }
+
+    #[test]
+    fn test_child_archetypes() {
+        initialize_kb();
+        let type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = type1.individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        assert_eq!(type1.child_archetypes(), vec![type2, type3]);
     }
 
     #[test]
