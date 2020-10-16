@@ -61,7 +61,7 @@ impl Archetype {
         self.essence()
             .incoming_nodes(Inherits::TYPE_ID)
             .iter()
-            .map(|c| Archetype::from(c.clone()))
+            .map(|c| Archetype::from(*c))
             .collect()
     }
 
