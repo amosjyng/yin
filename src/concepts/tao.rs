@@ -17,7 +17,7 @@ use std::rc::Rc;
 ///
 /// (What's that, I could've just called this the "root" node? But where's the *fun* in that? Next
 /// you're going to tell me not to GPL this motherfucker.)
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Tao {
     base: FinalNode,
 }
