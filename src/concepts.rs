@@ -53,6 +53,7 @@ use crate::graph::{bind_cypher_graph, bind_in_memory_graph, Graph, InjectionGrap
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 pub use archetype::Archetype;
 use attributes::{Attribute, HasAttributeType, Inherits, Owner, Value};
+use std::collections::{HashMap, VecDeque};
 use std::convert::TryFrom;
 pub use tao::Tao;
 
@@ -170,6 +171,36 @@ pub trait FormTrait: CommonNodeTrait {
             .into_iter()
             .map(Archetype::from)
             .collect()
+    }
+
+    /// Get the shortest chain of ancestors that leads back to Tao, starting with Tao itself.
+    fn ancestry(&self) -> Vec<Archetype> {
+        let mut to_be_visited = VecDeque::<Tao>::new();
+        let mut backpointers = HashMap::<Tao, Tao>::new();
+        to_be_visited.push_back(self.ego_death());
+
+        while let Some(next_node) = to_be_visited.pop_front() {
+            for parent in next_node.parents() {
+                let parent_tao = parent.ego_death();
+                #[allow(clippy::map_entry)]
+                if !backpointers.contains_key(&parent_tao) {
+                    backpointers.insert(parent_tao, next_node);
+                    to_be_visited.push_back(parent_tao);
+                    if parent == Tao::archetype() {
+                        break;
+                    }
+                }
+            }
+        }
+
+        let mut ancestry = Vec::new();
+        let mut next_node = Tao::archetype().ego_death();
+        let selfless_ego = self.ego_death();
+        while next_node != selfless_ego {
+            ancestry.push(Archetype::from(*next_node.essence()));
+            next_node = *backpointers.get(&next_node).unwrap();
+        }
+        ancestry
     }
 
     /// Checks to see if another archetype is a direct parent of this one.
@@ -318,6 +349,31 @@ mod tests {
     }
 
     #[test]
+    fn test_ancestry_archetype() {
+        initialize_kb();
+        assert_eq!(
+            Owner::archetype().ancestry(),
+            vec![Tao::archetype(), Attribute::archetype()]
+        );
+    }
+
+    #[test]
+    fn test_ancestry_individual() {
+        initialize_kb();
+        let owner = Owner::individuate();
+        assert_eq!(
+            owner.ancestry(),
+            vec![Tao::archetype(), Attribute::archetype(), Owner::archetype()]
+        );
+    }
+
+    #[test]
+    fn test_tao_ancestry() {
+        initialize_kb();
+        assert_eq!(Tao::archetype().ancestry(), Vec::<Archetype>::new());
+    }
+
+    #[test]
     fn test_parenthood() {
         initialize_kb();
         let owner = Owner::individuate();
@@ -337,7 +393,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ancestry() {
+    fn test_has_ancestor() {
         initialize_kb();
         let owner = Owner::individuate();
         assert!(owner.has_ancestor(Owner::archetype()));
