@@ -41,6 +41,17 @@ We've said that all concepts have parents, and that attribute concepts in partic
   parent: Attribute
 ```
 
+Each attribute has restrictions on its owners and values:
+
+```yaml
+- name: OwnerArchetype
+  parent: Attribute
+- name: ValueArchetype
+  parent: Attribute
+```
+
+
+
 ### Implementation
 
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
@@ -84,3 +95,21 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 > Describes instances of an archetype as having certain types of attributes.
 >
 > For example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in.
+
+```yaml
+- parent: Implement
+  target: OwnerArchetype
+  output_id: 7
+  documentation: |-
+```
+
+> The type of owner this attribute has. Only the most restrictive inherited value will be used.
+
+```yaml
+- parent: Implement
+  target: ValueArchetype
+  output_id: 8
+  documentation: |-
+```
+
+> The type of value this attribute has. Only the most restrictive inherited value will be used.
