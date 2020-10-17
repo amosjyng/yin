@@ -1,40 +1,10 @@
-//! Contains all attribute archetypes.
-
-mod has_attribute_type;
-mod inherits;
-mod owner;
-mod owner_archetype;
-mod value;
-mod value_archetype;
-
-pub use has_attribute_type::HasAttributeType;
-pub use inherits::Inherits;
-pub use owner::Owner;
-pub use owner_archetype::OwnerArchetype;
-pub use value::Value;
-pub use value_archetype::ValueArchetype;
-
+use super::{AttributeTrait, Owner, Value};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
-
-/// Interface for all attributes.
-pub trait AttributeTrait<'a, T>: ArchetypeTrait<'a, T> {
-    /// Set the owner for this attribute.
-    fn set_owner(&mut self, owner: &dyn FormTrait);
-
-    /// The owner of an attribute, if it exists.
-    fn owner(&self) -> Option<Tao>;
-
-    /// Set the value for this attribute.
-    fn set_value(&mut self, value: &dyn FormTrait);
-
-    /// The value of an attribute, if it exists.
-    fn value(&self) -> Option<Tao>;
-}
 
 /// Represents either a unary or binary relation.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
