@@ -1,11 +1,13 @@
-use super::attributes::{Attribute, HasAttributeType, Inherits, Owner, Value};
+use super::attributes::{
+    Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
+};
 use super::{Archetype, ArchetypeTrait, Tao};
-use crate::graph::{Graph, InjectionGraph};
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
+use crate::graph::{Graph, InjectionGraph};
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 6;
+pub const YIN_MAX_ID: usize = 8;
 
 /// Add the given Concept type to the KB.
 ///
@@ -51,7 +53,9 @@ pub fn initialize_types() {
             Owner,
             Value,
             Inherits,
-            HasAttributeType
+            HasAttributeType,
+            OwnerArchetype,
+            ValueArchetype
         )
     );
 

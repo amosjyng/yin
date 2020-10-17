@@ -3,12 +3,16 @@
 mod has_attribute_type;
 mod inherits;
 mod owner;
+mod owner_archetype;
 mod value;
+mod value_archetype;
 
 pub use has_attribute_type::HasAttributeType;
 pub use inherits::Inherits;
 pub use owner::Owner;
+pub use owner_archetype::OwnerArchetype;
 pub use value::Value;
+pub use value_archetype::ValueArchetype;
 
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
