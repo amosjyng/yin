@@ -2,6 +2,7 @@ use super::attributes::{
     Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
 use super::{Archetype, ArchetypeTrait, Tao};
+use crate::concepts::archetype::attribute::AttributeArchetypeTrait;
 use crate::concepts::archetype::ArchetypeFormTrait;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
@@ -60,9 +61,12 @@ pub fn initialize_types() {
         )
     );
 
-    let mut attributes = Attribute::archetype();
+    let mut attributes = Attribute::attribute_archetype();
     attributes.add_attribute_type(Owner::archetype());
     attributes.add_attribute_type(Value::archetype());
+
+    attributes.set_owner_archetype(Tao::archetype());
+    attributes.set_value_archetype(Tao::archetype());
 }
 
 /// Initialize Yin with an in-memory graph database.

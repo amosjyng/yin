@@ -1,6 +1,7 @@
-use super::{Archetype, ArchetypeFormTrait};
-use crate::concepts::attributes::Attribute;
+use crate::concepts::archetype::{Archetype, ArchetypeFormTrait};
+use crate::concepts::attributes::{Attribute, OwnerArchetype, ValueArchetype};
 use crate::concepts::{ArchetypeTrait, FormTrait};
+use crate::node_wrappers::BaseNodeTrait;
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
 use std::fmt;
@@ -11,6 +12,46 @@ use std::rc::Rc;
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct AttributeArchetype {
     base: FinalNode,
+}
+
+impl AttributeArchetype {
+    /// Restrict the owners for this type of attribute.
+    pub fn set_owner_archetype(&mut self, owner_archetype: Archetype) {
+        self.essence_mut()
+            .add_outgoing(OwnerArchetype::TYPE_ID, owner_archetype.essence());
+    }
+
+    /// Retrieve the owner type for this type of attribute.
+    pub fn owner_archetype(&self) -> Archetype {
+        // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
+        // higher IDs
+        Archetype::from(
+            *self
+                .essence()
+                .outgoing_nodes(OwnerArchetype::TYPE_ID)
+                .last()
+                .unwrap(),
+        )
+    }
+
+    /// Restrict the values for this type of attribute.
+    pub fn set_value_archetype(&mut self, value_archetype: Archetype) {
+        self.essence_mut()
+            .add_outgoing(ValueArchetype::TYPE_ID, value_archetype.essence());
+    }
+
+    /// Retrieve the value type for this type of attribute.
+    pub fn value_archetype(&self) -> Archetype {
+        // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
+        // higher IDs
+        Archetype::from(
+            *self
+                .essence()
+                .outgoing_nodes(ValueArchetype::TYPE_ID)
+                .last()
+                .unwrap(),
+        )
+    }
 }
 
 impl Debug for AttributeArchetype {
@@ -82,8 +123,9 @@ impl<'a> ArchetypeFormTrait<'a, AttributeArchetype, Attribute> for AttributeArch
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::archetype::attribute::attribute_archetype_trait::AttributeArchetypeTrait;
     use crate::concepts::attributes::{Owner, Value};
-    use crate::concepts::initialize_kb;
+    use crate::concepts::{initialize_kb, Tao};
 
     #[test]
     fn check_type_created() {
@@ -188,5 +230,29 @@ mod tests {
         type1.add_attribute_type(type2);
 
         assert_eq!(type3.introduced_attribute_types(), Vec::<Archetype>::new());
+    }
+
+    #[test]
+    fn test_overriding_owner_archetype() {
+        initialize_kb();
+        let mut attr_type1 = Attribute::individuate_as_attribute_archetype();
+        let attr_type2 = AttributeArchetype::from(attr_type1.individuate_as_archetype().id());
+        assert_eq!(attr_type2.owner_archetype(), Tao::archetype());
+
+        // owners should now be restricted to Attributes as opposed to Tao
+        attr_type1.set_owner_archetype(Attribute::archetype());
+        assert_eq!(attr_type2.owner_archetype(), Attribute::archetype());
+    }
+
+    #[test]
+    fn test_overriding_value_archetype() {
+        initialize_kb();
+        let mut attr_type1 = Attribute::individuate_as_attribute_archetype();
+        let attr_type2 = AttributeArchetype::from(attr_type1.individuate_as_archetype().id());
+        assert_eq!(attr_type2.value_archetype(), Tao::archetype());
+
+        // values should now be restricted to Attributes as opposed to Tao
+        attr_type1.set_value_archetype(Attribute::archetype());
+        assert_eq!(attr_type2.value_archetype(), Attribute::archetype());
     }
 }

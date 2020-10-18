@@ -53,8 +53,7 @@ mod form_trait;
 mod init;
 mod tao;
 
-pub use archetype::Archetype;
-pub use archetype::ArchetypeTrait;
+pub use archetype::{Archetype, ArchetypeTrait};
 pub use form_trait::FormTrait;
 pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
 pub use tao::Tao;

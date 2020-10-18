@@ -1,7 +1,8 @@
 mod archetype_form;
 mod archetype_form_trait;
 mod archetype_trait;
-mod attribute_archetype_form;
+/// Attribute-specific archetypes.
+pub mod attribute;
 
 pub use archetype_form::Archetype;
 pub use archetype_form_trait::ArchetypeFormTrait;

@@ -1,4 +1,5 @@
 use super::{AttributeTrait, Owner, Value};
+use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
@@ -76,6 +77,8 @@ impl FormTrait for Attribute {
         &mut self.base
     }
 }
+
+impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute> for Attribute {}
 
 impl<'a> AttributeTrait<'a, Attribute> for Attribute {
     fn set_owner(&mut self, owner: &dyn FormTrait) {
