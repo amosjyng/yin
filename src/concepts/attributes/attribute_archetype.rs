@@ -27,6 +27,12 @@ impl From<usize> for Attribute {
     }
 }
 
+impl From<FinalNode> for Attribute {
+    fn from(f: FinalNode) -> Self {
+        Self { base: f }
+    }
+}
+
 impl<'a> TryFrom<&'a str> for Attribute {
     type Error = String;
 
