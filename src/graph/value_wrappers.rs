@@ -1,4 +1,4 @@
-use crate::concepts::Tao;
+use crate::tao::Tao;
 use std::any::Any;
 use std::cell::{RefCell, RefMut};
 use std::rc::{Rc, Weak};
@@ -147,9 +147,10 @@ impl<'a, T: Any + 'static> KBValue for StrongValue<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::attributes::Inherits;
-    use crate::concepts::{initialize_kb, ArchetypeTrait, FormTrait};
     use crate::node_wrappers::CommonNodeTrait;
+    use crate::tao::archetype::ArchetypeTrait;
+    use crate::tao::attribute::Inherits;
+    use crate::tao::{initialize_kb, FormTrait};
 
     #[test]
     fn test_weak_value() {

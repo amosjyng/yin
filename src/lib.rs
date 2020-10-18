@@ -3,8 +3,8 @@
 //! # Example
 //!
 //! ```rust
-//! use zamm_yin::concepts::{ArchetypeTrait, FormTrait, Tao};
-//! use zamm_yin::concepts::initialize_kb;
+//! use zamm_yin::tao::{initialize_kb, FormTrait, Tao};
+//! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //!
 //! fn main() {
@@ -24,6 +24,6 @@
 #![allow(clippy::needless_doctest_main)]
 #![warn(missing_docs)]
 
-pub mod concepts;
 pub mod graph;
 pub mod node_wrappers;
+pub mod tao;

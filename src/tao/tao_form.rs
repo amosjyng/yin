@@ -1,5 +1,6 @@
-use crate::concepts::{Archetype, ArchetypeTrait, FormTrait};
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
+use crate::tao::archetype::{Archetype, ArchetypeTrait};
+use crate::tao::FormTrait;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -64,21 +65,14 @@ impl CommonNodeTrait for Tao {
     }
 }
 
-impl<'a> ArchetypeTrait<'a, Tao> for Tao {
+impl<'a> ArchetypeTrait<'a> for Tao {
+    type ArchetypeForm = Archetype;
+    type Form = Tao;
+
     const TYPE_ID: usize = 0;
     const TYPE_NAME: &'static str = "Tao";
     // It seems fitting, albeit meaningless, to make the Tao inherit its own properties.
     const PARENT_TYPE_ID: usize = Self::TYPE_ID;
-
-    fn archetype() -> Archetype {
-        Archetype::from(Self::TYPE_ID)
-    }
-
-    fn individuate_with_parent(parent_id: usize) -> Self {
-        Self {
-            base: FinalNode::new_with_inheritance(parent_id),
-        }
-    }
 }
 
 impl FormTrait for Tao {
@@ -94,7 +88,7 @@ impl FormTrait for Tao {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::initialize_kb;
+    use crate::tao::initialize_kb;
 
     #[test]
     fn check_type_created() {

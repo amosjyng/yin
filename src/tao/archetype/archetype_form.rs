@@ -1,6 +1,8 @@
 use super::ArchetypeFormTrait;
-use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
+use super::IsArchetype;
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
+use crate::tao::archetype::ArchetypeTrait;
+use crate::tao::{FormTrait, Tao};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -54,16 +56,13 @@ impl CommonNodeTrait for Archetype {
     }
 }
 
-impl<'a> ArchetypeTrait<'a, Archetype> for Archetype {
+impl<'a> ArchetypeTrait<'a> for Archetype {
+    type ArchetypeForm = Archetype;
+    type Form = Archetype;
+
     const TYPE_ID: usize = 1;
     const TYPE_NAME: &'static str = "Archetype";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
-
-    fn individuate_with_parent(parent_id: usize) -> Self {
-        Self {
-            base: FinalNode::new_with_inheritance(parent_id),
-        }
-    }
 }
 
 impl FormTrait for Archetype {
@@ -76,14 +75,18 @@ impl FormTrait for Archetype {
     }
 }
 
-impl<'a> ArchetypeFormTrait<'a, Archetype, Tao> for Archetype {}
+impl IsArchetype for Archetype {}
+
+impl<'a> ArchetypeFormTrait<'a> for Archetype {
+    type SubjectForm = Tao;
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
-    use crate::concepts::attributes::{Attribute, Owner, Value};
-    use crate::concepts::initialize_kb;
+    use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
+    use crate::tao::attribute::{Attribute, Owner, Value};
+    use crate::tao::initialize_kb;
 
     #[test]
     fn check_type_created() {
@@ -131,19 +134,19 @@ mod tests {
     #[test]
     fn test_individuation() {
         initialize_kb();
-        let type1 = Owner::individuate_as_archetype();
+        let type1 = Owner::archetype().individuate_as_archetype();
         let type1_instance = type1.individuate_as_form();
-        assert!(type1.has_ancestor(Owner::archetype()));
-        assert!(!type1.has_ancestor(Value::archetype()));
-        assert!(type1_instance.has_ancestor(type1));
-        assert!(type1_instance.has_ancestor(Owner::archetype()));
-        assert!(!type1_instance.has_ancestor(Value::archetype()));
+        assert!(type1.has_ancestor(Owner::archetype().as_archetype()));
+        assert!(!type1.has_ancestor(Value::archetype().as_archetype()));
+        assert!(type1_instance.has_ancestor(type1.as_archetype()));
+        assert!(type1_instance.has_ancestor(Owner::archetype().as_archetype()));
+        assert!(!type1_instance.has_ancestor(Value::archetype().as_archetype()));
     }
 
     #[test]
     fn test_individuals() {
         initialize_kb();
-        let type1 = Tao::individuate_as_archetype();
+        let type1 = Tao::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let type1_instance = type1.individuate_as_form();
         let type2_instance = type2.individuate_as_form();
@@ -154,14 +157,14 @@ mod tests {
     #[test]
     fn test_individuals_not_self() {
         initialize_kb();
-        let childless_type = Tao::individuate_as_archetype();
+        let childless_type = Tao::archetype().individuate_as_archetype();
         assert_eq!(childless_type.individuals(), Vec::<Tao>::new())
     }
 
     #[test]
     fn test_child_archetypes() {
         initialize_kb();
-        let type1 = Tao::individuate_as_archetype();
+        let type1 = Tao::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         assert_eq!(type1.child_archetypes(), vec![type2, type3]);
@@ -170,8 +173,8 @@ mod tests {
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Tao::individuate_as_archetype();
-        let type2 = Attribute::individuate_as_attribute_archetype();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
         assert_eq!(
             type1.introduced_attribute_types(),
             Vec::<AttributeArchetype>::new()
@@ -184,8 +187,8 @@ mod tests {
     #[test]
     fn test_attribute_types_not_inherited() {
         initialize_kb();
-        let mut type1 = Tao::individuate_as_archetype();
-        let type2 = Attribute::individuate_as_attribute_archetype();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
 

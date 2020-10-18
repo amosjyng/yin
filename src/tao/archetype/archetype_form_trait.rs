@@ -1,8 +1,8 @@
 use super::Archetype;
-use crate::concepts::archetype::attribute::AttributeArchetype;
-use crate::concepts::attributes::{HasAttributeType, Inherits};
-use crate::concepts::{ArchetypeTrait, FormTrait};
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
+use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype, IsArchetype};
+use crate::tao::attribute::{HasAttributeType, Inherits};
+use crate::tao::FormTrait;
 use std::collections::{HashSet, VecDeque};
 
 /// Every concept represents a different way of looking at and manipulating the world. This one
@@ -15,25 +15,23 @@ use std::collections::{HashSet, VecDeque};
 /// logic defined in its archetype. When you manipulate its archetype, you do so according to the
 /// logic defined in the `Archetype` node.
 ///
-///  * `A` type parameter: represents the ArchetypeForm that will reason about the node as a
-///     specialized `Archetype`. Should be the same as the `Archetype` that this is currently being
-///     implemented on.
-///  * `F` type parameter: represents the direct Form that will reason about the node's leaves --
-///    i.e. the individuals of this node. This will be the most specific FormTrait that is still
-///    general enough to represent everything of this type.
-///
 /// Keep in mind that due to the melding of archetype and form in all Archetype structs, any   
 /// references to `self` here refers to the node-as-archetype in question, whereas any references
 /// to `Self` refers to the Archetype node itself. Since this FormTrait is supposed to reason about
 /// the node-as-archetype, **there should be no instances of `Self` here**.
 ///
 /// Tests are in the structs that implement this trait.
-pub trait ArchetypeFormTrait<
-    'a,
-    A: ArchetypeTrait<'a, A> + FormTrait + From<FinalNode>,
-    F: ArchetypeTrait<'a, F> + FormTrait + From<FinalNode>,
->: FormTrait + From<FinalNode> + From<usize>
-{
+pub trait ArchetypeFormTrait<'a>: ArchetypeTrait<'a> + FormTrait + IsArchetype {
+    /// The ArchetypeTrait as defined for an Archetype will have an Archetype-based Form for
+    /// reasoning about other nodes as archetypes. The Archetype's Form is the observer, and the
+    /// subject under observation will have a different type for its leaves. This subject's Form
+    /// should therefore be the most specific FormTrait that is still general enough to represent
+    /// everything this ArchetypeTrait can observe.
+    ///
+    /// Here, Self::ArchetypeForm should never be used, Self::Form is the self as the observer, and
+    /// Self::SubjectForm is the subject archetype that is currently being observed.
+    type SubjectForm: ArchetypeTrait<'a> + FormTrait;
+
     /// Forget everything about the current form, except that it's an ArchetypeForm representing
     /// some type.
     fn as_archetype(&self) -> Archetype {
@@ -41,22 +39,20 @@ pub trait ArchetypeFormTrait<
     }
 
     /// Create a subtype of the archetype represented by this Archetype instance.
-    ///
-    /// Convenience function for the static one.
-    fn individuate_as_archetype(&self) -> A {
-        A::individuate_with_parent(self.id())
+    fn individuate_as_archetype(&self) -> Self::Form {
+        Self::Form::from(FinalNode::new_with_inheritance(self.id()))
     }
 
     /// Create a new individual of the archetype represented by this Archetype instance.
     ///
     /// Convenience function for the static one.
-    fn individuate_as_form(&self) -> F {
-        F::individuate_with_parent(self.id())
+    fn individuate_as_form(&self) -> Self::SubjectForm {
+        Self::SubjectForm::from(FinalNode::new_with_inheritance(self.id()))
     }
 
     /// Individuals that adhere to this archetype. It is possible that some of these individuals
     /// might not be direct descendants of the archetype in question.
-    fn individuals(&self) -> Vec<F> {
+    fn individuals(&self) -> Vec<Self::SubjectForm> {
         let mut visited: HashSet<FinalNode> = HashSet::new();
         visited.insert(*self.essence());
         let mut to_be_visited: VecDeque<FinalNode> = VecDeque::new();
@@ -75,21 +71,21 @@ pub trait ArchetypeFormTrait<
                 }
             }
         }
-        let mut result: Vec<F> = leaves
+        let mut result: Vec<Self::SubjectForm> = leaves
             .into_iter()
             .filter(|l| l != self.essence()) // never return self, even if it's the only leaf
-            .map(F::from)
+            .map(Self::SubjectForm::from)
             .collect();
         result.sort();
         result
     }
 
     /// Retrieve child archetypes.
-    fn child_archetypes(&self) -> Vec<A> {
+    fn child_archetypes(&self) -> Vec<Self::Form> {
         self.essence()
             .incoming_nodes(Inherits::TYPE_ID)
             .into_iter()
-            .map(A::from)
+            .map(Self::Form::from)
             .collect()
     }
 
