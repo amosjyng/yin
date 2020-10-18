@@ -6,7 +6,7 @@ use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
-/// Represents an archetype from which various individual nodes can be derived.
+/// Represents the archetypes of individuals, the metadata of data.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Archetype {
     base: FinalNode,

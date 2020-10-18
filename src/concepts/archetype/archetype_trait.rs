@@ -2,9 +2,8 @@ use super::Archetype;
 use crate::concepts::FormTrait;
 use std::convert::TryFrom;
 
-/// All formally defined archetypes should be describable by these properties.
-///
-/// This contains all the statics that FormTrait does not contain.
+/// Implement for static access to archetype metadata and typed individuation (individuation 
+/// through the archetype will return a more generic result than might be desired).
 ///
 /// * `F` type parameter: represents the direct Form that will reason about the node's descendants
 pub trait ArchetypeTrait<'a, F: FormTrait>: From<usize> + TryFrom<&'a str> + Ord {

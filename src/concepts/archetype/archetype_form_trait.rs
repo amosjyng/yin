@@ -10,6 +10,11 @@ use std::collections::{HashSet, VecDeque};
 /// it had form, as if it were actual data. But of course metadata is also data, and if you look
 /// around in the KB, this class definition is no different from any other class definition.
 ///
+/// In fact, with the exception of Tao and Archetype, you're pretty much only ever viewing a node
+/// from another node's perspective. When you manipulate an individual, you do so according to the
+/// logic defined in its archetype. When you manipulate its archetype, you do so according to the
+/// logic defined in the `Archetype` node.
+///
 ///  * `A` type parameter: represents the ArchetypeForm that will reason about the node as a
 ///     specialized `Archetype`. Should be the same as the `Archetype` that this is currently being
 ///     implemented on.
@@ -83,9 +88,8 @@ pub trait ArchetypeFormTrait<
     fn child_archetypes(&self) -> Vec<A> {
         self.essence()
             .incoming_nodes(Inherits::TYPE_ID)
-            .iter_mut()
-            // todo: look into using Vec::drain to move things out of Vec instead of copying?
-            .map(|c| A::from(*c))
+            .into_iter()
+            .map(A::from)
             .collect()
     }
 
