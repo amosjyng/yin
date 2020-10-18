@@ -1,7 +1,6 @@
 use crate::concepts::archetype::{ArchetypeFormTrait, ArchetypeTrait};
-use crate::concepts::attributes::{OwnerArchetype, ValueArchetype};
 use crate::concepts::FormTrait;
-use crate::node_wrappers::{BaseNodeTrait, FinalNode};
+use crate::node_wrappers::FinalNode;
 
 /// Represents types of attributes. Attributes should implement this in addition to
 /// `ArchetypeTrait`.
@@ -42,10 +41,6 @@ pub trait AttributeArchetypeTrait<
     'a,
     A: ArchetypeFormTrait<'a, A, F> + ArchetypeTrait<'a, A> + FormTrait + From<FinalNode>,
     F: ArchetypeTrait<'a, F> + FormTrait + From<FinalNode>,
-    OA: ArchetypeFormTrait<'a, OA, OF> + ArchetypeTrait<'a, OA> + FormTrait + From<FinalNode>,
-    OF: ArchetypeTrait<'a, OF> + FormTrait + From<FinalNode>,
-    VA: ArchetypeFormTrait<'a, VA, VF> + ArchetypeTrait<'a, VA> + FormTrait + From<FinalNode>,
-    VF: ArchetypeTrait<'a, VF> + FormTrait + From<FinalNode>,
 >: ArchetypeTrait<'a, F>
 {
     /// Get the AttributeArchetype for this type of Attribute.
@@ -62,29 +57,5 @@ pub trait AttributeArchetypeTrait<
     /// `ArchetypeTrait`
     fn individuate_as_attribute_archetype() -> A {
         A::from(Self::individuate_with_parent(Self::TYPE_ID).id())
-    }
-
-    /// Retrieve the owner type for this type of attribute.
-    fn owner_archetype() -> OA {
-        // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
-        // higher IDs
-        OA::from(
-            *FinalNode::from(Self::TYPE_ID)
-                .outgoing_nodes(OwnerArchetype::TYPE_ID)
-                .last()
-                .unwrap(),
-        )
-    }
-
-    /// Retrieve the value type for this type of attribute.
-    fn value_archetype() -> VA {
-        // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
-        // higher IDs
-        VA::from(
-            *FinalNode::from(Self::TYPE_ID)
-                .outgoing_nodes(ValueArchetype::TYPE_ID)
-                .last()
-                .unwrap(),
-        )
     }
 }

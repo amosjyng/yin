@@ -1,6 +1,6 @@
 use super::{AttributeTrait, Owner, Value};
 use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
-use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
+use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
 use std::fmt;
@@ -78,10 +78,7 @@ impl FormTrait for Attribute {
     }
 }
 
-impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute, Archetype, Tao, Archetype, Tao>
-    for Attribute
-{
-}
+impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute> for Attribute {}
 
 impl<'a> AttributeTrait<'a, Attribute> for Attribute {
     fn set_owner(&mut self, owner: &dyn FormTrait) {
@@ -142,8 +139,14 @@ mod tests {
                 AttributeArchetype::from(Value::TYPE_ID)
             ]
         );
-        assert_eq!(Attribute::owner_archetype(), Tao::archetype());
-        assert_eq!(Attribute::value_archetype(), Tao::archetype());
+        assert_eq!(
+            Attribute::attribute_archetype().owner_archetype(),
+            Tao::archetype()
+        );
+        assert_eq!(
+            Attribute::attribute_archetype().value_archetype(),
+            Tao::archetype()
+        );
     }
 
     #[test]

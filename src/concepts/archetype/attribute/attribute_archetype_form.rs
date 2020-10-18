@@ -8,7 +8,7 @@ use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
-/// Represents an archetype representing attributes.
+/// Archetype representing attributes.
 ///
 /// This can only be used to represent *attribute* archetypes, so unlike `Archetype` which can
 /// represent all archetypes including its own archetype because it's an archetype too,
