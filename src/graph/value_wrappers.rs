@@ -1,10 +1,10 @@
-use crate::tao::Tao;
+use crate::tao::Form;
 use std::any::Any;
 use std::cell::{RefCell, RefMut};
 use std::rc::{Rc, Weak};
 
 /// Closure stored inside the KB.
-pub type KBClosure = Box<dyn FnMut(Tao) -> Box<dyn Any>>;
+pub type KBClosure = Box<dyn FnMut(Form) -> Box<dyn Any>>;
 
 /// Wrapper for KB values, because Rust doesn't support upcasting at the moment, and the KB should
 /// support referring to external data structures that it doesn't own itself.
@@ -80,7 +80,7 @@ macro_rules! define_closure {
 macro_rules! run_closure {
     ($wrapper:expr, $input:expr, $t:ty) => {
         unwrap_closure($wrapper).map(|mut c: RefMut<'_, KBClosure>| {
-            let result: Box<dyn Any> = c($input.ego_death());
+            let result: Box<dyn Any> = c($input.as_form());
             let cast_result: Box<$t> = result.downcast().expect("Downcast type failure");
             cast_result
         })
@@ -180,7 +180,7 @@ mod tests {
     fn test_function_value() {
         initialize_kb();
         let i = Inherits::archetype();
-        let kb_result: Option<Rc<dyn KBValue>> = Some(define_closure!(|t: Tao| {
+        let kb_result: Option<Rc<dyn KBValue>> = Some(define_closure!(|t: Form| {
             Box::new(t.internal_name().unwrap())
         }));
         assert_eq!(

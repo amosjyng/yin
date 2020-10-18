@@ -67,6 +67,7 @@ pub fn initialize_types() {
     let mut attributes = Attribute::archetype();
     attributes.add_attribute_type(Owner::archetype());
     attributes.add_attribute_type(Value::archetype());
+    // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
     attributes.set_owner_archetype(Tao::archetype());
     attributes.set_value_archetype(Tao::archetype());
 

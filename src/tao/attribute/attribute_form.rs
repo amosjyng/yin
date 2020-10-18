@@ -1,7 +1,7 @@
 use super::AttributeTrait;
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
-use crate::tao::{FormTrait, Tao};
+use crate::tao::{Form, FormTrait, Tao};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -76,8 +76,8 @@ impl FormTrait for Attribute {
 }
 
 impl AttributeTrait for Attribute {
-    type OwnerForm = Tao;
-    type ValueForm = Tao;
+    type OwnerForm = Form;
+    type ValueForm = Form;
 }
 
 #[cfg(test)]
@@ -157,8 +157,8 @@ mod tests {
         initialize_kb();
         let mut attr_instance = Attribute::individuate();
         let owner_of_attr = Attribute::individuate();
-        attr_instance.set_owner(&owner_of_attr.ego_death());
-        assert_eq!(attr_instance.owner(), Some(owner_of_attr.ego_death()));
+        attr_instance.set_owner(&owner_of_attr.as_form());
+        assert_eq!(attr_instance.owner(), Some(owner_of_attr.as_form()));
         assert_eq!(attr_instance.value(), None);
     }
 
@@ -167,8 +167,8 @@ mod tests {
         initialize_kb();
         let mut attr_instance = Attribute::individuate();
         let value_of_attr = Attribute::individuate();
-        attr_instance.set_value(&value_of_attr.ego_death());
+        attr_instance.set_value(&value_of_attr.as_form());
         assert_eq!(attr_instance.owner(), None);
-        assert_eq!(attr_instance.value(), Some(value_of_attr.ego_death()));
+        assert_eq!(attr_instance.value(), Some(value_of_attr.as_form()));
     }
 }

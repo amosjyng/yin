@@ -3,7 +3,7 @@
 //! # Example
 //!
 //! ```rust
-//! use zamm_yin::tao::{initialize_kb, FormTrait, Tao};
+//! use zamm_yin::tao::{initialize_kb, FormTrait, Form};
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //!
@@ -12,8 +12,8 @@
 //!     initialize_kb();
 //!
 //!     // Create a new concept
-//!     let mut concept = Tao::individuate();
-//!     assert!(concept.has_ancestor(Tao::archetype()));
+//!     let mut concept = Form::individuate();
+//!     assert!(concept.has_ancestor(Form::archetype()));
 //!
 //!     // Set a name for the concept
 //!     concept.set_internal_name("Hello, world.".to_string());

@@ -2,7 +2,7 @@ use super::ArchetypeFormTrait;
 use super::IsArchetype;
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
-use crate::tao::{FormTrait, Tao};
+use crate::tao::{Form, FormTrait, Tao};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -78,7 +78,7 @@ impl FormTrait for Archetype {
 impl IsArchetype for Archetype {}
 
 impl<'a> ArchetypeFormTrait<'a> for Archetype {
-    type SubjectForm = Tao;
+    type SubjectForm = Form;
 }
 
 #[cfg(test)]
@@ -146,7 +146,7 @@ mod tests {
     #[test]
     fn test_individuals() {
         initialize_kb();
-        let type1 = Tao::archetype().individuate_as_archetype();
+        let type1 = Form::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let type1_instance = type1.individuate_as_form();
         let type2_instance = type2.individuate_as_form();
@@ -157,14 +157,14 @@ mod tests {
     #[test]
     fn test_individuals_not_self() {
         initialize_kb();
-        let childless_type = Tao::archetype().individuate_as_archetype();
-        assert_eq!(childless_type.individuals(), Vec::<Tao>::new())
+        let childless_type = Form::archetype().individuate_as_archetype();
+        assert_eq!(childless_type.individuals(), Vec::<Form>::new())
     }
 
     #[test]
     fn test_child_archetypes() {
         initialize_kb();
-        let type1 = Tao::archetype().individuate_as_archetype();
+        let type1 = Form::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         assert_eq!(type1.child_archetypes(), vec![type2, type3]);
@@ -173,7 +173,7 @@ mod tests {
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
         assert_eq!(
             type1.introduced_attribute_types(),
@@ -187,7 +187,7 @@ mod tests {
     #[test]
     fn test_attribute_types_not_inherited() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);

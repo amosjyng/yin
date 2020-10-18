@@ -1,6 +1,6 @@
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
-use crate::tao::FormTrait;
+use crate::tao::Form;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -67,7 +67,7 @@ impl CommonNodeTrait for Tao {
 
 impl<'a> ArchetypeTrait<'a> for Tao {
     type ArchetypeForm = Archetype;
-    type Form = Tao;
+    type Form = Form;
 
     const TYPE_ID: usize = 0;
     const TYPE_NAME: &'static str = "Tao";
@@ -75,19 +75,10 @@ impl<'a> ArchetypeTrait<'a> for Tao {
     const PARENT_TYPE_ID: usize = Self::TYPE_ID;
 }
 
-impl FormTrait for Tao {
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tao::form_trait::FormTrait;
     use crate::tao::initialize_kb;
 
     #[test]
@@ -113,7 +104,7 @@ mod tests {
         initialize_kb();
         let mut concept = Tao::individuate();
         concept.set_internal_name("A".to_owned());
-        assert_eq!(Tao::try_from("A"), Ok(concept));
+        assert_eq!(Tao::try_from("A"), Ok(concept.ego_death()));
         assert!(Tao::try_from("B").is_err());
     }
 

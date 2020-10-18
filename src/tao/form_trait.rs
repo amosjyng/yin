@@ -1,5 +1,5 @@
 use super::attribute::{HasAttributeType, Inherits};
-use super::Tao;
+use super::{Form, Tao};
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
 use std::collections::{HashMap, VecDeque};
@@ -59,6 +59,11 @@ pub trait FormTrait: CommonNodeTrait {
         Tao::from(*self.essence())
     }
 
+    /// A less severe form of ego-death, where you still remember that you exist.
+    fn as_form(&self) -> Form {
+        Form::from(*self.essence())
+    }
+
     /// Set a parent archetype. The current archetype will inherit all attributes of the parent
     /// archetype.
     fn add_parent(&mut self, parent: Archetype) {
@@ -77,13 +82,13 @@ pub trait FormTrait: CommonNodeTrait {
 
     /// Get the shortest chain of ancestors that leads back to Tao, starting with Tao itself.
     fn ancestry(&self) -> Vec<Archetype> {
-        let mut to_be_visited = VecDeque::<Tao>::new();
-        let mut backpointers = HashMap::<Tao, Tao>::new();
-        to_be_visited.push_back(self.ego_death());
+        let mut to_be_visited = VecDeque::<Form>::new();
+        let mut backpointers = HashMap::<Form, Form>::new();
+        to_be_visited.push_back(self.as_form());
 
         while let Some(next_node) = to_be_visited.pop_front() {
             for parent in next_node.parents() {
-                let parent_tao = parent.ego_death();
+                let parent_tao = parent.as_form();
                 #[allow(clippy::map_entry)]
                 if !backpointers.contains_key(&parent_tao) {
                     backpointers.insert(parent_tao, next_node);
@@ -96,8 +101,8 @@ pub trait FormTrait: CommonNodeTrait {
         }
 
         let mut ancestry = Vec::new();
-        let mut next_node = Tao::archetype().ego_death();
-        let selfless_ego = self.ego_death();
+        let mut next_node = Tao::archetype().as_form();
+        let selfless_ego = self.as_form();
         while next_node != selfless_ego {
             ancestry.push(Archetype::from(*next_node.essence()));
             next_node = *backpointers.get(&next_node).unwrap();

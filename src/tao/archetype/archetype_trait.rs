@@ -62,7 +62,7 @@ mod tests {
         assert_eq!(owner.owner(), None);
 
         let attr = Owner::individuate();
-        Owner::from(Owner::TYPE_ID).set_owner(&attr.ego_death());
-        assert_eq!(owner.owner(), Some(attr.ego_death()));
+        Owner::from(Owner::TYPE_ID).set_owner(&attr.as_form());
+        assert_eq!(owner.owner(), Some(attr.as_form()));
     }
 }

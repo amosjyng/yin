@@ -26,19 +26,19 @@
 //! # use zamm_yin::tao::initialize_kb;
 //! # initialize_kb();
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
-//! use zamm_yin::tao::{Tao, FormTrait};
+//! use zamm_yin::tao::{Form, FormTrait};
 //!
-//! let mut concept = Tao::individuate();
-//! assert!(concept.has_ancestor(Tao::archetype()));
+//! let mut concept = Form::individuate();
+//! assert!(concept.has_ancestor(Form::archetype()));
 //! ```
 //!
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
 //! # use zamm_yin::tao::archetype::ArchetypeTrait;
-//! # use zamm_yin::tao::{initialize_kb, Tao};
+//! # use zamm_yin::tao::{initialize_kb, Form};
 //! # initialize_kb();
-//! # let mut concept = Tao::individuate();
+//! # let mut concept = Form::individuate();
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
