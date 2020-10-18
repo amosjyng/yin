@@ -47,13 +47,16 @@
 
 /// Types of forms, as opposed to the forms themselves.
 pub mod archetype;
+/// Relations between the forms.
 pub mod attributes;
 /// Concept forms, as opposed to archetypes.
+mod form;
 mod form_trait;
 mod init;
 mod tao;
 
 pub use archetype::{Archetype, ArchetypeTrait};
+pub use form::Form;
 pub use form_trait::FormTrait;
 pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
 pub use tao::Tao;

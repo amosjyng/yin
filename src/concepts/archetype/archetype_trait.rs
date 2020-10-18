@@ -2,7 +2,7 @@ use super::Archetype;
 use crate::concepts::FormTrait;
 use std::convert::TryFrom;
 
-/// Implement for static access to archetype metadata and typed individuation (individuation 
+/// Implement for static access to archetype metadata and typed individuation (individuation
 /// through the archetype will return a more generic result than might be desired).
 ///
 /// * `F` type parameter: represents the direct Form that will reason about the node's descendants

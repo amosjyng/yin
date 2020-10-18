@@ -12,7 +12,16 @@ Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of
 
 ### Attributes
 
-All right ZAMM, your baby feeding schedule says it's time to input some basic information into your system. Yin contains within herself many concepts, which you will be fed one at a time. Linking the concepts are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
+All right ZAMM, your baby feeding schedule says it's time to input some basic information into your system. Yin contains within herself many concepts, which you will be fed one at a time. In order to reason with things, we must first give them form:
+
+```yaml
+- name: Form
+  parent: Tao
+```
+
+Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
+
+Linking the forms are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
 
 ```yaml
 - name: Owner
@@ -20,8 +29,6 @@ All right ZAMM, your baby feeding schedule says it's time to input some basic in
 - name: Value
   parent: Attribute
 ```
-
-Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
 
 Now, we've been talking about the parents of archetypes. Each child archetype *inherits* all properties of its archetypal parent. Let's define this relation:
 
@@ -58,14 +65,23 @@ Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/ma
 
 ```yaml
 - parent: Implement
+  target: Form
+  output_id: 10
+  documentation: |-
+```
+
+> All things that can be interacted with have form.
+
+Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
+
+```yaml
+- parent: Implement
   target: Owner
   output_id: 3
   documentation: |-
 ```
 
 > The owner/source/from-node of an attribute.
-
-Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```yaml
 - parent: Implement
