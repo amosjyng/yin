@@ -98,6 +98,7 @@ impl<'a> AttributeTrait<'a, Attribute> for Attribute {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::archetype::ArchetypeFormTrait;
     use crate::concepts::initialize_kb;
 
     #[test]

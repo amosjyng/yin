@@ -2,6 +2,7 @@ use super::attributes::{
     Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
 use super::{Archetype, ArchetypeTrait, Tao};
+use crate::concepts::archetype::ArchetypeFormTrait;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
 

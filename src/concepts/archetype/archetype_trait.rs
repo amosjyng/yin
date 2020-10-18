@@ -1,8 +1,11 @@
 use super::Archetype;
+use crate::concepts::FormTrait;
 use std::convert::TryFrom;
 
 /// All formally defined archetypes should be describable by these properties.
-pub trait ArchetypeTrait<'a, T>: From<usize> + TryFrom<&'a str> {
+///
+/// This contains all the statics that FormTrait does not contain.
+pub trait ArchetypeTrait<'a, T: FormTrait>: From<usize> + TryFrom<&'a str> + Ord {
     /// The ID for this archetype.
     const TYPE_ID: usize;
 
@@ -35,6 +38,12 @@ pub trait ArchetypeTrait<'a, T>: From<usize> + TryFrom<&'a str> {
     /// world as a unique individual engaging in the act of self-realization.
     fn individuate() -> T {
         Self::individuate_with_parent(Self::TYPE_ID)
+    }
+
+    /// Create a subtype of the archetype represented by this Archetype instance (as opposed to an
+    /// instance of this Archetype that `individuate_as_form` would produce).
+    fn individuate_as_archetype() -> Archetype {
+        Archetype::from(Self::individuate_with_parent(Self::TYPE_ID).id())
     }
 
     /// Individuate with a more specific parent than the current one. This custom parent should

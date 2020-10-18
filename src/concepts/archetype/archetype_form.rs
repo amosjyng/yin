@@ -1,7 +1,6 @@
-use crate::concepts::attributes::{HasAttributeType, Inherits};
+use super::ArchetypeFormTrait;
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
-use std::collections::{HashSet, VecDeque};
+use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -11,77 +10,6 @@ use std::rc::Rc;
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Archetype {
     base: FinalNode,
-}
-
-impl Archetype {
-    /// Create a subtype of the archetype represented by this Archetype instance (as opposed to a
-    /// new subtype of Archetype itself, that Archetype::individuate would produce).
-    pub fn individuate_as_archetype(&self) -> Self {
-        Self::individuate_with_parent(self.id())
-    }
-
-    /// Create a new individual of the archetype represented by this Archetype instance (as opposed
-    /// to a new subtype of Archetype itself, that Archetype::individuate would produce).
-    pub fn individuate_as_tao(&self) -> Tao {
-        Tao::individuate_with_parent(self.id())
-    }
-
-    /// Individuals that adhere to this archetype. It is possible that some of these individuals
-    /// might not be direct descendants of the archetype in question.
-    pub fn individuals(&self) -> Vec<Tao> {
-        let mut visited: HashSet<FinalNode> = HashSet::new();
-        visited.insert(*self.essence());
-        let mut to_be_visited: VecDeque<FinalNode> = VecDeque::new();
-        to_be_visited.push_back(*self.essence());
-        let mut leaves: Vec<FinalNode> = Vec::new();
-        while let Some(next) = to_be_visited.pop_front() {
-            let children = next.incoming_nodes(Inherits::TYPE_ID);
-            if children.is_empty() {
-                leaves.push(next);
-            } else {
-                for child in next.incoming_nodes(Inherits::TYPE_ID) {
-                    if !visited.contains(&child) {
-                        visited.insert(child);
-                        to_be_visited.push_back(child);
-                    }
-                }
-            }
-        }
-        let mut result: Vec<Tao> = leaves
-            .into_iter()
-            .filter(|l| l != self.essence()) // never return self, even if it's the only leaf
-            .map(Tao::from)
-            .collect();
-        result.sort();
-        result
-    }
-
-    /// Retrieve child archetypes.
-    pub fn child_archetypes(&self) -> Vec<Archetype> {
-        self.essence()
-            .incoming_nodes(Inherits::TYPE_ID)
-            .iter()
-            .map(|c| Archetype::from(*c))
-            .collect()
-    }
-
-    /// Add an attribute type to this archetype.
-    pub fn add_attribute_type(&mut self, attribute_type: Archetype) {
-        self.essence_mut()
-            .add_outgoing(HasAttributeType::TYPE_ID, attribute_type.essence());
-    }
-
-    /// Retrieve non-inherited attribute types that are introduced by this archetype to all
-    /// descendant archetypes. Attribute types introduced by an ancestor do not count.
-    pub fn introduced_attribute_types(&self) -> Vec<Archetype> {
-        self.essence()
-            .base_wrapper()
-            .outgoing_nodes(HasAttributeType::TYPE_ID)
-            .into_iter()
-            .map(FinalNode::from)
-            .map(Archetype::from)
-            .collect()
-    }
 }
 
 impl Debug for Archetype {
@@ -148,6 +76,8 @@ impl FormTrait for Archetype {
     }
 }
 
+impl<'a> ArchetypeFormTrait<'a, Archetype, Tao> for Archetype {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -200,8 +130,8 @@ mod tests {
     #[test]
     fn test_individuation() {
         initialize_kb();
-        let type1 = Owner::archetype().individuate_as_archetype();
-        let type1_instance = type1.individuate_as_tao();
+        let type1 = Owner::individuate_as_archetype();
+        let type1_instance = type1.individuate_as_form();
         assert!(type1.has_ancestor(Owner::archetype()));
         assert!(!type1.has_ancestor(Value::archetype()));
         assert!(type1_instance.has_ancestor(type1));
@@ -212,10 +142,10 @@ mod tests {
     #[test]
     fn test_individuals() {
         initialize_kb();
-        let type1 = Tao::archetype().individuate_as_archetype();
+        let type1 = Tao::individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
-        let type1_instance = type1.individuate_as_tao();
-        let type2_instance = type2.individuate_as_tao();
+        let type1_instance = type1.individuate_as_form();
+        let type2_instance = type2.individuate_as_form();
         assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
         assert_eq!(type2.individuals(), vec![type2_instance]);
     }
@@ -223,14 +153,14 @@ mod tests {
     #[test]
     fn test_individuals_not_self() {
         initialize_kb();
-        let childless_type = Tao::archetype().individuate_as_archetype();
+        let childless_type = Tao::individuate_as_archetype();
         assert_eq!(childless_type.individuals(), Vec::<Tao>::new())
     }
 
     #[test]
     fn test_child_archetypes() {
         initialize_kb();
-        let type1 = Tao::archetype().individuate_as_archetype();
+        let type1 = Tao::individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         assert_eq!(type1.child_archetypes(), vec![type2, type3]);
@@ -239,8 +169,8 @@ mod tests {
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
-        let type2 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Tao::individuate_as_archetype();
+        let type2 = Tao::individuate_as_archetype();
         assert_eq!(type1.introduced_attribute_types(), Vec::<Archetype>::new());
 
         type1.add_attribute_type(type2);
@@ -250,8 +180,8 @@ mod tests {
     #[test]
     fn test_attribute_types_not_inherited() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
-        let type2 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Tao::individuate_as_archetype();
+        let type2 = Tao::individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
 

@@ -140,6 +140,7 @@ pub trait FormTrait: CommonNodeTrait {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::archetype::ArchetypeFormTrait;
     use crate::concepts::attributes::{Attribute, Owner, Value};
     use crate::concepts::initialize_kb;
 
@@ -217,10 +218,10 @@ mod tests {
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
-        let type2 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Tao::individuate_as_archetype();
+        let type2 = Tao::individuate_as_archetype();
         type1.add_attribute_type(type2);
-        let instance = type1.individuate_as_tao();
+        let instance = type1.individuate_as_form();
 
         assert_eq!(instance.attribute_types(), vec!(type2));
         assert!(!instance.has_attribute_type(type1));
@@ -230,11 +231,11 @@ mod tests {
     #[test]
     fn test_attribute_types_inherited() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
-        let type2 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Tao::individuate_as_archetype();
+        let type2 = Tao::individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
-        let instance = type3.individuate_as_tao();
+        let instance = type3.individuate_as_form();
 
         assert_eq!(instance.attribute_types(), vec!(type2));
         assert!(!instance.has_attribute_type(type1));

@@ -45,8 +45,8 @@
 //! assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
 //! ```
 
-mod archetype;
-mod archetype_trait;
+/// Types of forms, as opposed to the forms themselves.
+pub mod archetype;
 pub mod attributes;
 /// Concept forms, as opposed to archetypes.
 mod form_trait;
@@ -54,7 +54,7 @@ mod init;
 mod tao;
 
 pub use archetype::Archetype;
-pub use archetype_trait::ArchetypeTrait;
+pub use archetype::ArchetypeTrait;
 pub use form_trait::FormTrait;
 pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
 pub use tao::Tao;
