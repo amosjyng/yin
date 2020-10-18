@@ -81,7 +81,8 @@ impl<'a> ArchetypeFormTrait<'a, Archetype, Tao> for Archetype {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::attributes::{Owner, Value};
+    use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
+    use crate::concepts::attributes::{Attribute, Owner, Value};
     use crate::concepts::initialize_kb;
 
     #[test]
@@ -170,8 +171,11 @@ mod tests {
     fn test_attribute_types() {
         initialize_kb();
         let mut type1 = Tao::individuate_as_archetype();
-        let type2 = Tao::individuate_as_archetype();
-        assert_eq!(type1.introduced_attribute_types(), Vec::<Archetype>::new());
+        let type2 = Attribute::individuate_as_attribute_archetype();
+        assert_eq!(
+            type1.introduced_attribute_types(),
+            Vec::<AttributeArchetype>::new()
+        );
 
         type1.add_attribute_type(type2);
         assert_eq!(type1.introduced_attribute_types(), vec!(type2));
@@ -181,10 +185,13 @@ mod tests {
     fn test_attribute_types_not_inherited() {
         initialize_kb();
         let mut type1 = Tao::individuate_as_archetype();
-        let type2 = Tao::individuate_as_archetype();
+        let type2 = Attribute::individuate_as_attribute_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
 
-        assert_eq!(type3.introduced_attribute_types(), Vec::<Archetype>::new());
+        assert_eq!(
+            type3.introduced_attribute_types(),
+            Vec::<AttributeArchetype>::new()
+        );
     }
 }

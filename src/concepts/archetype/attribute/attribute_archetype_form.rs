@@ -9,12 +9,22 @@ use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 /// Represents an archetype representing attributes.
+///
+/// This can only be used to represent *attribute* archetypes, so unlike `Archetype` which can
+/// represent all archetypes including its own archetype because it's an archetype too,
+/// AttributeArchetype is not an attribute and therefore it cannot be used to represent its own
+/// archetype.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct AttributeArchetype {
     base: FinalNode,
 }
 
 impl AttributeArchetype {
+    /// Forget everything about this, except that it's an ArchetypeForm.
+    pub fn as_archetype(&self) -> Archetype {
+        Archetype::from(*self.essence())
+    }
+
     /// Restrict the owners for this type of attribute.
     pub fn set_owner_archetype(&mut self, owner_archetype: Archetype) {
         self.essence_mut()
@@ -213,9 +223,12 @@ mod tests {
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Attribute::individuate_as_archetype();
-        let type2 = Attribute::individuate_as_archetype();
-        assert_eq!(type1.introduced_attribute_types(), Vec::<Archetype>::new());
+        let mut type1 = Attribute::individuate_as_attribute_archetype();
+        let type2 = Attribute::individuate_as_attribute_archetype();
+        assert_eq!(
+            type1.introduced_attribute_types(),
+            Vec::<AttributeArchetype>::new()
+        );
 
         type1.add_attribute_type(type2);
         assert_eq!(type1.introduced_attribute_types(), vec!(type2));
@@ -224,12 +237,15 @@ mod tests {
     #[test]
     fn test_attribute_types_not_inherited() {
         initialize_kb();
-        let mut type1 = Attribute::individuate_as_archetype();
-        let type2 = Attribute::individuate_as_archetype();
+        let mut type1 = Attribute::individuate_as_attribute_archetype();
+        let type2 = Attribute::individuate_as_attribute_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
 
-        assert_eq!(type3.introduced_attribute_types(), Vec::<Archetype>::new());
+        assert_eq!(
+            type3.introduced_attribute_types(),
+            Vec::<AttributeArchetype>::new()
+        );
     }
 
     #[test]

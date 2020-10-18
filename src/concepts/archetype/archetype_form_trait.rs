@@ -1,4 +1,5 @@
 use super::Archetype;
+use crate::concepts::archetype::attribute::AttributeArchetype;
 use crate::concepts::attributes::{HasAttributeType, Inherits};
 use crate::concepts::{ArchetypeTrait, FormTrait};
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
@@ -9,8 +10,9 @@ use std::collections::{HashSet, VecDeque};
 /// it had form, as if it were actual data. But of course metadata is also data, and if you look
 /// around in the KB, this class definition is no different from any other class definition.
 ///
-///  * `A` type parameter: represents the ArchetypeForm that will reason about the node as an
-///     Archetype
+///  * `A` type parameter: represents the ArchetypeForm that will reason about the node as a
+///     specialized `Archetype`. Should be the same as the `Archetype` that this is currently being
+///     implemented on.
 ///  * `F` type parameter: represents the direct Form that will reason about the node's leaves --
 ///    i.e. the individuals of this node. This will be the most specific FormTrait that is still
 ///    general enough to represent everything of this type.
@@ -23,10 +25,16 @@ use std::collections::{HashSet, VecDeque};
 /// Tests are in the structs that implement this trait.
 pub trait ArchetypeFormTrait<
     'a,
-    A: ArchetypeTrait<'a, A> + From<FinalNode> + FormTrait,
+    A: ArchetypeTrait<'a, A> + FormTrait + From<FinalNode>,
     F: ArchetypeTrait<'a, F> + FormTrait + From<FinalNode>,
->: FormTrait
+>: FormTrait + From<FinalNode> + From<usize>
 {
+    /// Forget everything about the current form, except that it's an ArchetypeForm representing
+    /// some type.
+    fn as_archetype(&self) -> Archetype {
+        Archetype::from(*self.essence())
+    }
+
     /// Create a subtype of the archetype represented by this Archetype instance.
     ///
     /// Convenience function for the static one.
@@ -82,20 +90,20 @@ pub trait ArchetypeFormTrait<
     }
 
     /// Add an attribute type to this archetype.
-    fn add_attribute_type(&mut self, attribute_type: Archetype) {
+    fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
         self.essence_mut()
             .add_outgoing(HasAttributeType::TYPE_ID, attribute_type.essence());
     }
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
     /// descendant archetypes. Attribute types introduced by an ancestor do not count.
-    fn introduced_attribute_types(&self) -> Vec<Archetype> {
+    fn introduced_attribute_types(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .base_wrapper()
             .outgoing_nodes(HasAttributeType::TYPE_ID)
             .into_iter()
             .map(FinalNode::from)
-            .map(Archetype::from)
+            .map(AttributeArchetype::from)
             .collect()
     }
 }

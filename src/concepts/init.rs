@@ -2,14 +2,14 @@ use super::attributes::{
     Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
 use super::{Archetype, ArchetypeTrait, Tao};
-use crate::concepts::archetype::attribute::AttributeArchetypeTrait;
+use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
 use crate::concepts::archetype::ArchetypeFormTrait;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 8;
+pub const YIN_MAX_ID: usize = 9;
 
 /// Add the given Concept type to the KB.
 ///
@@ -57,16 +57,23 @@ pub fn initialize_types() {
             Inherits,
             HasAttributeType,
             OwnerArchetype,
-            ValueArchetype
+            ValueArchetype,
+            AttributeArchetype
         )
     );
 
     let mut attributes = Attribute::attribute_archetype();
-    attributes.add_attribute_type(Owner::archetype());
-    attributes.add_attribute_type(Value::archetype());
-
+    attributes.add_attribute_type(AttributeArchetype::from(Owner::TYPE_ID));
+    attributes.add_attribute_type(AttributeArchetype::from(Value::TYPE_ID));
     attributes.set_owner_archetype(Tao::archetype());
     attributes.set_value_archetype(Tao::archetype());
+
+    // todo: use OwnerArchetype::attribute_archetype once yang generates that
+    // todo: have yang generate init-verification tests for these
+    let mut owner_archetypes = AttributeArchetype::from(OwnerArchetype::TYPE_ID);
+    owner_archetypes.set_owner_archetype(Attribute::archetype());
+    let mut value_archetypes = AttributeArchetype::from(ValueArchetype::TYPE_ID);
+    value_archetypes.set_owner_archetype(Attribute::archetype());
 }
 
 /// Initialize Yin with an in-memory graph database.

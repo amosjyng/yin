@@ -5,7 +5,9 @@ use std::convert::TryFrom;
 /// All formally defined archetypes should be describable by these properties.
 ///
 /// This contains all the statics that FormTrait does not contain.
-pub trait ArchetypeTrait<'a, T: FormTrait>: From<usize> + TryFrom<&'a str> + Ord {
+///
+/// * `F` type parameter: represents the direct Form that will reason about the node's descendants
+pub trait ArchetypeTrait<'a, F: FormTrait>: From<usize> + TryFrom<&'a str> + Ord {
     /// The ID for this archetype.
     const TYPE_ID: usize;
 
@@ -36,19 +38,18 @@ pub trait ArchetypeTrait<'a, T: FormTrait>: From<usize> + TryFrom<&'a str> + Ord
     /// From this countable infinity all forms emerged, dividing the Oneness again and again into
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
-    fn individuate() -> T {
+    fn individuate() -> F {
         Self::individuate_with_parent(Self::TYPE_ID)
     }
 
-    /// Create a subtype of the archetype represented by this Archetype instance (as opposed to an
-    /// instance of this Archetype that `individuate_as_form` would produce).
+    /// Create a subtype of the archetype represented here.
     fn individuate_as_archetype() -> Archetype {
         Archetype::from(Self::individuate_with_parent(Self::TYPE_ID).id())
     }
 
     /// Individuate with a more specific parent than the current one. This custom parent should
     /// inherit from the current type.
-    fn individuate_with_parent(parent_id: usize) -> T;
+    fn individuate_with_parent(parent_id: usize) -> F;
 }
 
 #[cfg(test)]

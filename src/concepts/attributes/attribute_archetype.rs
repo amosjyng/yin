@@ -1,6 +1,6 @@
 use super::{AttributeTrait, Owner, Value};
 use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
-use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
+use crate::concepts::{Archetype, ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
 use std::fmt;
@@ -78,7 +78,10 @@ impl FormTrait for Attribute {
     }
 }
 
-impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute> for Attribute {}
+impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute, Archetype, Tao, Archetype, Tao>
+    for Attribute
+{
+}
 
 impl<'a> AttributeTrait<'a, Attribute> for Attribute {
     fn set_owner(&mut self, owner: &dyn FormTrait) {
@@ -107,6 +110,7 @@ impl<'a> AttributeTrait<'a, Attribute> for Attribute {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::archetype::attribute::AttributeArchetype;
     use crate::concepts::archetype::ArchetypeFormTrait;
     use crate::concepts::initialize_kb;
 
@@ -118,6 +122,28 @@ mod tests {
             Attribute::archetype().internal_name(),
             Some(Rc::new(Attribute::TYPE_NAME.to_string()))
         );
+    }
+
+    #[test]
+    fn check_attributes_specified() {
+        initialize_kb();
+        // todo: use ::attribute() after yang generates that
+        assert_eq!(
+            Attribute::archetype().introduced_attribute_types(),
+            vec![
+                AttributeArchetype::from(Owner::TYPE_ID),
+                AttributeArchetype::from(Value::TYPE_ID)
+            ]
+        );
+        assert_eq!(
+            Attribute::archetype().attribute_archetypes(),
+            vec![
+                AttributeArchetype::from(Owner::TYPE_ID),
+                AttributeArchetype::from(Value::TYPE_ID)
+            ]
+        );
+        assert_eq!(Attribute::owner_archetype(), Tao::archetype());
+        assert_eq!(Attribute::value_archetype(), Tao::archetype());
     }
 
     #[test]
@@ -151,15 +177,6 @@ mod tests {
         let mut concept = Attribute::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
-    }
-
-    #[test]
-    fn check_attribute_types() {
-        initialize_kb();
-        assert_eq!(
-            Attribute::archetype().introduced_attribute_types(),
-            vec!(Owner::archetype(), Value::archetype())
-        );
     }
 
     #[test]
