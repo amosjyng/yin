@@ -1,6 +1,7 @@
 use super::attributes::{HasAttributeType, Inherits};
 use super::Tao;
 use super::{Archetype, ArchetypeTrait};
+use crate::concepts::archetype::attribute::AttributeArchetype;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use std::collections::{HashMap, VecDeque};
 
@@ -121,17 +122,17 @@ pub trait FormTrait: CommonNodeTrait {
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
-    fn attribute_types(&self) -> Vec<Archetype> {
+    fn attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .outgoing_nodes(HasAttributeType::TYPE_ID)
             .into_iter()
-            .map(Archetype::from)
+            .map(AttributeArchetype::from)
             .collect()
     }
 
     /// Checks to see if an archetype is one of the possible attribute types this concept could
     /// have.
-    fn has_attribute_type(&self, possible_type: Archetype) -> bool {
+    fn has_attribute_type(&self, possible_type: AttributeArchetype) -> bool {
         self.essence()
             .has_outgoing(HasAttributeType::TYPE_ID, possible_type.essence())
     }
@@ -140,6 +141,8 @@ pub trait FormTrait: CommonNodeTrait {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::archetype::attribute::AttributeArchetypeTrait;
+    use crate::concepts::archetype::ArchetypeFormTrait;
     use crate::concepts::attributes::{Attribute, Owner, Value};
     use crate::concepts::initialize_kb;
 
@@ -217,12 +220,19 @@ mod tests {
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
-        let type2 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Attribute::individuate_as_attribute_archetype();
+        let type2 = Attribute::individuate_as_attribute_archetype();
         type1.add_attribute_type(type2);
-        let instance = type1.individuate_as_tao();
+        let instance = type1.individuate_as_form();
 
-        assert_eq!(instance.attribute_types(), vec!(type2));
+        assert_eq!(
+            instance.attribute_archetypes(),
+            vec![
+                AttributeArchetype::from(Owner::TYPE_ID),
+                AttributeArchetype::from(Value::TYPE_ID),
+                type2
+            ]
+        );
         assert!(!instance.has_attribute_type(type1));
         assert!(instance.has_attribute_type(type2));
     }
@@ -230,13 +240,20 @@ mod tests {
     #[test]
     fn test_attribute_types_inherited() {
         initialize_kb();
-        let mut type1 = Tao::archetype().individuate_as_archetype();
-        let type2 = Tao::archetype().individuate_as_archetype();
+        let mut type1 = Attribute::individuate_as_attribute_archetype();
+        let type2 = Attribute::individuate_as_attribute_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
-        let instance = type3.individuate_as_tao();
+        let instance = type3.individuate_as_form();
 
-        assert_eq!(instance.attribute_types(), vec!(type2));
+        assert_eq!(
+            instance.attribute_archetypes(),
+            vec![
+                AttributeArchetype::from(Owner::TYPE_ID),
+                AttributeArchetype::from(Value::TYPE_ID),
+                type2
+            ]
+        );
         assert!(!instance.has_attribute_type(type1));
         assert!(instance.has_attribute_type(type2));
     }

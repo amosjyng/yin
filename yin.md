@@ -12,7 +12,16 @@ Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of
 
 ### Attributes
 
-All right ZAMM, your baby feeding schedule says it's time to input some basic information into your system. Yin contains within herself many concepts, which you will be fed one at a time. Linking the concepts are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
+All right ZAMM, your baby feeding schedule says it's time to input some basic information into your system. Yin contains within herself many concepts, which you will be fed one at a time. In order to reason with things, we must first give them form:
+
+```yaml
+- name: Form
+  parent: Tao
+```
+
+Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
+
+Linking the forms are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
 
 ```yaml
 - name: Owner
@@ -20,8 +29,6 @@ All right ZAMM, your baby feeding schedule says it's time to input some basic in
 - name: Value
   parent: Attribute
 ```
-
-Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
 
 Now, we've been talking about the parents of archetypes. Each child archetype *inherits* all properties of its archetypal parent. Let's define this relation:
 
@@ -41,9 +48,31 @@ We've said that all concepts have parents, and that attribute concepts in partic
   parent: Attribute
 ```
 
+Each attribute has restrictions on its owners and values:
+
+```yaml
+- name: OwnerArchetype
+  parent: Attribute
+- name: ValueArchetype
+  parent: Attribute
+```
+
+
+
 ### Implementation
 
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
+
+```yaml
+- parent: Implement
+  target: Form
+  output_id: 10
+  documentation: |-
+```
+
+> All things that can be interacted with have form.
+
+Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```yaml
 - parent: Implement
@@ -53,8 +82,6 @@ Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/ma
 ```
 
 > The owner/source/from-node of an attribute.
-
-Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```yaml
 - parent: Implement
@@ -84,3 +111,21 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 > Describes instances of an archetype as having certain types of attributes.
 >
 > For example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in.
+
+```yaml
+- parent: Implement
+  target: OwnerArchetype
+  output_id: 7
+  documentation: |-
+```
+
+> The type of owner this attribute has. Only the most restrictive inherited value will be used.
+
+```yaml
+- parent: Implement
+  target: ValueArchetype
+  output_id: 8
+  documentation: |-
+```
+
+> The type of value this attribute has. Only the most restrictive inherited value will be used.

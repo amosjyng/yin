@@ -1,36 +1,11 @@
-//! Contains all attribute archetypes.
-
-mod has_attribute_type;
-mod inherits;
-mod owner;
-mod value;
-
-pub use has_attribute_type::HasAttributeType;
-pub use inherits::Inherits;
-pub use owner::Owner;
-pub use value::Value;
-
+use super::{AttributeTrait, Owner, Value};
+use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
 use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
 use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
-
-/// Interface for all attributes.
-pub trait AttributeTrait<'a, T>: ArchetypeTrait<'a, T> {
-    /// Set the owner for this attribute.
-    fn set_owner(&mut self, owner: &dyn FormTrait);
-
-    /// The owner of an attribute, if it exists.
-    fn owner(&self) -> Option<Tao>;
-
-    /// Set the value for this attribute.
-    fn set_value(&mut self, value: &dyn FormTrait);
-
-    /// The value of an attribute, if it exists.
-    fn value(&self) -> Option<Tao>;
-}
 
 /// Represents either a unary or binary relation.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -50,6 +25,12 @@ impl From<usize> for Attribute {
         Self {
             base: FinalNode::from(id),
         }
+    }
+}
+
+impl From<FinalNode> for Attribute {
+    fn from(f: FinalNode) -> Self {
+        Self { base: f }
     }
 }
 
@@ -97,6 +78,8 @@ impl FormTrait for Attribute {
     }
 }
 
+impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute> for Attribute {}
+
 impl<'a> AttributeTrait<'a, Attribute> for Attribute {
     fn set_owner(&mut self, owner: &dyn FormTrait) {
         self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
@@ -124,6 +107,8 @@ impl<'a> AttributeTrait<'a, Attribute> for Attribute {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::concepts::archetype::attribute::AttributeArchetype;
+    use crate::concepts::archetype::ArchetypeFormTrait;
     use crate::concepts::initialize_kb;
 
     #[test]
@@ -133,6 +118,34 @@ mod tests {
         assert_eq!(
             Attribute::archetype().internal_name(),
             Some(Rc::new(Attribute::TYPE_NAME.to_string()))
+        );
+    }
+
+    #[test]
+    fn check_attributes_specified() {
+        initialize_kb();
+        // todo: use ::attribute() after yang generates that
+        assert_eq!(
+            Attribute::archetype().introduced_attribute_types(),
+            vec![
+                AttributeArchetype::from(Owner::TYPE_ID),
+                AttributeArchetype::from(Value::TYPE_ID)
+            ]
+        );
+        assert_eq!(
+            Attribute::archetype().attribute_archetypes(),
+            vec![
+                AttributeArchetype::from(Owner::TYPE_ID),
+                AttributeArchetype::from(Value::TYPE_ID)
+            ]
+        );
+        assert_eq!(
+            Attribute::attribute_archetype().owner_archetype(),
+            Tao::archetype()
+        );
+        assert_eq!(
+            Attribute::attribute_archetype().value_archetype(),
+            Tao::archetype()
         );
     }
 
@@ -167,15 +180,6 @@ mod tests {
         let mut concept = Attribute::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
-    }
-
-    #[test]
-    fn check_attribute_types() {
-        initialize_kb();
-        assert_eq!(
-            Attribute::archetype().introduced_attribute_types(),
-            vec!(Owner::archetype(), Value::archetype())
-        );
     }
 
     #[test]
