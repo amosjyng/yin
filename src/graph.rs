@@ -97,7 +97,7 @@
 //! assert_eq!(g.outgoing_nodes(c_id, edge_type2), vec![a_id]);
 //! ```
 //!
-//! We can also use the KB to invoke certain functionality. Note that we are passing in a `Tao`
+//! We can also use the KB to invoke certain functionality. Note that we are passing in a `Form`
 //! concept to the callback function because that's the only supported function at this moment.
 //!
 //! ```rust
@@ -106,7 +106,8 @@
 //! # use std::rc::Rc;
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
-//! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
+//! use zamm_yin::tao::archetype::ArchetypeTrait;
+//! use zamm_yin::tao::{Form, FormTrait};
 //! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};
 //! use zamm_yin::{define_closure, run_closure};
 //! use zamm_yin::node_wrappers::BaseNodeTrait;
@@ -118,11 +119,11 @@
 //! g.set_node_value(count_id, Rc::new(WeakValue::new(&count_value)));
 //!
 //! let mut triple_id = g.add_node();
-//! g.set_node_value(triple_id, define_closure!(|t: Tao| {
+//! g.set_node_value(triple_id, define_closure!(|t: Form| {
 //!     Box::new(*unwrap_weak::<i64>(t.essence().value()).unwrap() * 3)
 //! }));
 //! assert_eq!(
-//!     run_closure!(&g.node_value(triple_id), Tao::from(count_id), i64),
+//!     run_closure!(&g.node_value(triple_id), Form::from(count_id), i64),
 //!     Some(Box::new(15))
 //! );
 //! ```

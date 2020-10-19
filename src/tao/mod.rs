@@ -15,7 +15,7 @@
 //! implementations should be logically equivalent. Let's use the in-memory one for simplicity:
 //!
 //! ```rust
-//! use zamm_yin::concepts::initialize_kb;
+//! use zamm_yin::tao::initialize_kb;
 //!
 //! initialize_kb();
 //! ```
@@ -23,21 +23,22 @@
 //! Now, we can create a new concept:
 //!
 //! ```rust
-//! # use zamm_yin::concepts::initialize_kb;
+//! # use zamm_yin::tao::initialize_kb;
 //! # initialize_kb();
-//! use zamm_yin::concepts::{Tao, ArchetypeTrait, FormTrait};
+//! use zamm_yin::tao::archetype::ArchetypeTrait;
+//! use zamm_yin::tao::{Form, FormTrait};
 //!
-//! let mut concept = Tao::individuate();
-//! assert!(concept.has_ancestor(Tao::archetype()));
+//! let mut concept = Form::individuate();
+//! assert!(concept.has_ancestor(Form::archetype()));
 //! ```
 //!
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
-//! # use zamm_yin::concepts::{Tao, ArchetypeTrait};
-//! # use zamm_yin::concepts::initialize_kb;
+//! # use zamm_yin::tao::archetype::ArchetypeTrait;
+//! # use zamm_yin::tao::{initialize_kb, Form};
 //! # initialize_kb();
-//! # let mut concept = Tao::individuate();
+//! # let mut concept = Form::individuate();
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
@@ -48,15 +49,14 @@
 /// Types of forms, as opposed to the forms themselves.
 pub mod archetype;
 /// Relations between the forms.
-pub mod attributes;
+pub mod attribute;
 /// Concept forms, as opposed to archetypes.
-mod form;
+mod form_form;
 mod form_trait;
 mod init;
-mod tao;
+mod tao_form;
 
-pub use archetype::{Archetype, ArchetypeTrait};
-pub use form::Form;
+pub use form_form::Form;
 pub use form_trait::FormTrait;
 pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
-pub use tao::Tao;
+pub use tao_form::Tao;

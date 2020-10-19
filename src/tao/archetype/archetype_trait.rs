@@ -1,12 +1,19 @@
-use super::Archetype;
-use crate::concepts::FormTrait;
+use crate::node_wrappers::FinalNode;
+use crate::tao::archetype::IsArchetype;
+use crate::tao::FormTrait;
 use std::convert::TryFrom;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
 /// through the archetype will return a more generic result than might be desired).
-///
-/// * `F` type parameter: represents the direct Form that will reason about the node's descendants
-pub trait ArchetypeTrait<'a, F: FormTrait>: From<usize> + TryFrom<&'a str> + Ord {
+pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> + Ord {
+    /// The Form that will be used to reason about this node and its children as archetypes and
+    /// subtypes.
+    type ArchetypeForm: ArchetypeTrait<'a> + FormTrait + IsArchetype;
+    /// The Form that will be used to reason about this node's leaves as individuals. Unless you
+    /// are the Tao, this should be the same as the type that `ArchetypeTrait` is being implemented
+    /// on.
+    type Form: ArchetypeTrait<'a> + FormTrait;
+
     /// The ID for this archetype.
     const TYPE_ID: usize;
 
@@ -19,8 +26,8 @@ pub trait ArchetypeTrait<'a, F: FormTrait>: From<usize> + TryFrom<&'a str> + Ord
     const PARENT_TYPE_ID: usize;
 
     /// The incarnation of this archetype as a form.
-    fn archetype() -> Archetype {
-        Archetype::from(Self::TYPE_ID)
+    fn archetype() -> Self::ArchetypeForm {
+        Self::ArchetypeForm::from(Self::TYPE_ID)
     }
 
     /// In the beginning was the Oneness, and the Oneness was nothingness.
@@ -37,25 +44,16 @@ pub trait ArchetypeTrait<'a, F: FormTrait>: From<usize> + TryFrom<&'a str> + Ord
     /// From this countable infinity all forms emerged, dividing the Oneness again and again into
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
-    fn individuate() -> F {
-        Self::individuate_with_parent(Self::TYPE_ID)
+    fn individuate() -> Self::Form {
+        Self::Form::from(FinalNode::new_with_inheritance(Self::TYPE_ID))
     }
-
-    /// Create a subtype of the archetype represented here.
-    fn individuate_as_archetype() -> Archetype {
-        Archetype::from(Self::individuate_with_parent(Self::TYPE_ID).id())
-    }
-
-    /// Individuate with a more specific parent than the current one. This custom parent should
-    /// inherit from the current type.
-    fn individuate_with_parent(parent_id: usize) -> F;
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::attributes::{AttributeTrait, Owner};
-    use crate::concepts::{initialize_kb, FormTrait};
+    use crate::tao::attribute::{AttributeTrait, Owner};
+    use crate::tao::{initialize_kb, FormTrait};
 
     #[test]
     fn test_new_node_inheritance() {
@@ -64,7 +62,7 @@ mod tests {
         assert_eq!(owner.owner(), None);
 
         let attr = Owner::individuate();
-        Owner::from(Owner::TYPE_ID).set_owner(&attr);
-        assert_eq!(owner.owner(), Some(attr.ego_death()));
+        Owner::from(Owner::TYPE_ID).set_owner(&attr.as_form());
+        assert_eq!(owner.owner(), Some(attr.as_form()));
     }
 }

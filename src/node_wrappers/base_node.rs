@@ -168,8 +168,8 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::initialize_kb;
     use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
+    use crate::tao::initialize_kb;
 
     #[test]
     fn create_and_retrieve_node_id() {

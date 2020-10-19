@@ -1,7 +1,7 @@
-use super::{AttributeTrait, Owner, Value};
-use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
-use crate::concepts::{ArchetypeTrait, FormTrait, Tao};
-use crate::node_wrappers::{debug_wrapper, BaseNodeTrait, CommonNodeTrait, FinalNode};
+use super::AttributeTrait;
+use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
+use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
+use crate::tao::{Form, FormTrait, Tao};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -56,16 +56,13 @@ impl CommonNodeTrait for Attribute {
     }
 }
 
-impl<'a> ArchetypeTrait<'a, Attribute> for Attribute {
-    const TYPE_ID: usize = 2;
-    const TYPE_NAME: &'static str = "Attribute";
-    const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
+impl<'a> ArchetypeTrait<'a> for Attribute {
+    type ArchetypeForm = AttributeArchetype;
+    type Form = Attribute;
 
-    fn individuate_with_parent(parent_id: usize) -> Self {
-        Self {
-            base: FinalNode::new_with_inheritance(parent_id),
-        }
-    }
+    const TYPE_ID: usize = 2;
+    const TYPE_NAME: &'static str = "attribute";
+    const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
 }
 
 impl FormTrait for Attribute {
@@ -78,38 +75,17 @@ impl FormTrait for Attribute {
     }
 }
 
-impl<'a> AttributeArchetypeTrait<'a, AttributeArchetype, Attribute> for Attribute {}
-
-impl<'a> AttributeTrait<'a, Attribute> for Attribute {
-    fn set_owner(&mut self, owner: &dyn FormTrait) {
-        self.base.add_outgoing(Owner::TYPE_ID, owner.essence());
-    }
-
-    fn owner(&self) -> Option<Tao> {
-        self.base
-            .outgoing_nodes(Owner::TYPE_ID)
-            .get(0)
-            .map(|n| Tao::from(*n))
-    }
-
-    fn set_value(&mut self, value: &dyn FormTrait) {
-        self.base.add_outgoing(Value::TYPE_ID, value.essence());
-    }
-
-    fn value(&self) -> Option<Tao> {
-        self.base
-            .outgoing_nodes(Value::TYPE_ID)
-            .get(0)
-            .map(|n| Tao::from(*n))
-    }
+impl AttributeTrait for Attribute {
+    type OwnerForm = Form;
+    type ValueForm = Form;
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::archetype::attribute::AttributeArchetype;
-    use crate::concepts::archetype::ArchetypeFormTrait;
-    use crate::concepts::initialize_kb;
+    use crate::tao::archetype::ArchetypeFormTrait;
+    use crate::tao::attribute::{Owner, Value};
+    use crate::tao::initialize_kb;
 
     #[test]
     fn check_type_created() {
@@ -124,29 +100,16 @@ mod tests {
     #[test]
     fn check_attributes_specified() {
         initialize_kb();
-        // todo: use ::attribute() after yang generates that
         assert_eq!(
-            Attribute::archetype().introduced_attribute_types(),
-            vec![
-                AttributeArchetype::from(Owner::TYPE_ID),
-                AttributeArchetype::from(Value::TYPE_ID)
-            ]
+            Attribute::archetype().introduced_attribute_archetypes(),
+            vec![Owner::archetype(), Value::archetype()]
         );
         assert_eq!(
             Attribute::archetype().attribute_archetypes(),
-            vec![
-                AttributeArchetype::from(Owner::TYPE_ID),
-                AttributeArchetype::from(Value::TYPE_ID)
-            ]
+            vec![Owner::archetype(), Value::archetype()]
         );
-        assert_eq!(
-            Attribute::attribute_archetype().owner_archetype(),
-            Tao::archetype()
-        );
-        assert_eq!(
-            Attribute::attribute_archetype().value_archetype(),
-            Tao::archetype()
-        );
+        assert_eq!(Attribute::archetype().owner_archetype(), Tao::archetype());
+        assert_eq!(Attribute::archetype().value_archetype(), Tao::archetype());
     }
 
     #[test]
@@ -187,8 +150,8 @@ mod tests {
         initialize_kb();
         let mut attr_instance = Attribute::individuate();
         let owner_of_attr = Attribute::individuate();
-        attr_instance.set_owner(&owner_of_attr);
-        assert_eq!(attr_instance.owner(), Some(owner_of_attr.ego_death()));
+        attr_instance.set_owner(&owner_of_attr.as_form());
+        assert_eq!(attr_instance.owner(), Some(owner_of_attr.as_form()));
         assert_eq!(attr_instance.value(), None);
     }
 
@@ -197,8 +160,8 @@ mod tests {
         initialize_kb();
         let mut attr_instance = Attribute::individuate();
         let value_of_attr = Attribute::individuate();
-        attr_instance.set_value(&value_of_attr);
+        attr_instance.set_value(&value_of_attr.as_form());
         assert_eq!(attr_instance.owner(), None);
-        assert_eq!(attr_instance.value(), Some(value_of_attr.ego_death()));
+        assert_eq!(attr_instance.value(), Some(value_of_attr.as_form()));
     }
 }

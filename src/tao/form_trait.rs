@@ -1,8 +1,7 @@
-use super::attributes::{HasAttributeType, Inherits};
-use super::Tao;
-use super::{Archetype, ArchetypeTrait};
-use crate::concepts::archetype::attribute::AttributeArchetype;
+use super::attribute::{HasAttributeType, Inherits};
+use super::{Form, Tao};
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
+use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
 use std::collections::{HashMap, VecDeque};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
@@ -60,6 +59,11 @@ pub trait FormTrait: CommonNodeTrait {
         Tao::from(*self.essence())
     }
 
+    /// A less severe form of ego-death, where you still remember that you exist.
+    fn as_form(&self) -> Form {
+        Form::from(*self.essence())
+    }
+
     /// Set a parent archetype. The current archetype will inherit all attributes of the parent
     /// archetype.
     fn add_parent(&mut self, parent: Archetype) {
@@ -78,13 +82,13 @@ pub trait FormTrait: CommonNodeTrait {
 
     /// Get the shortest chain of ancestors that leads back to Tao, starting with Tao itself.
     fn ancestry(&self) -> Vec<Archetype> {
-        let mut to_be_visited = VecDeque::<Tao>::new();
-        let mut backpointers = HashMap::<Tao, Tao>::new();
-        to_be_visited.push_back(self.ego_death());
+        let mut to_be_visited = VecDeque::<Form>::new();
+        let mut backpointers = HashMap::<Form, Form>::new();
+        to_be_visited.push_back(self.as_form());
 
         while let Some(next_node) = to_be_visited.pop_front() {
             for parent in next_node.parents() {
-                let parent_tao = parent.ego_death();
+                let parent_tao = parent.as_form();
                 #[allow(clippy::map_entry)]
                 if !backpointers.contains_key(&parent_tao) {
                     backpointers.insert(parent_tao, next_node);
@@ -97,8 +101,8 @@ pub trait FormTrait: CommonNodeTrait {
         }
 
         let mut ancestry = Vec::new();
-        let mut next_node = Tao::archetype().ego_death();
-        let selfless_ego = self.ego_death();
+        let mut next_node = Tao::archetype().as_form();
+        let selfless_ego = self.as_form();
         while next_node != selfless_ego {
             ancestry.push(Archetype::from(*next_node.essence()));
             next_node = *backpointers.get(&next_node).unwrap();
@@ -141,26 +145,28 @@ pub trait FormTrait: CommonNodeTrait {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::archetype::attribute::AttributeArchetypeTrait;
-    use crate::concepts::archetype::ArchetypeFormTrait;
-    use crate::concepts::attributes::{Attribute, Owner, Value};
-    use crate::concepts::initialize_kb;
+    use crate::tao::archetype::{Archetype, ArchetypeFormTrait};
+    use crate::tao::attribute::{Attribute, Owner, Value};
+    use crate::tao::initialize_kb;
 
     #[test]
     fn test_parents() {
         initialize_kb();
         let owner = Owner::individuate();
-        assert_eq!(owner.parents(), vec![Owner::archetype()]);
+        assert_eq!(owner.parents(), vec![Owner::archetype().as_archetype()]);
     }
 
     #[test]
     fn test_multiple_parents() {
         initialize_kb();
         let mut owner = Owner::individuate();
-        owner.add_parent(Value::archetype()); // nonsensical, but okay for tests
+        owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
         assert_eq!(
             owner.parents(),
-            vec![Owner::archetype(), Value::archetype()]
+            vec![
+                Owner::archetype().as_archetype(),
+                Value::archetype().as_archetype()
+            ]
         );
     }
 
@@ -169,7 +175,7 @@ mod tests {
         initialize_kb();
         assert_eq!(
             Owner::archetype().ancestry(),
-            vec![Tao::archetype(), Attribute::archetype()]
+            vec![Tao::archetype(), Attribute::archetype().as_archetype()]
         );
     }
 
@@ -179,7 +185,11 @@ mod tests {
         let owner = Owner::individuate();
         assert_eq!(
             owner.ancestry(),
-            vec![Tao::archetype(), Attribute::archetype(), Owner::archetype()]
+            vec![
+                Tao::archetype(),
+                Attribute::archetype().as_archetype(),
+                Owner::archetype().as_archetype()
+            ]
         );
     }
 
@@ -193,45 +203,41 @@ mod tests {
     fn test_parenthood() {
         initialize_kb();
         let owner = Owner::individuate();
-        assert!(owner.has_parent(Owner::archetype()));
+        assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
-        assert!(!owner.has_parent(Value::archetype()));
+        assert!(!owner.has_parent(Value::archetype().as_archetype()));
     }
 
     #[test]
     fn test_multiple_parenthood() {
         initialize_kb();
         let mut owner = Owner::individuate();
-        owner.add_parent(Value::archetype()); // nonsensical, but okay for tests
-        assert!(owner.has_parent(Owner::archetype()));
+        owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
+        assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
-        assert!(owner.has_parent(Value::archetype()));
+        assert!(owner.has_parent(Value::archetype().as_archetype()));
     }
 
     #[test]
     fn test_has_ancestor() {
         initialize_kb();
         let owner = Owner::individuate();
-        assert!(owner.has_ancestor(Owner::archetype()));
+        assert!(owner.has_ancestor(Owner::archetype().as_archetype()));
         assert!(owner.has_ancestor(Tao::archetype()));
-        assert!(!owner.has_ancestor(Value::archetype()));
+        assert!(!owner.has_ancestor(Value::archetype().as_archetype()));
     }
 
     #[test]
     fn test_attribute_types() {
         initialize_kb();
-        let mut type1 = Attribute::individuate_as_attribute_archetype();
-        let type2 = Attribute::individuate_as_attribute_archetype();
+        let mut type1 = Attribute::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
         type1.add_attribute_type(type2);
         let instance = type1.individuate_as_form();
 
         assert_eq!(
             instance.attribute_archetypes(),
-            vec![
-                AttributeArchetype::from(Owner::TYPE_ID),
-                AttributeArchetype::from(Value::TYPE_ID),
-                type2
-            ]
+            vec![Owner::archetype(), Value::archetype(), type2]
         );
         assert!(!instance.has_attribute_type(type1));
         assert!(instance.has_attribute_type(type2));
@@ -240,19 +246,15 @@ mod tests {
     #[test]
     fn test_attribute_types_inherited() {
         initialize_kb();
-        let mut type1 = Attribute::individuate_as_attribute_archetype();
-        let type2 = Attribute::individuate_as_attribute_archetype();
+        let mut type1 = Attribute::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
         type1.add_attribute_type(type2);
         let instance = type3.individuate_as_form();
 
         assert_eq!(
             instance.attribute_archetypes(),
-            vec![
-                AttributeArchetype::from(Owner::TYPE_ID),
-                AttributeArchetype::from(Value::TYPE_ID),
-                type2
-            ]
+            vec![Owner::archetype(), Value::archetype(), type2]
         );
         assert!(!instance.has_attribute_type(type1));
         assert!(instance.has_attribute_type(type2));

@@ -1,8 +1,10 @@
-use crate::concepts::archetype::{Archetype, ArchetypeFormTrait};
-use crate::concepts::attributes::{Attribute, OwnerArchetype, ValueArchetype};
-use crate::concepts::{ArchetypeTrait, FormTrait};
+use super::ArchetypeFormTrait;
+use super::IsArchetype;
 use crate::node_wrappers::BaseNodeTrait;
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
+use crate::tao::archetype::{Archetype, ArchetypeTrait};
+use crate::tao::attribute::{Attribute, OwnerArchetype, ValueArchetype};
+use crate::tao::FormTrait;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -10,10 +12,16 @@ use std::rc::Rc;
 
 /// Archetype representing attributes.
 ///
-/// This can only be used to represent *attribute* archetypes, so unlike `Archetype` which can
-/// represent all archetypes including its own archetype because it's an archetype too,
-/// AttributeArchetype is not an attribute and therefore it cannot be used to represent its own
-/// archetype.
+/// This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can
+/// represent all archetypes, including its own archetype, because it's an archetype too),
+/// `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`,
+/// and cannot be used to represent its own archetype.
+///
+/// Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and FormTrait` into
+/// one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and
+/// `AttributeTrait`. This is partially because of the above reason, and partially because
+/// there is no `AttributeArchetypeTrait` because all added archetype functionality is contained
+/// entirely within `AttributeArchetype` itself.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct AttributeArchetype {
     base: FinalNode,
@@ -106,16 +114,13 @@ impl CommonNodeTrait for AttributeArchetype {
     }
 }
 
-impl<'a> ArchetypeTrait<'a, AttributeArchetype> for AttributeArchetype {
-    const TYPE_ID: usize = 9;
-    const TYPE_NAME: &'static str = "AttributeArchetype";
-    const PARENT_TYPE_ID: usize = Archetype::TYPE_ID;
+impl<'a> ArchetypeTrait<'a> for AttributeArchetype {
+    type ArchetypeForm = Archetype;
+    type Form = AttributeArchetype;
 
-    fn individuate_with_parent(parent_id: usize) -> Self {
-        Self {
-            base: FinalNode::new_with_inheritance(parent_id),
-        }
-    }
+    const TYPE_ID: usize = 9;
+    const TYPE_NAME: &'static str = "attribute-archetype";
+    const PARENT_TYPE_ID: usize = Archetype::TYPE_ID;
 }
 
 impl FormTrait for AttributeArchetype {
@@ -128,14 +133,17 @@ impl FormTrait for AttributeArchetype {
     }
 }
 
-impl<'a> ArchetypeFormTrait<'a, AttributeArchetype, Attribute> for AttributeArchetype {}
+impl IsArchetype for AttributeArchetype {}
+
+impl<'a> ArchetypeFormTrait<'a> for AttributeArchetype {
+    type SubjectForm = Attribute;
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::concepts::archetype::attribute::attribute_archetype_trait::AttributeArchetypeTrait;
-    use crate::concepts::attributes::{Owner, Value};
-    use crate::concepts::{initialize_kb, Tao};
+    use crate::tao::archetype::ArchetypeTrait;
+    use crate::tao::{initialize_kb, Tao};
 
     #[test]
     fn check_type_created() {
@@ -181,94 +189,32 @@ mod tests {
     }
 
     #[test]
-    fn test_individuation() {
-        initialize_kb();
-        let type1 = Owner::individuate_as_archetype();
-        let type1_instance = type1.individuate_as_form();
-        assert!(type1.has_ancestor(Owner::archetype()));
-        assert!(!type1.has_ancestor(Value::archetype()));
-        assert!(type1_instance.has_ancestor(type1));
-        assert!(type1_instance.has_ancestor(Owner::archetype()));
-        assert!(!type1_instance.has_ancestor(Value::archetype()));
-    }
-
-    #[test]
-    fn test_individuals() {
-        initialize_kb();
-        let type1 = Attribute::individuate_as_archetype();
-        let type2 = type1.individuate_as_archetype();
-        let type1_instance = type1.individuate_as_form();
-        let type2_instance = type2.individuate_as_form();
-        assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
-        assert_eq!(type2.individuals(), vec![type2_instance]);
-    }
-
-    #[test]
-    fn test_individuals_not_self() {
-        initialize_kb();
-        let childless_type =
-            AttributeArchetype::from(*Attribute::individuate_as_archetype().essence());
-        assert_eq!(childless_type.individuals(), Vec::<Attribute>::new())
-    }
-
-    #[test]
-    fn test_child_archetypes() {
-        initialize_kb();
-        let type1 = Attribute::individuate_as_archetype();
-        let type2 = type1.individuate_as_archetype();
-        let type3 = type1.individuate_as_archetype();
-        assert_eq!(type1.child_archetypes(), vec![type2, type3]);
-    }
-
-    #[test]
-    fn test_attribute_types() {
-        initialize_kb();
-        let mut type1 = Attribute::individuate_as_attribute_archetype();
-        let type2 = Attribute::individuate_as_attribute_archetype();
-        assert_eq!(
-            type1.introduced_attribute_types(),
-            Vec::<AttributeArchetype>::new()
-        );
-
-        type1.add_attribute_type(type2);
-        assert_eq!(type1.introduced_attribute_types(), vec!(type2));
-    }
-
-    #[test]
-    fn test_attribute_types_not_inherited() {
-        initialize_kb();
-        let mut type1 = Attribute::individuate_as_attribute_archetype();
-        let type2 = Attribute::individuate_as_attribute_archetype();
-        let type3 = type1.individuate_as_archetype();
-        type1.add_attribute_type(type2);
-
-        assert_eq!(
-            type3.introduced_attribute_types(),
-            Vec::<AttributeArchetype>::new()
-        );
-    }
-
-    #[test]
     fn test_overriding_owner_archetype() {
         initialize_kb();
-        let mut attr_type1 = Attribute::individuate_as_attribute_archetype();
-        let attr_type2 = AttributeArchetype::from(attr_type1.individuate_as_archetype().id());
+        let mut attr_type1 = Attribute::archetype().individuate_as_archetype();
+        let attr_type2 = attr_type1.individuate_as_archetype();
         assert_eq!(attr_type2.owner_archetype(), Tao::archetype());
 
         // owners should now be restricted to Attributes as opposed to Tao
-        attr_type1.set_owner_archetype(Attribute::archetype());
-        assert_eq!(attr_type2.owner_archetype(), Attribute::archetype());
+        attr_type1.set_owner_archetype(Attribute::archetype().as_archetype());
+        assert_eq!(
+            attr_type2.owner_archetype(),
+            Attribute::archetype().as_archetype()
+        );
     }
 
     #[test]
     fn test_overriding_value_archetype() {
         initialize_kb();
-        let mut attr_type1 = Attribute::individuate_as_attribute_archetype();
-        let attr_type2 = AttributeArchetype::from(attr_type1.individuate_as_archetype().id());
+        let mut attr_type1 = Attribute::archetype().individuate_as_archetype();
+        let attr_type2 = attr_type1.individuate_as_archetype();
         assert_eq!(attr_type2.value_archetype(), Tao::archetype());
 
         // values should now be restricted to Attributes as opposed to Tao
-        attr_type1.set_value_archetype(Attribute::archetype());
-        assert_eq!(attr_type2.value_archetype(), Attribute::archetype());
+        attr_type1.set_value_archetype(Attribute::archetype().as_archetype());
+        assert_eq!(
+            attr_type2.value_archetype(),
+            Attribute::archetype().as_archetype()
+        );
     }
 }

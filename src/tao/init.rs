@@ -1,11 +1,12 @@
-use super::attributes::{
+use super::attribute::{
     Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
-use super::{Archetype, ArchetypeTrait, Form, Tao};
-use crate::concepts::archetype::attribute::{AttributeArchetype, AttributeArchetypeTrait};
-use crate::concepts::archetype::ArchetypeFormTrait;
+use super::{Form, Tao};
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
+use crate::tao::archetype::ArchetypeFormTrait;
+use crate::tao::archetype::AttributeArchetype;
+use crate::tao::archetype::{Archetype, ArchetypeTrait};
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
@@ -19,12 +20,12 @@ pub const YIN_MAX_ID: usize = 10;
 /// KB is initialized.
 ///
 /// ```rust
-/// # use zamm_yin::concepts::initialize_kb;
+/// # use zamm_yin::tao::initialize_kb;
 /// # initialize_kb();
 /// use zamm_yin::initialize_type;
-/// use zamm_yin::concepts::ArchetypeTrait;
-/// use zamm_yin::concepts::attributes::Inherits;
-/// use zamm_yin::concepts::{Archetype, Tao}; // import your own types instead
+/// use zamm_yin::tao::archetype::{Archetype, ArchetypeTrait};
+/// use zamm_yin::tao::attribute::Inherits;
+/// use zamm_yin::tao::Tao; // import your own types instead
 /// use zamm_yin::graph::{Graph, InjectionGraph};
 ///
 /// let mut ig = InjectionGraph::new();
@@ -63,18 +64,17 @@ pub fn initialize_types() {
         )
     );
 
-    let mut attributes = Attribute::attribute_archetype();
-    attributes.add_attribute_type(AttributeArchetype::from(Owner::TYPE_ID));
-    attributes.add_attribute_type(AttributeArchetype::from(Value::TYPE_ID));
+    let mut attributes = Attribute::archetype();
+    attributes.add_attribute_type(Owner::archetype());
+    attributes.add_attribute_type(Value::archetype());
+    // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
     attributes.set_owner_archetype(Tao::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    // todo: use OwnerArchetype::attribute_archetype once yang generates that
-    // todo: have yang generate init-verification tests for these
-    let mut owner_archetypes = AttributeArchetype::from(OwnerArchetype::TYPE_ID);
-    owner_archetypes.set_owner_archetype(Attribute::archetype());
-    let mut value_archetypes = AttributeArchetype::from(ValueArchetype::TYPE_ID);
-    value_archetypes.set_owner_archetype(Attribute::archetype());
+    HasAttributeType::archetype().set_value_archetype(Attribute::archetype().as_archetype());
+
+    OwnerArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
+    ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
 }
 
 /// Initialize Yin with an in-memory graph database.
@@ -104,6 +104,6 @@ mod tests {
     fn test_yin_size() {
         initialize_kb();
         let g = InjectionGraph::new();
-        assert_eq!(g.size(), crate::concepts::YIN_MAX_ID + 1); // node IDs are zero-indexed
+        assert_eq!(g.size(), crate::tao::YIN_MAX_ID + 1); // node IDs are zero-indexed
     }
 }
