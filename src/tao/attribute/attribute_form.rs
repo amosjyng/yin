@@ -100,7 +100,6 @@ mod tests {
     #[test]
     fn check_attributes_specified() {
         initialize_kb();
-        // todo: use ::attribute() after yang generates that
         assert_eq!(
             Attribute::archetype().introduced_attribute_types(),
             vec![
