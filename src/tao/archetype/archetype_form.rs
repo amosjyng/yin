@@ -84,8 +84,7 @@ impl<'a> ArchetypeFormTrait<'a> for Archetype {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
-    use crate::tao::attribute::{Attribute, Owner, Value};
+    use crate::tao::archetype::ArchetypeTrait;
     use crate::tao::initialize_kb;
 
     #[test]
@@ -129,72 +128,5 @@ mod tests {
         let mut concept = Archetype::individuate();
         concept.set_internal_name("A".to_string());
         assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
-    }
-
-    #[test]
-    fn test_individuation() {
-        initialize_kb();
-        let type1 = Owner::archetype().individuate_as_archetype();
-        let type1_instance = type1.individuate_as_form();
-        assert!(type1.has_ancestor(Owner::archetype().as_archetype()));
-        assert!(!type1.has_ancestor(Value::archetype().as_archetype()));
-        assert!(type1_instance.has_ancestor(type1.as_archetype()));
-        assert!(type1_instance.has_ancestor(Owner::archetype().as_archetype()));
-        assert!(!type1_instance.has_ancestor(Value::archetype().as_archetype()));
-    }
-
-    #[test]
-    fn test_individuals() {
-        initialize_kb();
-        let type1 = Form::archetype().individuate_as_archetype();
-        let type2 = type1.individuate_as_archetype();
-        let type1_instance = type1.individuate_as_form();
-        let type2_instance = type2.individuate_as_form();
-        assert_eq!(type1.individuals(), vec![type1_instance, type2_instance]);
-        assert_eq!(type2.individuals(), vec![type2_instance]);
-    }
-
-    #[test]
-    fn test_individuals_not_self() {
-        initialize_kb();
-        let childless_type = Form::archetype().individuate_as_archetype();
-        assert_eq!(childless_type.individuals(), Vec::<Form>::new())
-    }
-
-    #[test]
-    fn test_child_archetypes() {
-        initialize_kb();
-        let type1 = Form::archetype().individuate_as_archetype();
-        let type2 = type1.individuate_as_archetype();
-        let type3 = type1.individuate_as_archetype();
-        assert_eq!(type1.child_archetypes(), vec![type2, type3]);
-    }
-
-    #[test]
-    fn test_attribute_types() {
-        initialize_kb();
-        let mut type1 = Form::archetype().individuate_as_archetype();
-        let type2 = Attribute::archetype().individuate_as_archetype();
-        assert_eq!(
-            type1.introduced_attribute_types(),
-            Vec::<AttributeArchetype>::new()
-        );
-
-        type1.add_attribute_type(type2);
-        assert_eq!(type1.introduced_attribute_types(), vec!(type2));
-    }
-
-    #[test]
-    fn test_attribute_types_not_inherited() {
-        initialize_kb();
-        let mut type1 = Form::archetype().individuate_as_archetype();
-        let type2 = Attribute::archetype().individuate_as_archetype();
-        let type3 = type1.individuate_as_archetype();
-        type1.add_attribute_type(type2);
-
-        assert_eq!(
-            type3.introduced_attribute_types(),
-            Vec::<AttributeArchetype>::new()
-        );
     }
 }
