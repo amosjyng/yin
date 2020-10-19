@@ -61,7 +61,7 @@ impl<'a> ArchetypeTrait<'a> for Archetype {
     type Form = Archetype;
 
     const TYPE_ID: usize = 1;
-    const TYPE_NAME: &'static str = "Archetype";
+    const TYPE_NAME: &'static str = "archetype";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
 }
 

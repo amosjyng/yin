@@ -119,7 +119,7 @@ impl<'a> ArchetypeTrait<'a> for AttributeArchetype {
     type Form = AttributeArchetype;
 
     const TYPE_ID: usize = 9;
-    const TYPE_NAME: &'static str = "AttributeArchetype";
+    const TYPE_NAME: &'static str = "attribute-archetype";
     const PARENT_TYPE_ID: usize = Archetype::TYPE_ID;
 }
 

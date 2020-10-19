@@ -70,7 +70,7 @@ impl<'a> ArchetypeTrait<'a> for Tao {
     type Form = Form;
 
     const TYPE_ID: usize = 0;
-    const TYPE_NAME: &'static str = "Tao";
+    const TYPE_NAME: &'static str = "tao";
     // It seems fitting, albeit meaningless, to make the Tao inherit its own properties.
     const PARENT_TYPE_ID: usize = Self::TYPE_ID;
 }
