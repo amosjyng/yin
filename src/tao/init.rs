@@ -71,7 +71,8 @@ pub fn initialize_types() {
     attributes.set_owner_archetype(Tao::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    // todo: have yang generate init-verification tests for these
+    HasAttributeType::archetype().set_value_archetype(Attribute::archetype().as_archetype());
+
     OwnerArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
     ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
 }

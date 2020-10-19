@@ -46,18 +46,21 @@ We've said that all concepts have parents, and that attribute concepts in partic
 ```yaml
 - name: HasAttributeType
   parent: Attribute
+  value_archetype: Attribute
 ```
 
-Each attribute has restrictions on its owners and values:
+As the newly introduced field implies, this particular attribute should only have its value set to certain types of nodes. Let's describe the fact that each attribute has potentially different restrictions on its owners and values:
 
 ```yaml
 - name: OwnerArchetype
   parent: Attribute
+  owner_archetype: Attribute
 - name: ValueArchetype
   parent: Attribute
+  owner_archetype: Attribute
 ```
 
-
+As you can see, even `OwnerArchetype` and `ValueArchetype` have restrictions on their owners.
 
 ### Implementation
 
