@@ -83,7 +83,7 @@ impl AttributeTrait for Attribute {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tao::archetype::{ArchetypeFormTrait, AttributeArchetype};
+    use crate::tao::archetype::ArchetypeFormTrait;
     use crate::tao::attribute::{Owner, Value};
     use crate::tao::initialize_kb;
 
@@ -102,17 +102,11 @@ mod tests {
         initialize_kb();
         assert_eq!(
             Attribute::archetype().introduced_attribute_types(),
-            vec![
-                AttributeArchetype::from(Owner::TYPE_ID),
-                AttributeArchetype::from(Value::TYPE_ID)
-            ]
+            vec![Owner::archetype(), Value::archetype()]
         );
         assert_eq!(
             Attribute::archetype().attribute_archetypes(),
-            vec![
-                AttributeArchetype::from(Owner::TYPE_ID),
-                AttributeArchetype::from(Value::TYPE_ID)
-            ]
+            vec![Owner::archetype(), Value::archetype()]
         );
         assert_eq!(Attribute::archetype().owner_archetype(), Tao::archetype());
         assert_eq!(Attribute::archetype().value_archetype(), Tao::archetype());
