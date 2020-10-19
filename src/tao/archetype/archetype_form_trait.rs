@@ -95,7 +95,7 @@ pub trait ArchetypeFormTrait<'a>: ArchetypeTrait<'a> + FormTrait + IsArchetype {
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
     /// descendant archetypes. Attribute types introduced by an ancestor do not count.
-    fn introduced_attribute_types(&self) -> Vec<AttributeArchetype> {
+    fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .base_wrapper()
             .outgoing_nodes(HasAttributeType::TYPE_ID)
@@ -158,12 +158,12 @@ mod tests {
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
         assert_eq!(
-            type1.introduced_attribute_types(),
+            type1.introduced_attribute_archetypes(),
             Vec::<AttributeArchetype>::new()
         );
 
         type1.add_attribute_type(type2);
-        assert_eq!(type1.introduced_attribute_types(), vec!(type2));
+        assert_eq!(type1.introduced_attribute_archetypes(), vec!(type2));
     }
 
     #[test]
@@ -175,7 +175,7 @@ mod tests {
         type1.add_attribute_type(type2);
 
         assert_eq!(
-            type3.introduced_attribute_types(),
+            type3.introduced_attribute_archetypes(),
             Vec::<AttributeArchetype>::new()
         );
     }

@@ -101,7 +101,7 @@ mod tests {
     fn check_attributes_specified() {
         initialize_kb();
         assert_eq!(
-            Attribute::archetype().introduced_attribute_types(),
+            Attribute::archetype().introduced_attribute_archetypes(),
             vec![Owner::archetype(), Value::archetype()]
         );
         assert_eq!(
