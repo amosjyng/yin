@@ -38,6 +38,14 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
+    fn add_flag(&mut self, _: usize, _: usize) {
+        panic!(Self::INVALID_MSG);
+    }
+
+    fn has_flag(&self, _: usize, _: usize) -> bool {
+        panic!(Self::INVALID_MSG);
+    }
+
     fn add_edge(&mut self, _: usize, _: usize, _: usize) {
         panic!(Self::INVALID_MSG);
     }

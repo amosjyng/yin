@@ -99,6 +99,14 @@ impl BaseNodeTrait<FinalNode> for FinalNode {
         self.inode.value()
     }
 
+    fn add_flag(&mut self, flag_type: usize) {
+        self.inode.add_flag(flag_type);
+    }
+
+    fn has_flag(&self, flag_type: usize) -> bool {
+        self.inode.has_flag(flag_type)
+    }
+
     fn add_outgoing(&mut self, edge_type: usize, to: &FinalNode) {
         self.inode.add_outgoing(edge_type, &to.inode)
     }
@@ -205,14 +213,38 @@ mod tests {
     #[test]
     fn check_inheritance_nodes() {
         initialize_kb();
-        let type1 = InheritanceNode::new();
-        let mut type2 = InheritanceNode::new();
-        let mut a = InheritanceNode::new();
+        let type1 = FinalNode::new();
+        let mut type2 = FinalNode::new();
+        let mut a = FinalNode::new();
         type2.add_outgoing(Inherits::TYPE_ID, &type1);
         a.add_outgoing(Inherits::TYPE_ID, &type2);
         assert_eq!(a.inheritance_nodes(), vec![type1, type2, a]);
         assert_eq!(type2.inheritance_nodes(), vec![type1, type2]);
         assert_eq!(type1.inheritance_nodes(), vec![type1]);
+    }
+
+    #[test]
+    fn test_flags() {
+        initialize_kb();
+        let mut a = FinalNode::new();
+        let b = FinalNode::new();
+        assert!(!a.has_flag(b.id()));
+
+        a.add_flag(b.id());
+        assert!(a.has_flag(b.id()));
+    }
+
+    #[test]
+    fn test_inherited_flags() {
+        initialize_kb();
+        let mut a = FinalNode::new();
+        let b = FinalNode::new();
+        let mut c = FinalNode::new();
+        c.add_outgoing(Inherits::TYPE_ID, &a);
+        assert!(!c.has_flag(b.id()));
+
+        a.add_flag(b.id());
+        assert!(c.has_flag(b.id()));
     }
 
     #[test]

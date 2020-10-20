@@ -113,6 +113,25 @@ impl Graph for CypherGraph {
         .collect()
     }
 
+    fn add_flag(&mut self, id: usize, flag: usize) {
+        exec_db!(
+        self.db,
+            &format!("MATCH (n) WHERE ID(n) = {{id}} SET n.f_{} = true", flag), {
+                "id" => id
+            });
+    }
+
+    fn has_flag(&self, id: usize, flag: usize) -> bool {
+        exec_db!(self.db, &format!("MATCH (n) WHERE ID(n) = {{id}} RETURN n.f_{}", flag), {
+            "id" => id
+        })
+        .rows()
+        .next()
+        .unwrap()
+        .get::<bool>(&format!("n.f_{}", flag))
+        .unwrap_or(false)
+    }
+
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
         exec_db!(
         self.db,
@@ -348,6 +367,19 @@ mod tests {
         // Like with the size test, we cannot guarantee that this is the first run, so we test only
         // that the query returns successfully
         assert!(g.lookup("A").contains(&a_id));
+    }
+
+    #[test]
+    #[ignore]
+    fn test_set_flag() {
+        bind_cypher_graph(TEST_DB_URI);
+        let mut g = InjectionGraph::new();
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        assert!(!g.has_flag(a_id, b_id));
+
+        g.add_flag(a_id, b_id);
+        assert!(g.has_flag(a_id, b_id));
     }
 
     #[test]

@@ -49,11 +49,11 @@ impl Graph for InjectionGraph {
     }
 
     fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>) {
-        GRAPH.with(|g| g.borrow_mut().set_node_value(id, value))
+        GRAPH.with(|g| g.borrow_mut().set_node_value(id, value));
     }
 
     fn set_node_name(&mut self, id: usize, name: String) {
-        GRAPH.with(|g| g.borrow_mut().set_node_name(id, name))
+        GRAPH.with(|g| g.borrow_mut().set_node_name(id, name));
     }
 
     fn node_name(&self, id: usize) -> Option<Rc<String>> {
@@ -68,8 +68,16 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow().lookup(name))
     }
 
+    fn add_flag(&mut self, id: usize, flag: usize) {
+        GRAPH.with(|g| g.borrow_mut().add_flag(id, flag));
+    }
+
+    fn has_flag(&self, id: usize, flag: usize) -> bool {
+        GRAPH.with(|g| g.borrow().has_flag(id, flag))
+    }
+
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
-        GRAPH.with(|g| g.borrow_mut().add_edge(from, edge_type, to))
+        GRAPH.with(|g| g.borrow_mut().add_edge(from, edge_type, to));
     }
 
     fn has_edge(&self, from: usize, edge_type: usize, to: usize) -> bool {
