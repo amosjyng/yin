@@ -139,10 +139,14 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
     }
 
     fn add_flag(&mut self, flag_type: usize) {
+        // note: we can also reuse the edge API as such:
+        //self.graph.add_edge(self.id, flag_type, self.id);
         self.graph.add_flag(self.id, flag_type);
     }
 
     fn has_flag(&self, flag_type: usize) -> bool {
+        // note: we can also reuse the edge API as such:
+        //self.graph.has_edge(self.id, flag_type, self.id)
         self.graph.has_flag(self.id, flag_type)
     }
 
