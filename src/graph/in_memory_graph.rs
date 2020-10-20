@@ -132,7 +132,7 @@ impl Graph for InMemoryGraph {
             .insert(flag, true);
     }
 
-    fn flag(&self, id: usize, flag: usize) -> bool {
+    fn has_flag(&self, id: usize, flag: usize) -> bool {
         *self
             .graph
             .node_weight(NodeIndex::new(id))
@@ -318,10 +318,10 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
-        assert!(!g.flag(a_id, b_id));
+        assert!(!g.has_flag(a_id, b_id));
 
         g.add_flag(a_id, b_id);
-        assert!(g.flag(a_id, b_id));
+        assert!(g.has_flag(a_id, b_id));
     }
 
     #[test]

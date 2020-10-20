@@ -42,7 +42,7 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
-    fn flag(&self, _: usize, _: usize) -> bool {
+    fn has_flag(&self, _: usize, _: usize) -> bool {
         panic!(Self::INVALID_MSG);
     }
 

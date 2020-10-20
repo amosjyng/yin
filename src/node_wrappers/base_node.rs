@@ -143,7 +143,7 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
     }
 
     fn has_flag(&self, flag_type: usize) -> bool {
-        self.graph.flag(self.id, flag_type)
+        self.graph.has_flag(self.id, flag_type)
     }
 
     fn add_outgoing(&mut self, edge_type: usize, to: &BaseNode) {

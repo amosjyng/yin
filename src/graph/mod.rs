@@ -183,7 +183,7 @@ pub trait Graph {
     fn add_flag(&mut self, id: usize, flag: usize);
 
     /// Return true if this node has the flag set, false otherwise.
-    fn flag(&self, id: usize, flag: usize) -> bool;
+    fn has_flag(&self, id: usize, flag: usize) -> bool;
 
     /// Add a labeled edge between two nodes. The label should be the ID of an existing node.
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize);

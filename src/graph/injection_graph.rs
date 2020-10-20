@@ -72,8 +72,8 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow_mut().add_flag(id, flag));
     }
 
-    fn flag(&self, id: usize, flag: usize) -> bool {
-        GRAPH.with(|g| g.borrow().flag(id, flag))
+    fn has_flag(&self, id: usize, flag: usize) -> bool {
+        GRAPH.with(|g| g.borrow().has_flag(id, flag))
     }
 
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {

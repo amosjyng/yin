@@ -121,7 +121,7 @@ impl Graph for CypherGraph {
             });
     }
 
-    fn flag(&self, id: usize, flag: usize) -> bool {
+    fn has_flag(&self, id: usize, flag: usize) -> bool {
         exec_db!(self.db, &format!("MATCH (n) WHERE ID(n) = {{id}} RETURN n.f_{}", flag), {
             "id" => id
         })
@@ -376,10 +376,10 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
-        assert!(!g.flag(a_id, b_id));
+        assert!(!g.has_flag(a_id, b_id));
 
         g.add_flag(a_id, b_id);
-        assert!(g.flag(a_id, b_id));
+        assert!(g.has_flag(a_id, b_id));
     }
 
     #[test]
