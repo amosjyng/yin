@@ -16,6 +16,12 @@ pub trait BaseNodeTrait<T>: CommonNodeTrait {
     /// Retrieve the value associated with this node.
     fn value(&self) -> Option<Rc<dyn KBValue>>;
 
+    /// Add flag to node.
+    fn add_flag(&mut self, flag_type: usize);
+
+    /// Check if node has flag.
+    fn has_flag(&self, flag_type: usize) -> bool;
+
     /// Link this node to another one via an outgoing edge.
     fn add_outgoing(&mut self, edge_type: usize, to: &T);
 
@@ -132,6 +138,14 @@ impl BaseNodeTrait<BaseNode> for BaseNode {
         self.graph.node_value(self.id)
     }
 
+    fn add_flag(&mut self, flag_type: usize) {
+        self.graph.add_flag(self.id, flag_type);
+    }
+
+    fn has_flag(&self, flag_type: usize) -> bool {
+        self.graph.flag(self.id, flag_type)
+    }
+
     fn add_outgoing(&mut self, edge_type: usize, to: &BaseNode) {
         self.graph.add_edge(self.id(), edge_type, to.id())
     }
@@ -211,6 +225,17 @@ mod tests {
         let v = Rc::new(5);
         node.set_value(Rc::new(WeakValue::new(&v)));
         assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
+    }
+
+    #[test]
+    fn test_flags() {
+        initialize_kb();
+        let mut a = BaseNode::new();
+        let b = BaseNode::new();
+        assert!(!a.has_flag(b.id()));
+
+        a.add_flag(b.id());
+        assert!(a.has_flag(b.id()));
     }
 
     #[test]
