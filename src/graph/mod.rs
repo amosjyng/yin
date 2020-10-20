@@ -162,11 +162,11 @@ pub trait Graph {
     /// Adds a new node to the graph, and returns the node's ID.
     fn add_node(&mut self) -> usize;
 
-    /// Sets the value for a given node. Values can only be set once.
-    fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>);
-
     /// Sets the name for a given node. Names can only be set once.
     fn set_node_name(&mut self, id: usize, name: String);
+
+    /// Sets the value for a given node. Values can only be set once.
+    fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>);
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or is unnamed.
     fn node_name(&self, id: usize) -> Option<Rc<String>>;
@@ -178,6 +178,12 @@ pub trait Graph {
     /// Look up a node ID based on name. A vec is returned because there are no constraints on name
     /// uniqueness.
     fn lookup(&self, name: &str) -> Vec<usize>;
+
+    /// Add a flag to a node. The flag should be the ID of an existing node.
+    fn add_flag(&mut self, id: usize, flag: usize);
+
+    /// Return true if this node has the flag set, false otherwise.
+    fn flag(&self, id: usize, flag: usize) -> bool;
 
     /// Add a labeled edge between two nodes. The label should be the ID of an existing node.
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize);

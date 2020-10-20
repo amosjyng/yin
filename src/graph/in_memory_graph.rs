@@ -22,6 +22,7 @@ struct NodeInfo {
     id: usize,
     name: Rc<RefCell<NodeName>>,
     value: Option<Rc<dyn KBValue>>,
+    flags: HashMap<usize, bool>,
 }
 
 impl<'a> Display for NodeInfo {
@@ -121,6 +122,24 @@ impl Graph for InMemoryGraph {
             .unwrap_or_default();
         ids.sort_unstable();
         ids
+    }
+
+    fn add_flag(&mut self, id: usize, flag: usize) {
+        self.graph
+            .node_weight_mut(NodeIndex::new(id))
+            .unwrap()
+            .flags
+            .insert(flag, true);
+    }
+
+    fn flag(&self, id: usize, flag: usize) -> bool {
+        *self
+            .graph
+            .node_weight(NodeIndex::new(id))
+            .unwrap()
+            .flags
+            .get(&flag)
+            .unwrap_or(&false)
     }
 
     fn add_edge(&mut self, from: usize, edge_type: usize, to: usize) {
@@ -291,6 +310,18 @@ mod tests {
         g.set_node_name(a_id, "A".to_string());
         g.set_node_name(b_id, "A".to_string());
         assert_eq!(g.lookup("A"), vec![a_id, b_id]);
+    }
+
+    #[test]
+    fn test_set_flag() {
+        bind_in_memory_graph();
+        let mut g = InjectionGraph::new();
+        let a_id = g.add_node();
+        let b_id = g.add_node();
+        assert!(!g.flag(a_id, b_id));
+
+        g.add_flag(a_id, b_id);
+        assert!(g.flag(a_id, b_id));
     }
 
     #[test]
