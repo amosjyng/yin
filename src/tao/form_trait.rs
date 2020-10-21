@@ -73,11 +73,21 @@ pub trait FormTrait: CommonNodeTrait {
 
     /// Get all direct parent archetypes of this concept.
     fn parents(&self) -> Vec<Archetype> {
-        self.essence()
+        let direct_parents: Vec<Archetype> = self
+            .essence()
             .outgoing_nodes(Inherits::TYPE_ID)
             .into_iter()
             .map(Archetype::from)
-            .collect()
+            .collect();
+        let mut specific_parents = Vec::<Archetype>::new();
+        for parent in direct_parents {
+            if specific_parents.iter().any(|sp| sp.has_ancestor(parent)) {
+                continue; // this is not the most specific parent
+            }
+            specific_parents.retain(|sp| !parent.has_ancestor(*sp));
+            specific_parents.push(parent);
+        }
+        specific_parents
     }
 
     /// Get the shortest chain of ancestors that leads back to Tao, starting with Tao itself.
@@ -216,6 +226,22 @@ mod tests {
         assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
         assert!(owner.has_parent(Value::archetype().as_archetype()));
+    }
+
+    #[test]
+    fn specific_to_generic_parenthood() {
+        initialize_kb();
+        let mut form = Form::individuate();
+        form.add_parent(Tao::archetype());
+        assert_eq!(form.parents(), vec![Form::archetype()]);
+    }
+
+    #[test]
+    fn generic_to_specific_parenthood() {
+        initialize_kb();
+        let mut form = Tao::individuate();
+        form.add_parent(Form::archetype());
+        assert_eq!(form.parents(), vec![Form::archetype()]);
     }
 
     #[test]
