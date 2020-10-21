@@ -4,7 +4,7 @@ use crate::node_wrappers::BaseNodeTrait;
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::attribute::{Attribute, OwnerArchetype, ValueArchetype};
-use crate::tao::FormTrait;
+use crate::tao::{FormTrait, Tao};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -48,7 +48,7 @@ impl AttributeArchetype {
                 .essence()
                 .outgoing_nodes(OwnerArchetype::TYPE_ID)
                 .last()
-                .unwrap(),
+                .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
         )
     }
 
@@ -60,9 +60,6 @@ impl AttributeArchetype {
 
     /// Retrieve the value type for this type of attribute.
     pub fn value_archetype(&self) -> Archetype {
-        println!("{:?}", self
-        .essence()
-        .outgoing_nodes(ValueArchetype::TYPE_ID));
         // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
         // higher IDs
         Archetype::from(
@@ -70,7 +67,7 @@ impl AttributeArchetype {
                 .essence()
                 .outgoing_nodes(ValueArchetype::TYPE_ID)
                 .last()
-                .unwrap(),
+                .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
         )
     }
 }
@@ -219,5 +216,16 @@ mod tests {
             attr_type2.value_archetype(),
             Attribute::archetype().as_archetype()
         );
+    }
+
+    #[test]
+    fn test_default_owner_value_archetypes() {
+        initialize_kb();
+        // for example, if we have a custom attribute node that does not inherit from the existing
+        // Attribute archetype because it's newly defined, like in Yang
+        let custom_attr =
+            AttributeArchetype::from(Tao::archetype().individuate_as_archetype().id());
+        assert_eq!(custom_attr.owner_archetype(), Tao::archetype());
+        assert_eq!(custom_attr.value_archetype(), Tao::archetype());
     }
 }
