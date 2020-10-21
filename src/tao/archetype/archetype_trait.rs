@@ -1,6 +1,6 @@
 use crate::node_wrappers::FinalNode;
 use crate::tao::archetype::IsArchetype;
-use crate::tao::FormTrait;
+use crate::tao::form::FormTrait;
 use std::convert::TryFrom;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
@@ -53,7 +53,8 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
 mod tests {
     use super::*;
     use crate::tao::attribute::{AttributeTrait, Owner};
-    use crate::tao::{initialize_kb, FormTrait};
+    use crate::tao::form::FormTrait;
+    use crate::tao::initialize_kb;
 
     #[test]
     fn test_new_node_inheritance() {

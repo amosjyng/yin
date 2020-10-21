@@ -26,7 +26,7 @@
 //! # use zamm_yin::tao::initialize_kb;
 //! # initialize_kb();
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
-//! use zamm_yin::tao::{Form, FormTrait};
+//! use zamm_yin::tao::form::{Form, FormTrait};
 //!
 //! let mut concept = Form::individuate();
 //! assert!(concept.has_ancestor(Form::archetype()));
@@ -35,8 +35,9 @@
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
+//! # use zamm_yin::tao::initialize_kb;
 //! # use zamm_yin::tao::archetype::ArchetypeTrait;
-//! # use zamm_yin::tao::{initialize_kb, Form};
+//! # use zamm_yin::tao::form::Form;
 //! # initialize_kb();
 //! # let mut concept = Form::individuate();
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
@@ -51,12 +52,15 @@ pub mod archetype;
 /// Relations between the forms.
 pub mod attribute;
 /// Concept forms, as opposed to archetypes.
-mod form_form;
-mod form_trait;
+pub mod form {
+    mod form_form;
+    mod form_trait;
+
+    pub use form_form::Form;
+    pub use form_trait::FormTrait;
+}
 mod init;
 mod tao_form;
 
-pub use form_form::Form;
-pub use form_trait::FormTrait;
 pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
 pub use tao_form::Tao;

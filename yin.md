@@ -82,6 +82,7 @@ Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/ma
 - parent: Implement
   target: Form
   output_id: 10
+  own_module: true
   documentation: |-
 ```
 

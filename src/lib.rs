@@ -3,8 +3,9 @@
 //! # Example
 //!
 //! ```rust
-//! use zamm_yin::tao::{initialize_kb, FormTrait, Form};
+//! use zamm_yin::tao::initialize_kb;
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
+//! use zamm_yin::tao::form::{FormTrait, Form};
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //!
 //! fn main() {

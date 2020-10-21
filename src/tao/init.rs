@@ -1,7 +1,8 @@
 use super::attribute::{
     Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
-use super::{Form, Tao};
+use super::form::Form;
+use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
 use crate::tao::archetype::ArchetypeFormTrait;

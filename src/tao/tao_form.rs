@@ -1,6 +1,6 @@
 use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
-use crate::tao::Form;
+use crate::tao::form::Form;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
@@ -78,7 +78,7 @@ impl<'a> ArchetypeTrait<'a> for Tao {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tao::form_trait::FormTrait;
+    use crate::tao::form::FormTrait;
     use crate::tao::initialize_kb;
 
     #[test]

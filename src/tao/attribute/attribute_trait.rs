@@ -2,7 +2,7 @@ use crate::node_wrappers::BaseNodeTrait;
 use crate::node_wrappers::FinalNode;
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::attribute::{Owner, Value};
-use crate::tao::FormTrait;
+use crate::tao::form::FormTrait;
 
 /// Interface for all attributes.
 pub trait AttributeTrait: FormTrait {

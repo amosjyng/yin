@@ -2,7 +2,7 @@ use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype, IsArchetype};
 use crate::tao::attribute::{HasAttributeType, Inherits};
-use crate::tao::FormTrait;
+use crate::tao::form::FormTrait;
 use std::collections::{HashSet, VecDeque};
 
 /// Every concept represents a different way of looking at and manipulating the world. This one
@@ -111,7 +111,8 @@ mod tests {
     use super::*;
     use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
     use crate::tao::attribute::{Attribute, Owner, Value};
-    use crate::tao::{initialize_kb, Form};
+    use crate::tao::form::Form;
+    use crate::tao::initialize_kb;
 
     #[test]
     fn test_individuation() {

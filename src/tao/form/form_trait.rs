@@ -1,7 +1,8 @@
-use super::attribute::{HasAttributeType, Inherits};
-use super::{Form, Tao};
+use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
+use crate::tao::attribute::{HasAttributeType, Inherits};
+use crate::tao::Tao;
 use std::collections::{HashMap, VecDeque};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the

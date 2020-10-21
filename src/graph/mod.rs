@@ -107,7 +107,7 @@
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
-//! use zamm_yin::tao::{Form, FormTrait};
+//! use zamm_yin::tao::form::{Form, FormTrait};
 //! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};
 //! use zamm_yin::{define_closure, run_closure};
 //! use zamm_yin::node_wrappers::BaseNodeTrait;
