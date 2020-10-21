@@ -60,6 +60,9 @@ impl AttributeArchetype {
 
     /// Retrieve the value type for this type of attribute.
     pub fn value_archetype(&self) -> Archetype {
+        println!("{:?}", self
+        .essence()
+        .outgoing_nodes(ValueArchetype::TYPE_ID));
         // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
         // higher IDs
         Archetype::from(

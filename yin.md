@@ -21,7 +21,19 @@ All right ZAMM, your baby feeding schedule says it's time to input some basic in
 
 Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
 
-Linking the forms are attributes. Each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
+Linking the forms are attributes:
+
+```yaml
+- name: Attribute
+  parent: Tao
+  attributes:
+    - Owner
+    - Value
+  owner_archetype: Tao
+  value_archetype: Tao
+```
+
+As noted, each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
 
 ```yaml
 - name: Owner
@@ -76,6 +88,16 @@ Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/ma
 > All things that can be interacted with have form.
 
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
+
+```yaml
+- parent: Implement
+  target: Attribute
+  output_id: 2
+  attribute_logic: true
+  documentation: |-
+```
+
+> Represents either a unary or binary relation.
 
 ```yaml
 - parent: Implement
