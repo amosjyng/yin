@@ -149,9 +149,9 @@ mod tests {
     use super::*;
     use crate::node_wrappers::CommonNodeTrait;
     use crate::tao::archetype::ArchetypeTrait;
-    use crate::tao::attribute::Inherits;
     use crate::tao::form::FormTrait;
     use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::Inherits;
 
     #[test]
     fn test_weak_value() {

@@ -53,7 +53,7 @@ We'll call the binary relations "attributes":
 
 ```yaml
 - define: Attribute
-  parent: Tao
+  parent: Relation
   attributes:
     - Owner
     - Value
@@ -93,26 +93,17 @@ The Owner attribute, as a child of Attribute, also inherits all properties of At
 ```yaml
 - define: HasProperty
   parent: Attribute
-  value_archetype: AtLeastUnary
+  value_archetype: Attribute
 ```
 
-Now we can say that unary relations have owners. We can also say that binary relations, and all n-ary relations where n > 1, also have owners. Let's avoid repeating ourselves by giving a name to this sort of commonality:
-
-```yaml
-- define: AtLeastUnary
-  parent: Relation
-- name: Flag
-  parent: AtLeastUnary
-- name: Attribute
-  parent: AtLeastUnary
-```
+Now we can say that unary relations, binary relations, and all the n-ary relations where n > 1, all have owners. While we should theoretically exclude 0-ary relations from this, Form would arguably be a better way of reasoning about those than a 0-ary relation, so it's not really wrong to ascribe the "owner" property to all relations.
 
 Now, while we've encapsulated the idea that all flags and attributes have owners, we also want to encapsulate the idea that different flags and attributes will have owners and values of different types:
 
 ```yaml
 - define: OwnerArchetype
   parent: Attribute
-  owner_archetype: AtLeastUnary
+  owner_archetype: Relation
 - define: ValueArchetype
   parent: Attribute
   owner_archetype: Attribute
@@ -149,6 +140,7 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 - parent: Implement
   target: Flag
   output_id: 12
+  force_own_module: true
   documentation: |-
 ```
 
@@ -201,15 +193,6 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 > Describes instances of an archetype as having certain other properties.
 >
 > For example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in.
-
-```yaml
-- parent: Implement
-  target: AtLeastUnary
-  output_id: 13
-  documentation: |-
-```
-
-> For attributes that have an arity of at least one.
 
 ```yaml
 - parent: Implement

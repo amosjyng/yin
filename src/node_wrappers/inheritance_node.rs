@@ -2,7 +2,7 @@ use super::BaseNode;
 use super::{debug_wrapper, BaseNodeTrait, CommonNodeTrait};
 use crate::graph::value_wrappers::KBValue;
 use crate::tao::archetype::ArchetypeTrait;
-use crate::tao::attribute::Inherits;
+use crate::tao::relation::attribute::Inherits;
 use std::cmp::{Eq, PartialEq};
 use std::collections::{HashSet, VecDeque};
 use std::convert::TryFrom;
@@ -202,8 +202,8 @@ impl InheritanceNodeTrait<InheritanceNode> for InheritanceNode {
 mod tests {
     use super::*;
     use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
-    use crate::tao::attribute::Owner;
     use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::Owner;
 
     #[test]
     fn create_and_retrieve_node_id() {

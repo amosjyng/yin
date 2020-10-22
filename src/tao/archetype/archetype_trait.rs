@@ -52,9 +52,9 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tao::attribute::{AttributeTrait, Owner};
     use crate::tao::form::FormTrait;
     use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::{AttributeTrait, Owner};
 
     #[test]
     fn test_new_node_inheritance() {

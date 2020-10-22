@@ -50,7 +50,40 @@
 /// Types of forms, as opposed to the forms themselves.
 pub mod archetype;
 /// Relations between the forms.
-pub mod attribute;
+pub mod relation {
+    mod relation_form;
+    pub use relation_form::Relation;
+
+    /// Relations involving only one form.
+    pub mod flag {
+        mod flag_form;
+        pub use flag_form::Flag;
+    }
+
+    /// Relations between two forms.
+    pub mod attribute {
+        mod attribute_form;
+        mod attribute_trait;
+        mod has_property_form;
+        mod inherits_form;
+        mod owner_archetype_form;
+        mod owner_form;
+        mod value_archetype_form;
+        mod value_form;
+
+        /// Marker for attributes, for compile-time checks.
+        trait IsAttribute {}
+
+        pub use attribute_form::Attribute;
+        pub use attribute_trait::AttributeTrait;
+        pub use has_property_form::HasProperty;
+        pub use inherits_form::Inherits;
+        pub use owner_archetype_form::OwnerArchetype;
+        pub use owner_form::Owner;
+        pub use value_archetype_form::ValueArchetype;
+        pub use value_form::Value;
+    }
+}
 /// Concept forms, as opposed to archetypes.
 pub mod form {
     mod form_form;
