@@ -97,10 +97,12 @@ pub trait FormTrait: CommonNodeTrait {
         to_be_visited.push_back(self.as_form());
 
         while let Some(next_node) = to_be_visited.pop_front() {
+            println!("Visiting {:?}", next_node);
             for parent in next_node.parents() {
                 let parent_tao = parent.as_form();
                 #[allow(clippy::map_entry)]
                 if !backpointers.contains_key(&parent_tao) {
+                    println!("To visit: {:?} as parent of {:?}", parent_tao, next_node);
                     backpointers.insert(parent_tao, next_node);
                     to_be_visited.push_back(parent_tao);
                     if parent == Tao::archetype() {
