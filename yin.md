@@ -15,7 +15,7 @@ Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of
 All right ZAMM, your baby feeding schedule says it's time to input some basic information into your system. Yin contains within herself many concepts, which you will be fed one at a time. In order to reason with things, we must first give them form:
 
 ```yaml
-- name: Form
+- define: Form
   parent: Tao
 ```
 
@@ -24,7 +24,7 @@ Hey look, you parsed those bits of information just fine! You may have no idea h
 Linking the forms are attributes:
 
 ```yaml
-- name: Attribute
+- define: Attribute
   parent: Tao
   attributes:
     - Owner
@@ -36,16 +36,16 @@ Linking the forms are attributes:
 As noted, each attribute has an *owner* and a *value* associated with it. Those are also attributes -- they are attributes of attributes:
 
 ```yaml
-- name: Owner
+- define: Owner
   parent: Attribute
-- name: Value
+- define: Value
   parent: Attribute
 ```
 
 Now, we've been talking about the parents of archetypes. Each child archetype *inherits* all properties of its archetypal parent. Let's define this relation:
 
 ```yaml
-- name: Inherits
+- define: Inherits
   parent: Attribute
 ```
 
@@ -56,7 +56,7 @@ Remember how we said that `Attribute` has an owner and a value, and how child ar
 We've said that all concepts have parents, and that attribute concepts in particular have owners and values. Let's encapsulate this type of meta-information as well:
 
 ```yaml
-- name: HasAttributeType
+- define: HasAttributeType
   parent: Attribute
   value_archetype: Attribute
 ```
@@ -64,10 +64,10 @@ We've said that all concepts have parents, and that attribute concepts in partic
 As the newly introduced field implies, this particular attribute should only have its value set to certain types of nodes. Let's describe the fact that each attribute has potentially different restrictions on its owners and values:
 
 ```yaml
-- name: OwnerArchetype
+- define: OwnerArchetype
   parent: Attribute
   owner_archetype: Attribute
-- name: ValueArchetype
+- define: ValueArchetype
   parent: Attribute
   owner_archetype: Attribute
 ```
