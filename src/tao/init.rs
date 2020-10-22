@@ -71,12 +71,15 @@ pub fn initialize_types() {
     attributes.add_attribute_type(Owner::archetype());
     attributes.add_attribute_type(Value::archetype());
     // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
-    attributes.set_owner_archetype(Tao::archetype());
+    // todo: add set_owner_archetype to Relation as well
+    AttributeArchetype::from(Relation::TYPE_ID).set_owner_archetype(Tao::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    HasProperty::archetype().set_value_archetype(Attribute::archetype().as_archetype());
+    HasProperty::archetype().set_value_archetype(Relation::archetype().as_archetype());
 
+    Owner::archetype().set_owner_archetype(Relation::archetype().as_archetype());
     OwnerArchetype::archetype().set_owner_archetype(Relation::archetype().as_archetype());
+    Value::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
     ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
 }
 
