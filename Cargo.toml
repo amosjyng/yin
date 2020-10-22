@@ -1,6 +1,6 @@
 [package]
 name = "zamm_yin"
-version = "0.0.13-beta"
+version = "0.0.14-beta"
 authors = ["Amos Jun-yeung Ng <me@amos.ng>"]
 edition = "2018"
 description = "A basic, experimental knowledge-base"
