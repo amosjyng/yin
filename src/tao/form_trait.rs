@@ -97,10 +97,12 @@ pub trait FormTrait: CommonNodeTrait {
         to_be_visited.push_back(self.as_form());
 
         while let Some(next_node) = to_be_visited.pop_front() {
+            println!("Visiting {:?}", next_node);
             for parent in next_node.parents() {
                 let parent_tao = parent.as_form();
                 #[allow(clippy::map_entry)]
                 if !backpointers.contains_key(&parent_tao) {
+                    println!("To visit: {:?} as parent of {:?}", parent_tao, next_node);
                     backpointers.insert(parent_tao, next_node);
                     to_be_visited.push_back(parent_tao);
                     if parent == Tao::archetype() {
@@ -207,6 +209,22 @@ mod tests {
     fn test_tao_ancestry() {
         initialize_kb();
         assert_eq!(Tao::archetype().ancestry(), Vec::<Archetype>::new());
+    }
+
+    #[test]
+    fn test_shortest_ancestry() {
+        initialize_kb();
+        let tao = Tao::archetype();
+        let mut type1 = tao.individuate_as_archetype();
+        type1.set_internal_name("type1".to_string());
+        let mut type2 = type1.individuate_as_archetype();
+        type2.set_internal_name("type2".to_string());
+        let mut intermediate1 = tao.individuate_as_archetype();
+        intermediate1.set_internal_name("intermediate".to_string());
+        let mut intermediate2 = intermediate1.individuate_as_archetype();
+        intermediate2.set_internal_name("intermediate2".to_string());
+        type2.add_parent(intermediate2);
+        assert_eq!(type2.ancestry(), vec![tao, type1]);
     }
 
     #[test]
