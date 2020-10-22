@@ -1,4 +1,4 @@
-use crate::tao::Form;
+use crate::tao::form::Form;
 use std::any::Any;
 use std::cell::{RefCell, RefMut};
 use std::rc::{Rc, Weak};
@@ -149,8 +149,9 @@ mod tests {
     use super::*;
     use crate::node_wrappers::CommonNodeTrait;
     use crate::tao::archetype::ArchetypeTrait;
-    use crate::tao::attribute::Inherits;
-    use crate::tao::{initialize_kb, FormTrait};
+    use crate::tao::form::FormTrait;
+    use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::Inherits;
 
     #[test]
     fn test_weak_value() {

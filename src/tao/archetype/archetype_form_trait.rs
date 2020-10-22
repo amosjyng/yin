@@ -1,8 +1,8 @@
 use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype, IsArchetype};
-use crate::tao::attribute::{HasAttributeType, Inherits};
-use crate::tao::FormTrait;
+use crate::tao::form::FormTrait;
+use crate::tao::relation::attribute::{HasProperty, Inherits};
 use std::collections::{HashSet, VecDeque};
 
 /// Every concept represents a different way of looking at and manipulating the world. This one
@@ -90,7 +90,7 @@ pub trait ArchetypeFormTrait<'a>: ArchetypeTrait<'a> + FormTrait + IsArchetype {
     /// Add an attribute type to this archetype.
     fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
         self.essence_mut()
-            .add_outgoing(HasAttributeType::TYPE_ID, attribute_type.essence());
+            .add_outgoing(HasProperty::TYPE_ID, attribute_type.essence());
     }
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
@@ -98,7 +98,7 @@ pub trait ArchetypeFormTrait<'a>: ArchetypeTrait<'a> + FormTrait + IsArchetype {
     fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .base_wrapper()
-            .outgoing_nodes(HasAttributeType::TYPE_ID)
+            .outgoing_nodes(HasProperty::TYPE_ID)
             .into_iter()
             .map(FinalNode::from)
             .map(AttributeArchetype::from)
@@ -110,8 +110,9 @@ pub trait ArchetypeFormTrait<'a>: ArchetypeTrait<'a> + FormTrait + IsArchetype {
 mod tests {
     use super::*;
     use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
-    use crate::tao::attribute::{Attribute, Owner, Value};
-    use crate::tao::{initialize_kb, Form};
+    use crate::tao::form::Form;
+    use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::{Attribute, Owner, Value};
 
     #[test]
     fn test_individuation() {

@@ -1,16 +1,17 @@
-use super::attribute::{
-    Attribute, HasAttributeType, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
+use super::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype};
+use super::form::Form;
+use super::relation::attribute::{
+    Attribute, HasProperty, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
-use super::{Form, Tao};
+use super::relation::flag::Flag;
+use super::relation::Relation;
+use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
-use crate::tao::archetype::ArchetypeFormTrait;
-use crate::tao::archetype::AttributeArchetype;
-use crate::tao::archetype::{Archetype, ArchetypeTrait};
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 10;
+pub const YIN_MAX_ID: usize = 12;
 
 /// Add the given Concept type to the KB.
 ///
@@ -24,7 +25,7 @@ pub const YIN_MAX_ID: usize = 10;
 /// # initialize_kb();
 /// use zamm_yin::initialize_type;
 /// use zamm_yin::tao::archetype::{Archetype, ArchetypeTrait};
-/// use zamm_yin::tao::attribute::Inherits;
+/// use zamm_yin::tao::relation::attribute::Inherits;
 /// use zamm_yin::tao::Tao; // import your own types instead
 /// use zamm_yin::graph::{Graph, InjectionGraph};
 ///
@@ -56,11 +57,13 @@ pub fn initialize_types() {
             Owner,
             Value,
             Inherits,
-            HasAttributeType,
+            HasProperty,
             OwnerArchetype,
             ValueArchetype,
             AttributeArchetype,
-            Form
+            Form,
+            Relation,
+            Flag
         )
     );
 
@@ -68,12 +71,15 @@ pub fn initialize_types() {
     attributes.add_attribute_type(Owner::archetype());
     attributes.add_attribute_type(Value::archetype());
     // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
-    attributes.set_owner_archetype(Tao::archetype());
+    // todo: add set_owner_archetype to Relation as well
+    AttributeArchetype::from(Relation::TYPE_ID).set_owner_archetype(Tao::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    HasAttributeType::archetype().set_value_archetype(Attribute::archetype().as_archetype());
+    HasProperty::archetype().set_value_archetype(Relation::archetype().as_archetype());
 
-    OwnerArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
+    Owner::archetype().set_owner_archetype(Relation::archetype().as_archetype());
+    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype().as_archetype());
+    Value::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
     ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
 }
 

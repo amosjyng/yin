@@ -1,6 +1,6 @@
 use crate::node_wrappers::FinalNode;
 use crate::tao::archetype::IsArchetype;
-use crate::tao::FormTrait;
+use crate::tao::form::FormTrait;
 use std::convert::TryFrom;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
@@ -52,8 +52,11 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tao::attribute::{AttributeTrait, Owner};
-    use crate::tao::{initialize_kb, FormTrait};
+    use crate::node_wrappers::CommonNodeTrait;
+    use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::{AttributeTrait, Owner};
+    use crate::tao::relation::flag::Flag;
+    use crate::tao::relation::Relation;
 
     #[test]
     fn test_new_node_inheritance() {
@@ -61,8 +64,10 @@ mod tests {
         let owner = Owner::individuate();
         assert_eq!(owner.owner(), None);
 
-        let attr = Owner::individuate();
-        Owner::from(Owner::TYPE_ID).set_owner(&attr.as_form());
-        assert_eq!(owner.owner(), Some(attr.as_form()));
+        let my_flag = Flag::individuate();
+        // todo: use as_relation() once yang generates that
+        let my_flag_rel = Relation::from(my_flag.id());
+        Owner::from(Owner::TYPE_ID).set_owner(&my_flag_rel);
+        assert_eq!(owner.owner(), Some(my_flag_rel));
     }
 }

@@ -26,7 +26,7 @@
 //! # use zamm_yin::tao::initialize_kb;
 //! # initialize_kb();
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
-//! use zamm_yin::tao::{Form, FormTrait};
+//! use zamm_yin::tao::form::{Form, FormTrait};
 //!
 //! let mut concept = Form::individuate();
 //! assert!(concept.has_ancestor(Form::archetype()));
@@ -35,8 +35,9 @@
 //! We can set a name for this concept. Note that names don't need to be unique.
 //!
 //! ```rust
+//! # use zamm_yin::tao::initialize_kb;
 //! # use zamm_yin::tao::archetype::ArchetypeTrait;
-//! # use zamm_yin::tao::{initialize_kb, Form};
+//! # use zamm_yin::tao::form::Form;
 //! # initialize_kb();
 //! # let mut concept = Form::individuate();
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
@@ -49,14 +50,50 @@
 /// Types of forms, as opposed to the forms themselves.
 pub mod archetype;
 /// Relations between the forms.
-pub mod attribute;
+pub mod relation {
+    mod relation_form;
+    pub use relation_form::Relation;
+
+    /// Relations involving only one form.
+    pub mod flag {
+        mod flag_form;
+        pub use flag_form::Flag;
+    }
+
+    /// Relations between two forms.
+    pub mod attribute {
+        mod attribute_form;
+        mod attribute_trait;
+        mod has_property_form;
+        mod inherits_form;
+        mod owner_archetype_form;
+        mod owner_form;
+        mod value_archetype_form;
+        mod value_form;
+
+        /// Marker for attributes, for compile-time checks.
+        trait IsAttribute {}
+
+        pub use attribute_form::Attribute;
+        pub use attribute_trait::AttributeTrait;
+        pub use has_property_form::HasProperty;
+        pub use inherits_form::Inherits;
+        pub use owner_archetype_form::OwnerArchetype;
+        pub use owner_form::Owner;
+        pub use value_archetype_form::ValueArchetype;
+        pub use value_form::Value;
+    }
+}
 /// Concept forms, as opposed to archetypes.
-mod form_form;
-mod form_trait;
+pub mod form {
+    mod form_form;
+    mod form_trait;
+
+    pub use form_form::Form;
+    pub use form_trait::FormTrait;
+}
 mod init;
 mod tao_form;
 
-pub use form_form::Form;
-pub use form_trait::FormTrait;
 pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
 pub use tao_form::Tao;

@@ -1,7 +1,8 @@
-use super::relation::attribute::{HasAttributeType, Inherits};
-use super::{Form, Tao};
+use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
+use crate::tao::relation::attribute::{HasProperty, Inherits};
+use crate::tao::Tao;
 use std::collections::{HashMap, VecDeque};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
@@ -97,12 +98,10 @@ pub trait FormTrait: CommonNodeTrait {
         to_be_visited.push_back(self.as_form());
 
         while let Some(next_node) = to_be_visited.pop_front() {
-            println!("Visiting {:?}", next_node);
             for parent in next_node.parents() {
                 let parent_tao = parent.as_form();
                 #[allow(clippy::map_entry)]
                 if !backpointers.contains_key(&parent_tao) {
-                    println!("To visit: {:?} as parent of {:?}", parent_tao, next_node);
                     backpointers.insert(parent_tao, next_node);
                     to_be_visited.push_back(parent_tao);
                     if parent == Tao::archetype() {
@@ -140,7 +139,7 @@ pub trait FormTrait: CommonNodeTrait {
     /// Get all the types of attributes that this concept is predefined to potentially have.
     fn attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
-            .outgoing_nodes(HasAttributeType::TYPE_ID)
+            .outgoing_nodes(HasProperty::TYPE_ID)
             .into_iter()
             .map(AttributeArchetype::from)
             .collect()
@@ -150,7 +149,7 @@ pub trait FormTrait: CommonNodeTrait {
     /// have.
     fn has_attribute_type(&self, possible_type: AttributeArchetype) -> bool {
         self.essence()
-            .has_outgoing(HasAttributeType::TYPE_ID, possible_type.essence())
+            .has_outgoing(HasProperty::TYPE_ID, possible_type.essence())
     }
 }
 
@@ -158,8 +157,8 @@ pub trait FormTrait: CommonNodeTrait {
 mod tests {
     use super::*;
     use crate::tao::archetype::{Archetype, ArchetypeFormTrait};
-    use crate::tao::attribute::{Attribute, Owner, Value};
     use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::{Attribute, Owner, Value};
 
     #[test]
     fn test_parents() {
@@ -185,46 +184,25 @@ mod tests {
     #[test]
     fn test_ancestry_archetype() {
         initialize_kb();
-        assert_eq!(
-            Owner::archetype().ancestry(),
-            vec![Tao::archetype(), Attribute::archetype().as_archetype()]
-        );
+        let type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = type1.individuate_as_archetype();
+        assert_eq!(type2.ancestry(), vec![Tao::archetype(), type1]);
     }
 
     #[test]
     fn test_ancestry_individual() {
         initialize_kb();
-        let owner = Owner::individuate();
-        assert_eq!(
-            owner.ancestry(),
-            vec![
-                Tao::archetype(),
-                Attribute::archetype().as_archetype(),
-                Owner::archetype().as_archetype()
-            ]
-        );
+        initialize_kb();
+        let type1 = Tao::archetype().individuate_as_archetype();
+        let type2 = type1.individuate_as_archetype();
+        let form = type2.individuate_as_form();
+        assert_eq!(form.ancestry(), vec![Tao::archetype(), type1, type2]);
     }
 
     #[test]
     fn test_tao_ancestry() {
         initialize_kb();
         assert_eq!(Tao::archetype().ancestry(), Vec::<Archetype>::new());
-    }
-
-    #[test]
-    fn test_shortest_ancestry() {
-        initialize_kb();
-        let tao = Tao::archetype();
-        let mut type1 = tao.individuate_as_archetype();
-        type1.set_internal_name("type1".to_string());
-        let mut type2 = type1.individuate_as_archetype();
-        type2.set_internal_name("type2".to_string());
-        let mut intermediate1 = tao.individuate_as_archetype();
-        intermediate1.set_internal_name("intermediate".to_string());
-        let mut intermediate2 = intermediate1.individuate_as_archetype();
-        intermediate2.set_internal_name("intermediate2".to_string());
-        type2.add_parent(intermediate2);
-        assert_eq!(type2.ancestry(), vec![tao, type1]);
     }
 
     #[test]
