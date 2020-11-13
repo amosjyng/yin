@@ -54,6 +54,12 @@ We'll call the binary relations "attributes":
 define!(attribute);
 ```
 
+You are primed to recognize and deal with attributes, so let's tell activate your instincts:
+
+```rust
+attribute.activate_attribute_logic();
+```
+
 What should we call the binary relation we've just described between `O` and `U`? Let's say that `O` is the "owner" of the unary relation `U`:
 
 ```rust
@@ -100,8 +106,8 @@ has_property.add_parent(attribute);
 And go back and set this property for Attribute:
 
 ```rust
-attribute.add_attribute_type(AttributeArchetype::from(owner.id()));
-attribute.add_attribute_type(AttributeArchetype::from(value.id()));
+attribute.add_attribute_type(aa(owner));
+attribute.add_attribute_type(aa(value));
 ```
 
 Now we can say that unary relations, binary relations, and all the n-ary relations where n > 1, all have owners. While we should theoretically exclude 0-ary relations from this, we will instead delegate all reasoning about 0-ary relations to Form, so that we can simply ascribe the "owner" property to all relations.
@@ -111,28 +117,21 @@ Now, while we've encapsulated the idea that all flags and attributes have owners
 ```rust
 define!(owner_archetype);
 owner_archetype.add_parent(attribute);
-AttributeArchetype::from(owner_archetype.id())
-    .set_owner_archetype(relation);
+aa(owner_archetype).set_owner_archetype(relation);
 
 define!(value_archetype);
 value_archetype.add_parent(attribute);
-AttributeArchetype::from(value_archetype.id())
-    .set_owner_archetype(attribute);
+aa(value_archetype).set_owner_archetype(attribute);
 ```
 
 As you can see, even `OwnerArchetype` and `ValueArchetype` have restrictions on their owners. `ValueArchetype` technically also has a restriction on its value (it should only ever be another archetype), but as of now, there's no way to actually specify that restriction. For completeness, let's describe the owner and value types of all the other relations we've defined:
 
 ```rust
-AttributeArchetype::from(relation.id())
-    .set_owner_archetype(Tao::archetype());
-AttributeArchetype::from(attribute.id())
-    .set_value_archetype(Tao::archetype());
-AttributeArchetype::from(owner.id())
-    .set_owner_archetype(relation);
-AttributeArchetype::from(value.id())
-    .set_owner_archetype(attribute);
-AttributeArchetype::from(has_property.id())
-    .set_value_archetype(relation);
+aa(relation).set_owner_archetype(Tao::archetype());
+aa(attribute).set_value_archetype(Tao::archetype());
+aa(owner).set_owner_archetype(relation);
+aa(value).set_owner_archetype(attribute);
+aa(has_property).set_value_archetype(relation);
 ```
 
 Remember that because Attribute inherits from Relation, Attribute also has an owner archetype set to Tao, so we've covered all our tracks here. Every flag and attribute has an owner, every attribute also has a value, and some attributes only apply to other attributes.
@@ -167,7 +166,6 @@ attribute.implement_with(
     2,
     "Represents a binary relation.",
 );
-attribute.activate_attribute_logic();
 
 owner.implement_with(
     3,
