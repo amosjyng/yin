@@ -141,99 +141,61 @@ Remember that because Attribute inherits from Relation, Attribute also has an ow
 
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
-```yaml
-- parent: Implement
-  target: Form
-  output_id: 10
-  force_own_module: true
-  documentation: |-
+```rust
+form.implement_with(
+    10,
+    "All things that can be interacted with have form.",
+);
+form.mark_own_module();
 ```
-
-> All things that can be interacted with have form.
 
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
-```yaml
-- parent: Implement
-  target: Relation
-  output_id: 11
-  documentation: |-
+```rust
+relation.implement_with(
+    11,
+    "Links any number of nodes together.",
+);
+
+flag.implement_with(
+    12,
+    "Represents a unary relation.",
+);
+flag.mark_own_module();
+
+attribute.implement_with(
+    2,
+    "Represents a binary relation.",
+);
+attribute.activate_attribute_logic();
+
+owner.implement_with(
+    3,
+    "The owner/source/from-node of an attribute.",
+);
+
+value.implement_with(
+    4,
+    "The value/target/to-node of an attribute.",
+);
+
+inherits.implement_with(
+    5,
+    "Describes the owner as inheriting all attributes of the value.",
+);
+
+has_property.implement_with(
+    6,
+    r#"Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in."#,
+);
+
+owner_archetype.implement_with(
+    7,
+    "The type of owner this attribute has. Only the most restrictive inherited value will be used.",
+);
+
+value_archetype.implement_with(
+    8,
+    "The type of value this attribute has. Only the most restrictive inherited value will be used.",
+);
 ```
-
-> Links any number of nodes together.
-
-```yaml
-- parent: Implement
-  target: Flag
-  output_id: 12
-  force_own_module: true
-  documentation: |-
-```
-
-> Represents a unary relation.
-
-```yaml
-- parent: Implement
-  target: Attribute
-  output_id: 2
-  attribute_logic: true
-  documentation: |-
-```
-
-> Represents a binary relation.
-
-```yaml
-- parent: Implement
-  target: Owner
-  output_id: 3
-  documentation: |-
-```
-
-> The owner/source/from-node of an attribute.
-
-```yaml
-- parent: Implement
-  target: Value
-  output_id: 4
-  documentation: |-
-```
-
-> The value/target/to-node of an attribute.
-
-```yaml
-- parent: Implement
-  target: Inherits
-  output_id: 5
-  documentation: |-
-```
-
-> Describes the owner as inheriting all attributes of the value.
-
-```yaml
-- parent: Implement
-  target: HasProperty
-  output_id: 6
-  documentation: |-
-```
-
-> Describes instances of an archetype as having certain other properties.
->
-> For example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in.
-
-```yaml
-- parent: Implement
-  target: OwnerArchetype
-  output_id: 7
-  documentation: |-
-```
-
-> The type of owner this attribute has. Only the most restrictive inherited value will be used.
-
-```yaml
-- parent: Implement
-  target: ValueArchetype
-  output_id: 8
-  documentation: |-
-```
-
-> The type of value this attribute has. Only the most restrictive inherited value will be used.
