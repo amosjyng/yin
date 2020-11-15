@@ -1,4 +1,4 @@
-use super::value_wrappers::{unwrap_strong, KBValue, StrongValue, WeakValue};
+use super::value_wrappers::{unwrap_value, KBValue, StrongValue, WeakValue};
 use super::Graph;
 use rusted_cypher::cypher_stmt;
 use std::collections::HashMap;
@@ -59,11 +59,8 @@ impl Graph for CypherGraph {
     fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>) {
         // todo: see if lifetime ugliness can be cleaned up without cloning
         let unwrapped_value = match value.as_any().downcast_ref::<WeakValue<String>>() {
-            Some(ww) => {
-                let x = ww.value().unwrap();
-                (*x).clone()
-            }
-            None => unwrap_strong::<String>(&Some(value)).unwrap().clone(),
+            Some(ww) => ww.value().unwrap(),
+            None => unwrap_value::<String>(Some(value)).unwrap(),
         };
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} SET n.value = {value}", {
             "id" => id,
@@ -257,7 +254,7 @@ impl Graph for CypherGraph {
 mod tests {
     use super::super::*;
     use super::*;
-    use crate::graph::value_wrappers::unwrap_strong;
+    use crate::graph::value_wrappers::unwrap_value;
     use std::collections::HashSet;
 
     /// Default Neo4j 3.x instance to connect to. Note that the local password should be changed to
@@ -319,7 +316,7 @@ mod tests {
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
         g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
-        assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
+        assert_eq!(unwrap_value(g.node_value(a_id)), Some(v));
         assert_eq!(g.node_name(a_id), None);
     }
 
@@ -343,7 +340,7 @@ mod tests {
         g.set_node_name(a_id, "A".to_string());
         g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
         assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
-        assert_eq!(unwrap_strong(&g.node_value(a_id)), Some(&*v));
+        assert_eq!(unwrap_value(g.node_value(a_id)), Some(v));
     }
 
     #[test]

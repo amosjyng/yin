@@ -153,7 +153,7 @@ impl InheritanceNodeTrait<FinalNode> for FinalNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
+    use crate::graph::value_wrappers::{unwrap_value, WeakValue};
     use crate::tao::archetype::ArchetypeTrait;
     use crate::tao::initialize_kb;
     use crate::tao::relation::attribute::{Inherits, Owner};
@@ -197,7 +197,7 @@ mod tests {
         let mut node = FinalNode::new();
         let v = Rc::new(5);
         node.set_value(Rc::new(WeakValue::new(&v)));
-        assert_eq!(unwrap_weak::<i32>(node.value()), Some(v));
+        assert_eq!(unwrap_value::<i32>(node.value()), Some(v));
     }
 
     #[test]
