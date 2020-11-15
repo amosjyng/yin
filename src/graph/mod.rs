@@ -108,8 +108,8 @@
 //! # let mut g = InjectionGraph::new();
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::tao::form::{Form, FormTrait};
-//! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};
-//! use zamm_yin::{define_closure, run_closure};
+//! use zamm_yin::graph::value_wrappers::{run_closure, StrongValue, KBClosure};
+//! use zamm_yin::define_closure;
 //! use zamm_yin::node_wrappers::BaseNodeTrait;
 //! use std::any::Any;
 //! use std::cell::{RefCell, RefMut};
@@ -123,7 +123,7 @@
 //!     Box::new(*unwrap_weak::<i64>(t.essence().value()).unwrap() * 3)
 //! }));
 //! assert_eq!(
-//!     run_closure!(&g.node_value(triple_id), Form::from(count_id), i64),
+//!     run_closure::<i64>(&g.node_value(triple_id), Form::from(count_id)),
 //!     Some(Box::new(15))
 //! );
 //! ```
