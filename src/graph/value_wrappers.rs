@@ -24,26 +24,23 @@ pub trait KBValue: Any {
 ///  1. The option of whether or not there is a value associated with this KB node. Necessary
 ///     because not every node has a value to it.
 ///  3. The option of whether or not the value associated with this KB node is contained inside a
-///     WeakValue, as opposed to some other wrapper. This should always succeed if the code is
+///     WeakValue, as opposed to some other wrapper. If this fails, this will try a StrongValue next. This should always succeed if the code is
 ///     correct.
 ///  2. The option of whether the value referred to here still exists. Since a WeakValue refers
 ///     to values outside of the KB that might stop existing at any given time, this is not
 ///     guaranteed to return a value even if there was originally one associated with the node.
 ///
 /// This function encapsulates all of the above into one simpler return value.
-pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
+pub fn unwrap_value<'a, T: 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
     wrapper
-        .map(|v| v.as_any().downcast_ref::<WeakValue<T>>().unwrap().value())
+        .map(|v| {
+            let any_value = v.as_any();
+            match any_value.downcast_ref::<WeakValue<T>>() {
+                Some(weak_value) => weak_value.value(),
+                None => Some(any_value.downcast_ref::<StrongValue<T>>().unwrap().value()),
+            }
+        })
         .flatten()
-}
-
-/// Similar to unwrap_weak, returns the value held by a StrongValue.
-pub fn unwrap_strong<'a, 'b, T: 'static>(
-    wrapper: &'b Option<Rc<dyn KBValue + 'a>>,
-) -> Option<Rc<T>> {
-    wrapper
-        .as_ref()
-        .map(|v| v.as_any().downcast_ref::<StrongValue<T>>().unwrap().value())
 }
 
 /// Unwrap a StrongValue holding a closure, and return the result after running on the input.
@@ -139,7 +136,7 @@ mod tests {
     fn test_weak_value() {
         let item = Rc::new("something expensive".to_string());
         let weak = WeakValue::new(&item);
-        assert_eq!(unwrap_weak(Some(Rc::new(weak))), Some(item));
+        assert_eq!(unwrap_value(Some(Rc::new(weak))), Some(item));
     }
 
     #[test]
@@ -147,7 +144,7 @@ mod tests {
         let item = "something owned".to_string();
         let strong = StrongValue::new(item);
         assert_eq!(
-            unwrap_strong(&Some(Rc::new(strong))),
+            unwrap_value(Some(Rc::new(strong))),
             Some(Rc::new("something owned".to_string()))
         );
     }
@@ -157,7 +154,7 @@ mod tests {
         let item: i64 = -5;
         let strong = StrongValue::new(item);
         assert_eq!(
-            unwrap_strong::<i64>(&Some(Rc::new(strong))),
+            unwrap_value::<i64>(Some(Rc::new(strong))),
             Some(Rc::new(-5))
         );
     }
