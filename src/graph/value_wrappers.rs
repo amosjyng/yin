@@ -24,8 +24,8 @@ pub trait KBValue: Any {
 ///  1. The option of whether or not there is a value associated with this KB node. Necessary
 ///     because not every node has a value to it.
 ///  3. The option of whether or not the value associated with this KB node is contained inside a
-///     WeakValue, as opposed to some other wrapper. If this fails, this will try a StrongValue next. This should always succeed if the code is
-///     correct.
+///     WeakValue, as opposed to some other wrapper. If this fails, this will try a StrongValue 
+///     next. This should always succeed if the code is correct.
 ///  2. The option of whether the value referred to here still exists. Since a WeakValue refers
 ///     to values outside of the KB that might stop existing at any given time, this is not
 ///     guaranteed to return a value even if there was originally one associated with the node.
