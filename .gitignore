@@ -1,4 +1,6 @@
 /target
+/.autogen.txt
+/.yang
 Cargo.lock
 .vscode
 *.log
