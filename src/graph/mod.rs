@@ -106,6 +106,7 @@
 //! # use std::rc::Rc;
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
+//! use zamm_yin::Wrapper;
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::tao::form::{Form, FormTrait};
 //! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};

@@ -1,8 +1,9 @@
 use super::Archetype;
-use crate::node_wrappers::{BaseNodeTrait, FinalNode};
+use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype, IsArchetype};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{HasProperty, Inherits};
+use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
 
 /// Every concept represents a different way of looking at and manipulating the world. This one
@@ -19,7 +20,9 @@ use std::collections::{HashSet, VecDeque};
 /// references to `self` here refers to the node-as-archetype in question, whereas any references
 /// to `Self` refers to the Archetype node itself. Since this FormTrait is supposed to reason about
 /// the node-as-archetype, **there should be no instances of `Self` here**.
-pub trait ArchetypeFormTrait<'a>: ArchetypeTrait<'a> + FormTrait + IsArchetype {
+pub trait ArchetypeFormTrait<'a>:
+    ArchetypeTrait<'a> + FormTrait + IsArchetype + Wrapper<BaseType = FinalNode>
+{
     /// The ArchetypeTrait as defined for an Archetype will have an Archetype-based Form for
     /// reasoning about other nodes as archetypes. The Archetype's Form is the observer, and the
     /// subject under observation will have a different type for its leaves. This subject's Form

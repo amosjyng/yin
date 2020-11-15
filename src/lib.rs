@@ -28,3 +28,6 @@
 pub mod graph;
 pub mod node_wrappers;
 pub mod tao;
+mod wrapper;
+
+pub use wrapper::Wrapper;

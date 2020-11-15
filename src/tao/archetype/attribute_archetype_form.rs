@@ -1,15 +1,15 @@
 use super::ArchetypeFormTrait;
 use super::IsArchetype;
 use crate::node_wrappers::BaseNodeTrait;
-use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
+use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{Attribute, OwnerArchetype, ValueArchetype};
 use crate::tao::Tao;
+use crate::Wrapper;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
-use std::rc::Rc;
 
 /// Archetype representing attributes.
 ///
@@ -101,17 +101,15 @@ impl<'a> TryFrom<&'a str> for AttributeArchetype {
     }
 }
 
-impl CommonNodeTrait for AttributeArchetype {
-    fn id(&self) -> usize {
-        self.base.id()
+impl Wrapper for AttributeArchetype {
+    type BaseType = FinalNode;
+
+    fn essence(&self) -> &FinalNode {
+        &self.base
     }
 
-    fn set_internal_name(&mut self, name: String) {
-        self.base.set_internal_name(name);
-    }
-
-    fn internal_name(&self) -> Option<Rc<String>> {
-        self.base.internal_name()
+    fn essence_mut(&mut self) -> &mut FinalNode {
+        &mut self.base
     }
 }
 
@@ -124,15 +122,7 @@ impl<'a> ArchetypeTrait<'a> for AttributeArchetype {
     const PARENT_TYPE_ID: usize = Archetype::TYPE_ID;
 }
 
-impl FormTrait for AttributeArchetype {
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
+impl FormTrait for AttributeArchetype {}
 
 impl IsArchetype for AttributeArchetype {}
 
@@ -143,8 +133,10 @@ impl<'a> ArchetypeFormTrait<'a> for AttributeArchetype {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::node_wrappers::CommonNodeTrait;
     use crate::tao::archetype::ArchetypeTrait;
     use crate::tao::{initialize_kb, Tao};
+    use std::rc::Rc;
 
     #[test]
     fn check_type_created() {
