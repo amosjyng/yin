@@ -53,12 +53,12 @@
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! # let a_id = g.add_node();
-//! use zamm_yin::graph::value_wrappers::{unwrap_weak, WeakValue};
+//! use zamm_yin::graph::value_wrappers::{unwrap_value, WeakValue};
 //! use std::rc::Rc;
 //!
 //! let v = Rc::new(5);
 //! g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
-//! assert_eq!(unwrap_weak::<i32>(g.node_value(a_id)), Some(v));
+//! assert_eq!(unwrap_value::<i32>(g.node_value(a_id)), Some(v));
 //! ```
 //!
 //! Let's create a few more nodes:
@@ -102,15 +102,15 @@
 //!
 //! ```rust
 //! # use zamm_yin::graph::{bind_in_memory_graph, InjectionGraph, Graph};
-//! # use zamm_yin::graph::value_wrappers::{unwrap_weak, WeakValue};
+//! # use zamm_yin::graph::value_wrappers::{unwrap_value, WeakValue};
 //! # use std::rc::Rc;
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
 //! use zamm_yin::Wrapper;
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::tao::form::{Form, FormTrait};
-//! use zamm_yin::graph::value_wrappers::{StrongValue, KBClosure, unwrap_closure};
-//! use zamm_yin::{define_closure, run_closure};
+//! use zamm_yin::graph::value_wrappers::{run_closure, StrongValue, KBClosure};
+//! use zamm_yin::define_closure;
 //! use zamm_yin::node_wrappers::BaseNodeTrait;
 //! use std::any::Any;
 //! use std::cell::{RefCell, RefMut};
@@ -121,10 +121,10 @@
 //!
 //! let mut triple_id = g.add_node();
 //! g.set_node_value(triple_id, define_closure!(|t: Form| {
-//!     Box::new(*unwrap_weak::<i64>(t.essence().value()).unwrap() * 3)
+//!     Box::new(*unwrap_value::<i64>(t.essence().value()).unwrap() * 3)
 //! }));
 //! assert_eq!(
-//!     run_closure!(&g.node_value(triple_id), Form::from(count_id), i64),
+//!     run_closure::<i64>(&g.node_value(triple_id), Form::from(count_id)),
 //!     Some(Box::new(15))
 //! );
 //! ```

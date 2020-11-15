@@ -24,43 +24,40 @@ pub trait KBValue: Any {
 ///  1. The option of whether or not there is a value associated with this KB node. Necessary
 ///     because not every node has a value to it.
 ///  3. The option of whether or not the value associated with this KB node is contained inside a
-///     WeakValue, as opposed to some other wrapper. This should always succeed if the code is
+///     WeakValue, as opposed to some other wrapper. If this fails, this will try a StrongValue next. This should always succeed if the code is
 ///     correct.
 ///  2. The option of whether the value referred to here still exists. Since a WeakValue refers
 ///     to values outside of the KB that might stop existing at any given time, this is not
 ///     guaranteed to return a value even if there was originally one associated with the node.
 ///
 /// This function encapsulates all of the above into one simpler return value.
-pub fn unwrap_weak<'a, T: 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
+pub fn unwrap_value<'a, T: 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
     wrapper
-        .map(|v| v.as_any().downcast_ref::<WeakValue<T>>().unwrap().value())
+        .map(|v| {
+            let any_value = v.as_any();
+            match any_value.downcast_ref::<WeakValue<T>>() {
+                Some(weak_value) => weak_value.value(),
+                None => Some(any_value.downcast_ref::<StrongValue<T>>().unwrap().value()),
+            }
+        })
         .flatten()
 }
 
-/// Similar to unwrap_weak, returns the value held by a StrongValue.
-pub fn unwrap_strong<'a, 'b, T: 'static>(
+/// Unwrap a StrongValue holding a closure, and return the result after running on the input.
+pub fn run_closure<'a, 'b, T: 'static>(
     wrapper: &'b Option<Rc<dyn KBValue + 'a>>,
-) -> Option<&'b T> {
-    // todo: see if lifetime ugliness can be cleaned up without cloning. Ownership transfer may be
-    // best here, seeing as CypherGraph doesn't care to own any of these strings.
-    wrapper
-        .as_ref()
-        .map(|v| v.as_any().downcast_ref::<StrongValue<T>>().unwrap().value())
-}
-
-/// Returns the value held by a closure StrongValue. We need a RefCell here because somehow
-/// closures are mutable when called, and the Rc that wraps a KBValue prevents mutability.
-pub fn unwrap_closure<'a, 'b>(
-    wrapper: &'b Option<Rc<dyn KBValue + 'a>>,
-) -> Option<RefMut<'b, KBClosure>> {
+    input: Form,
+) -> Option<Box<T>> {
     wrapper.as_ref().map(|v| {
         let any: &'b dyn Any = v.as_any();
         let value_wrappers: &'b StrongValue<RefCell<KBClosure>> = any
             .downcast_ref::<StrongValue<RefCell<KBClosure>>>()
             .unwrap();
-        let closure_ref: &'b RefCell<KBClosure> = value_wrappers.value();
-        let closure: RefMut<'b, KBClosure> = closure_ref.borrow_mut();
-        closure
+        let closure_ref: Rc<RefCell<KBClosure>> = value_wrappers.value();
+        let mut closure: RefMut<'_, KBClosure> = closure_ref.borrow_mut();
+        let result: Box<dyn Any> = closure(input);
+        let cast_result: Box<T> = result.downcast().expect("Downcast type failure");
+        cast_result
     })
 }
 
@@ -73,18 +70,6 @@ macro_rules! define_closure {
             Rc::new(StrongValue::new(RefCell::new(Box::new($closure))));
         strong
     }};
-}
-
-/// Unwrap a StrongValue holding a closure, and return the result after running on the input.
-#[macro_export]
-macro_rules! run_closure {
-    ($wrapper:expr, $input:expr, $t:ty) => {
-        unwrap_closure($wrapper).map(|mut c: RefMut<'_, KBClosure>| {
-            let result: Box<dyn Any> = c($input.as_form());
-            let cast_result: Box<$t> = result.downcast().expect("Downcast type failure");
-            cast_result
-        })
-    };
 }
 
 /// KBValue for weak references to data.
@@ -114,27 +99,21 @@ impl<'a, T: Any + 'static> KBValue for WeakValue<T> {
     }
 }
 
-/// KBValue for owned data.
+/// KBValue for owned immutable data.
 #[derive(Debug)]
 pub struct StrongValue<T: Any> {
-    item: T,
+    item: Rc<T>,
 }
 
 impl<T: Any> StrongValue<T> {
     /// Create a new KB wrapper that owns the given data.
     pub fn new(t: T) -> Self {
-        StrongValue { item: t }
+        StrongValue { item: Rc::new(t) }
     }
 
     /// Get value that this wrapper owns. Guaranteed to still exist because the KB owns this data.
-    pub fn value(&self) -> &T {
-        &self.item
-    }
-
-    /// Get mutable value that this wrapper owns. Guaranteed to still exist because the KB owns
-    /// this data.
-    pub fn value_mut(&mut self) -> &mut T {
-        &mut self.item
+    pub fn value(&self) -> Rc<T> {
+        self.item.clone()
     }
 }
 
@@ -157,7 +136,7 @@ mod tests {
     fn test_weak_value() {
         let item = Rc::new("something expensive".to_string());
         let weak = WeakValue::new(&item);
-        assert_eq!(unwrap_weak(Some(Rc::new(weak))), Some(item));
+        assert_eq!(unwrap_value(Some(Rc::new(weak))), Some(item));
     }
 
     #[test]
@@ -165,8 +144,8 @@ mod tests {
         let item = "something owned".to_string();
         let strong = StrongValue::new(item);
         assert_eq!(
-            unwrap_strong(&Some(Rc::new(strong))),
-            Some(&"something owned".to_string())
+            unwrap_value(Some(Rc::new(strong))),
+            Some(Rc::new("something owned".to_string()))
         );
     }
 
@@ -174,7 +153,10 @@ mod tests {
     fn test_strong_value_int() {
         let item: i64 = -5;
         let strong = StrongValue::new(item);
-        assert_eq!(unwrap_strong::<i64>(&Some(Rc::new(strong))), Some(&-5));
+        assert_eq!(
+            unwrap_value::<i64>(Some(Rc::new(strong))),
+            Some(Rc::new(-5))
+        );
     }
 
     #[test]
@@ -185,7 +167,7 @@ mod tests {
             Box::new(t.internal_name().unwrap())
         }));
         assert_eq!(
-            run_closure!(&kb_result, i, Rc<String>),
+            run_closure::<Rc<String>>(&kb_result, i.as_form()),
             Some(Box::new(Rc::new("inherits".to_string())))
         );
     }
