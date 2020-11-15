@@ -166,22 +166,6 @@ mod tests {
     }
 
     #[test]
-    fn create_and_retrieve_node_id() {
-        initialize_kb();
-        let concept1 = Archetype::individuate();
-        let concept2 = Archetype::individuate();
-        assert_eq!(concept1.id() + 1, concept2.id());
-    }
-
-    #[test]
-    fn create_and_retrieve_node_name() {
-        initialize_kb();
-        let mut concept = Archetype::individuate();
-        concept.set_internal_name("A".to_string());
-        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
-    }
-
-    #[test]
     fn test_overriding_owner_archetype() {
         initialize_kb();
         let mut attr_type1 = Attribute::archetype().individuate_as_archetype();

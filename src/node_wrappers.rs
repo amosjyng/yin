@@ -48,3 +48,49 @@ pub fn debug_wrapper(wrapper_type: &str, node: &dyn CommonNodeTrait, f: &mut For
         None => f.write_fmt(format_args!("{}({})", wrapper_type, node.id())),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tao::initialize_kb;
+
+    struct TestNodeWrapper {
+        actual: BaseNode,
+    }
+
+    impl From<BaseNode> for TestNodeWrapper {
+        fn from(actual: BaseNode) -> Self {
+            Self {
+                actual,
+            }
+        }
+    }
+
+    impl Wrapper for TestNodeWrapper {
+        type BaseType = BaseNode;
+
+        fn essence(&self) -> &BaseNode {
+            &self.actual
+        }
+
+        fn essence_mut(&mut self) -> &mut BaseNode {
+            &mut self.actual
+        }
+    }
+
+    #[test]
+    fn create_and_retrieve_node_id() {
+        initialize_kb();
+        let concept1 = BaseNode::new();
+        let concept2 = BaseNode::new();
+        assert_eq!(concept1.id() + 1, concept2.id());
+    }
+
+    #[test]
+    fn create_and_retrieve_node_name() {
+        initialize_kb();
+        let mut concept = BaseNode::new();
+        concept.set_internal_name("A".to_string());
+        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+    }
+}

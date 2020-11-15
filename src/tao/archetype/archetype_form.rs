@@ -106,20 +106,4 @@ mod tests {
         assert_eq!(Archetype::try_from("A"), Ok(concept));
         assert!(Archetype::try_from("B").is_err());
     }
-
-    #[test]
-    fn create_and_retrieve_node_id() {
-        initialize_kb();
-        let concept1 = Archetype::individuate();
-        let concept2 = Archetype::individuate();
-        assert_eq!(concept1.id() + 1, concept2.id());
-    }
-
-    #[test]
-    fn create_and_retrieve_node_name() {
-        initialize_kb();
-        let mut concept = Archetype::individuate();
-        concept.set_internal_name("A".to_string());
-        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
-    }
 }
