@@ -60,9 +60,7 @@ mod tests {
 
     impl From<BaseNode> for TestNodeWrapper {
         fn from(actual: BaseNode) -> Self {
-            Self {
-                actual,
-            }
+            Self { actual }
         }
     }
 

@@ -1,7 +1,6 @@
-use super::{
-    debug_wrapper, BaseNode, BaseNodeTrait, CommonNodeTrait, InheritanceNode, InheritanceNodeTrait,
-};
+use super::{debug_wrapper, BaseNode, BaseNodeTrait, InheritanceNode, InheritanceNodeTrait};
 use crate::graph::value_wrappers::KBValue;
+use crate::Wrapper;
 use std::cmp::{Eq, PartialEq};
 use std::convert::TryFrom;
 use std::fmt;
@@ -76,17 +75,15 @@ impl Debug for FinalNode {
     }
 }
 
-impl CommonNodeTrait for FinalNode {
-    fn id(&self) -> usize {
-        self.inode.id()
+impl Wrapper for FinalNode {
+    type BaseType = InheritanceNode;
+
+    fn essence(&self) -> &Self::BaseType {
+        &self.inode
     }
 
-    fn set_internal_name(&mut self, name: String) {
-        self.inode.set_internal_name(name);
-    }
-
-    fn internal_name(&self) -> Option<Rc<String>> {
-        self.inode.internal_name()
+    fn essence_mut(&mut self) -> &mut Self::BaseType {
+        &mut self.inode
     }
 }
 
@@ -154,17 +151,10 @@ impl InheritanceNodeTrait<FinalNode> for FinalNode {
 mod tests {
     use super::*;
     use crate::graph::value_wrappers::{unwrap_weak, WeakValue};
+    use crate::node_wrappers::CommonNodeTrait;
     use crate::tao::archetype::ArchetypeTrait;
     use crate::tao::initialize_kb;
     use crate::tao::relation::attribute::{Inherits, Owner};
-
-    #[test]
-    fn create_and_retrieve_node_id() {
-        initialize_kb();
-        let node1 = FinalNode::new();
-        let node2 = FinalNode::new();
-        assert_eq!(node1.id() + 1, node2.id());
-    }
 
     #[test]
     fn from_node_id() {
@@ -181,14 +171,6 @@ mod tests {
         node.set_internal_name("A".to_string());
         assert_eq!(FinalNode::try_from("A"), Ok(node));
         assert!(FinalNode::try_from("B").is_err());
-    }
-
-    #[test]
-    fn create_and_retrieve_node_name() {
-        initialize_kb();
-        let mut node = FinalNode::new();
-        node.set_internal_name("A".to_string());
-        assert_eq!(node.internal_name(), Some(Rc::new("A".to_string())));
     }
 
     #[test]
