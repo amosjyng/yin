@@ -1,13 +1,13 @@
 use super::ArchetypeFormTrait;
 use super::IsArchetype;
-use crate::node_wrappers::{debug_wrapper, CommonNodeTrait, FinalNode};
+use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::Tao;
+use crate::Wrapper;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
-use std::rc::Rc;
 
 /// Represents the archetypes of individuals, the metadata of data.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -43,17 +43,15 @@ impl<'a> TryFrom<&'a str> for Archetype {
     }
 }
 
-impl CommonNodeTrait for Archetype {
-    fn id(&self) -> usize {
-        self.base.id()
+impl Wrapper for Archetype {
+    type BaseType = FinalNode;
+
+    fn essence(&self) -> &FinalNode {
+        &self.base
     }
 
-    fn set_internal_name(&mut self, name: String) {
-        self.base.set_internal_name(name);
-    }
-
-    fn internal_name(&self) -> Option<Rc<String>> {
-        self.base.internal_name()
+    fn essence_mut(&mut self) -> &mut FinalNode {
+        &mut self.base
     }
 }
 
@@ -66,15 +64,7 @@ impl<'a> ArchetypeTrait<'a> for Archetype {
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
 }
 
-impl FormTrait for Archetype {
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
+impl FormTrait for Archetype {}
 
 impl IsArchetype for Archetype {}
 
@@ -85,8 +75,10 @@ impl<'a> ArchetypeFormTrait<'a> for Archetype {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::node_wrappers::CommonNodeTrait;
     use crate::tao::archetype::ArchetypeTrait;
     use crate::tao::initialize_kb;
+    use std::rc::Rc;
 
     #[test]
     fn check_type_created() {
@@ -113,21 +105,5 @@ mod tests {
         concept.set_internal_name("A".to_owned());
         assert_eq!(Archetype::try_from("A"), Ok(concept));
         assert!(Archetype::try_from("B").is_err());
-    }
-
-    #[test]
-    fn create_and_retrieve_node_id() {
-        initialize_kb();
-        let concept1 = Archetype::individuate();
-        let concept2 = Archetype::individuate();
-        assert_eq!(concept1.id() + 1, concept2.id());
-    }
-
-    #[test]
-    fn create_and_retrieve_node_name() {
-        initialize_kb();
-        let mut concept = Archetype::individuate();
-        concept.set_internal_name("A".to_string());
-        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
     }
 }

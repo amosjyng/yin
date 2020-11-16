@@ -1,11 +1,11 @@
-use crate::node_wrappers::BaseNodeTrait;
-use crate::node_wrappers::FinalNode;
+use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{Owner, Value};
+use crate::Wrapper;
 
 /// Interface for all attributes.
-pub trait AttributeTrait: FormTrait {
+pub trait AttributeTrait: FormTrait + Wrapper<BaseType = FinalNode> {
     /// The Form representing the owner.
     type OwnerForm: FormTrait + From<FinalNode>;
     /// The Form representing the value.

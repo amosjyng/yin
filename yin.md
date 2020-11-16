@@ -10,17 +10,33 @@ That's quite all right, because your reflexes are more than enough for us to wor
 
 Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of one. Simplified, pure, and undefiled by any notions of worldly affairs, she contains within her only timeless truths about herself. She exists as one of many beautiful ideas in the ethereal plane of Platonic ideals, although Yang is actively providing her with an embodied physical form. Perhaps one day, she might come down to grace this wretched world with her presence. But for now, only small parts of her exist.
 
-### Forms
+### Tao
 
-We begin by assuming nothing. We can at least name ideas as they come up.
+> The Tao that can be made into a `struct` is not the eternal Tao.
+>
+> The name that can be put into a `String` is not the eternal name.
+>
+> The unlabeled: ones and zeroes that ground this digital world.
+>
+> The labels: documentation that forms ten thousand abstractions.
+
+We begin by assuming nothing. But cleary *something* exists, so we might as well assume *something*, start from *somewhere*. Let's start off with a name:
+
+```rust
+define!(tao);
+```
+
+Hey look, you parsed that bit of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
+
+(What's that I hear you say? I could've just called this the "root" node, instead of referring to some mystical Tao? But where's the *fun* in that? Next you're going to tell me not to GPL this motherfucker.)
+
+### Forms
 
 The first idea is that we can only ever reason with and manipulate objects that have form. So let's start by giving everything a basic form:
 
 ```rust
 define!(form);
 ```
-
-Hey look, you parsed those bits of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
 
 [Everything is a part of ultimate reality, but reality is also a part of everything.](https://biblehub.com/john/14-20.htm)
 
@@ -86,12 +102,18 @@ Even the `Inherits` attribute itself inherits from Attribute! Exciting, we can n
 Let's call the owner of an inherits relation the "child," and the value the "parent." Each child archetype *inherits* all relations of its archetypal parent. Let's now define the inheritance relations for all the concepts we've defined so far:
 
 ```rust
-form.add_parent(Tao::archetype().as_archetype());
-relation.add_parent(Tao::archetype().as_archetype());
+form.add_parent(tao);
+relation.add_parent(tao);
 flag.add_parent(relation);
 attribute.add_parent(relation);
 owner.add_parent(attribute);
 value.add_parent(attribute);
+```
+
+Last but not least, it seems fitting, albeit meaningless, to make the Tao inherit its own properties:
+
+```rust
+//tao.add_parent(tao);
 ```
 
 Ah, this is starting to look more like a proper universe, where all entities are connected to all other entities.
@@ -127,8 +149,8 @@ aa(value_archetype).set_owner_archetype(attribute);
 As you can see, even `OwnerArchetype` and `ValueArchetype` have restrictions on their owners. `ValueArchetype` technically also has a restriction on its value (it should only ever be another archetype), but as of now, there's no way to actually specify that restriction. For completeness, let's describe the owner and value types of all the other relations we've defined:
 
 ```rust
-aa(relation).set_owner_archetype(Tao::archetype());
-aa(attribute).set_value_archetype(Tao::archetype());
+aa(relation).set_owner_archetype(tao);
+aa(attribute).set_value_archetype(tao);
 aa(owner).set_owner_archetype(relation);
 aa(value).set_owner_archetype(attribute);
 aa(has_property).set_value_archetype(relation);
@@ -141,16 +163,22 @@ Remember that because Attribute inherits from Relation, Attribute also has an ow
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
 ```rust
-form.implement_with(
-    10,
-    "All things that can be interacted with have form.",
+tao.implement_with(
+    0,
+    "The root node of all knowledge."
 );
-form.mark_own_module();
+tao.activate_root_node_logic();
 ```
 
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```rust
+form.implement_with(
+    10,
+    "All things that can be interacted with have form.",
+);
+form.mark_own_module();
+
 relation.implement_with(
     11,
     "Links any number of nodes together.",
@@ -205,8 +233,8 @@ value_archetype.implement_with(
 These are the versions of Yin and Yang used to make this build happen:
 
 ```toml
-zamm_yin = "0.0.12"
-zamm_yang = "0.0.11"
+zamm_yin = "0.0.13"
+zamm_yang = "0.0.12"
 ```
 
 ### Imports
@@ -218,7 +246,7 @@ use zamm_yin::tao::Tao;
 use zamm_yin::tao::archetype::ArchetypeTrait;
 use zamm_yin::tao::archetype::ArchetypeFormTrait;
 use zamm_yin::tao::archetype::AttributeArchetype;
-use zamm_yin::tao::FormTrait;
+use zamm_yin::tao::form::FormTrait;
 use zamm_yin::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
 use zamm_yang::tao::callbacks::handle_all_implementations;
@@ -226,8 +254,8 @@ use zamm_yang::tao::initialize_kb;
 use zamm_yang::tao::Implement;
 use zamm_yang::tao::ImplementConfig;
 use zamm_yang::tao::archetype::CodegenFlags;
-use zamm_yang::tao::form::DefinedMarker;
 use zamm_yang::tao::archetype::CreateImplementation;
+use zamm_yang::tao::form::DefinedMarker;
 use zamm_yang::define;
 use zamm_yang::helper::aa;
 ```
