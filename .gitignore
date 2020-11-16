@@ -1,7 +1,7 @@
 /target
-/.autogen.txt
 /.yang
 /.zamm
 Cargo.lock
 .vscode
 *.log
+.autogen.txt
