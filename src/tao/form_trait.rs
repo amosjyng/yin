@@ -184,6 +184,14 @@ mod tests {
     }
 
     #[test]
+    fn test_looped_ancestry() {
+        initialize_kb();
+        let mut type1 = tao.individuate_as_archetype();
+        type1.add_parent(type1);
+        assert_eq!(type1.ancestry(), vec![tao]);
+    }
+
+    #[test]
     fn test_parenthood() {
         initialize_kb();
         let owner = Owner::individuate();
