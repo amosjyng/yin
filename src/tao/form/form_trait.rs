@@ -35,6 +35,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
             .essence()
             .outgoing_nodes(Inherits::TYPE_ID)
             .into_iter()
+            .filter(|p| p != self.essence())
             .map(Archetype::from)
             .collect();
         let mut specific_parents = Vec::<Archetype>::new();
@@ -195,6 +196,14 @@ mod tests {
         assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
         assert!(owner.has_parent(Value::archetype().as_archetype()));
+    }
+
+    #[test]
+    fn test_self_parenthood_ignored() {
+        initialize_kb();
+        let mut new_type = Tao::archetype().individuate_as_archetype();
+        new_type.add_parent(new_type);
+        assert_eq!(new_type.parents(), vec![Tao::archetype()]);
     }
 
     #[test]
