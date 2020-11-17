@@ -1,4 +1,6 @@
-use super::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype};
+use super::archetype::{
+    Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait,
+};
 use super::form::Form;
 use super::relation::attribute::{
     Attribute, HasProperty, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
