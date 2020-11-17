@@ -1,5 +1,4 @@
-use super::Archetype;
-use super::AttributeArchetype;
+use super::{Archetype, AttributeArchetype};
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
