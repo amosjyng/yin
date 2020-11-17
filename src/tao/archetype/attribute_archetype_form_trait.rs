@@ -1,7 +1,7 @@
 use super::Archetype;
 use super::AttributeArchetype;
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
-use crate::tao::archetype::{ArchetypeTrait, IsArchetype};
+use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{OwnerArchetype, ValueArchetype};
 use crate::tao::Tao;
@@ -9,7 +9,7 @@ use crate::Wrapper;
 
 /// Archetype functionality that is specific to attribute archetypes.
 pub trait AttributeArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait + IsArchetype + Wrapper<BaseType = FinalNode>
+    ArchetypeTrait<'a> + FormTrait + Wrapper<BaseType = FinalNode>
 {
     /// Restrict the owners for this type of attribute.
     fn set_owner_archetype(&mut self, owner_archetype: Archetype) {

@@ -158,6 +158,27 @@ aa(has_property).set_value_archetype(relation);
 
 Remember that because Attribute inherits from Relation, Attribute also has an owner archetype set to Tao, so we've covered all our tracks here. Every flag and attribute has an owner, every attribute also has a value, and some attributes only apply to other attributes.
 
+### Archetypes
+
+Different forms have a lot of different properties in common. Perhaps we can capture this sort of large-scale pattern across forms with a new word:
+
+```rust
+define!(archetype);
+```
+
+Then, we can assign meta-properties to a *type*, such as Attribute, rather than any specific instance of that type. For example, it makes sense to ask what the type of owner is for the Value attribute. It will be another attribute. Even though every instance of Value can have a different specific owner, they should all have owners that are attributes.
+
+The type of owner that exists for the Value attribute is actually a property that only makes sense for attribute archetypes, since other archetypes won't even have a Value attribute. As such, we should define a separate archetype for attributes specifically:
+
+```rust
+define!(attribute_archetype);
+attribute_archetype.add_parent(archetype);
+```
+
+This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can represent all archetypes, including its own archetype, because it's an archetype too), `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`, and cannot be used to represent its own archetype.
+
+Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
+
 ### Implementation
 
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
@@ -223,6 +244,16 @@ owner_archetype.implement_with(
 value_archetype.implement_with(
     8,
     "The type of value this attribute has. Only the most restrictive inherited value will be used.",
+);
+
+archetype.implement_with(
+    1,
+    "Represents patterns found across an entire class of concepts.",
+);
+
+attribute_archetype.implement_with(
+    9,
+    "Archetype representing attributes.",
 );
 ```
 
