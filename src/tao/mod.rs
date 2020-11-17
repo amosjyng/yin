@@ -64,6 +64,7 @@ pub mod relation {
     pub mod attribute {
         mod attribute_form;
         mod attribute_trait;
+        mod default_value_form;
         mod has_property_form;
         mod inherits_form;
         mod owner_archetype_form;
@@ -76,6 +77,7 @@ pub mod relation {
 
         pub use attribute_form::Attribute;
         pub use attribute_trait::AttributeTrait;
+        pub use default_value_form::DefaultValue;
         pub use has_property_form::HasProperty;
         pub use inherits_form::Inherits;
         pub use owner_archetype_form::OwnerArchetype;
@@ -86,6 +88,17 @@ pub mod relation {
 }
 /// Concept forms, as opposed to archetypes.
 pub mod form {
+    /// Concepts that exist explicitly as bits.
+    pub mod data {
+        mod data_form;
+        mod number_form;
+        mod string_concept_form;
+
+        pub use data_form::Data;
+        pub use number_form::Number;
+        pub use string_concept_form::StringConcept;
+    }
+
     mod form_form;
     mod form_trait;
 
