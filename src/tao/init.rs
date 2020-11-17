@@ -1,17 +1,20 @@
-use super::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype};
+use super::archetype::{
+    Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait,
+};
 use super::form::Form;
 use super::relation::attribute::{
-    Attribute, HasProperty, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
+    Attribute, DefaultValue, HasProperty, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
 };
 use super::relation::flag::Flag;
 use super::relation::Relation;
 use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 use crate::graph::{Graph, InjectionGraph};
+use crate::tao::form::data::{Data, Number, StringConcept};
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 12;
+pub const YIN_MAX_ID: usize = 16;
 
 /// Add the given Concept type to the KB.
 ///
@@ -63,7 +66,11 @@ pub fn initialize_types() {
             AttributeArchetype,
             Form,
             Relation,
-            Flag
+            Flag,
+            Data,
+            StringConcept,
+            Number,
+            DefaultValue
         )
     );
 

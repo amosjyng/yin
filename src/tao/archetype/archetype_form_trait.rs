@@ -1,8 +1,8 @@
 use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
-use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype, IsArchetype};
-use crate::tao::form::FormTrait;
-use crate::tao::relation::attribute::{HasProperty, Inherits};
+use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
+use crate::tao::form::{Form, FormTrait};
+use crate::tao::relation::attribute::{Attribute, HasProperty, Inherits};
 use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
 
@@ -21,7 +21,7 @@ use std::collections::{HashSet, VecDeque};
 /// to `Self` refers to the Archetype node itself. Since this FormTrait is supposed to reason about
 /// the node-as-archetype, **there should be no instances of `Self` here**.
 pub trait ArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait + IsArchetype + Wrapper<BaseType = FinalNode>
+    ArchetypeTrait<'a> + FormTrait + Wrapper<BaseType = FinalNode>
 {
     /// The ArchetypeTrait as defined for an Archetype will have an Archetype-based Form for
     /// reasoning about other nodes as archetypes. The Archetype's Form is the observer, and the
@@ -107,6 +107,14 @@ pub trait ArchetypeFormTrait<'a>:
             .map(AttributeArchetype::from)
             .collect()
     }
+}
+
+impl<'a> ArchetypeFormTrait<'a> for Archetype {
+    type SubjectForm = Form;
+}
+
+impl<'a> ArchetypeFormTrait<'a> for AttributeArchetype {
+    type SubjectForm = Attribute;
 }
 
 #[cfg(test)]

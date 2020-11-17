@@ -158,6 +158,75 @@ aa(has_property).set_value_archetype(relation);
 
 Remember that because Attribute inherits from Relation, Attribute also has an owner archetype set to Tao, so we've covered all our tracks here. Every flag and attribute has an owner, every attribute also has a value, and some attributes only apply to other attributes.
 
+### Archetypes
+
+Different forms have a lot of different properties in common. Perhaps we can capture this sort of large-scale pattern across forms with a new word:
+
+```rust
+define!(archetype);
+```
+
+Then, we can assign meta-properties to a *type*, such as Attribute, rather than any specific instance of that type. For example, it makes sense to ask what the type of owner is for the Value attribute. It will be another attribute. Even though every instance of Value can have a different specific owner, they should all have owners that are attributes.
+
+The type of owner that exists for the Value attribute is actually a property that only makes sense for attribute archetypes, since other archetypes won't even have a Value attribute. As such, we should define a separate archetype for attributes specifically:
+
+```rust
+define!(attribute_archetype);
+attribute_archetype.add_parent(archetype);
+```
+
+This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can represent all archetypes, including its own archetype, because it's an archetype too), `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`, and cannot be used to represent its own archetype.
+
+Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
+
+### Data
+
+One archetype type to look at is `Data`, perhaps roughly analogous to the linguistic concept of a "noun." What do we generally start out describing as nouns? Physical objects in the physical world.
+
+Now, not every noun corresponds directly to something physical. We have words that refer to mental states, for example. But even emotions appear to ultimately be an emergent phenomenon of lower-level physics. Even the [is-ought problem](https://en.wikipedia.org/wiki/Is%E2%80%93ought_problem) or [fact-value distinction](https://en.wikipedia.org/wiki/Fact%E2%80%93value_distinction) are, in a sense, not quite as dichotomous as they might seem: all "ought" opinions that have ever existed are encoded in some "is," whether that encoding takes the form of neural patterns, ink on a parchment, or sound waves propagating through the air. This doesn't mean that the general distinction between "is" and "ought" isn't worth making, or that nouns should be done away with. All abstractions are [leaky](https://blog.codinghorror.com/all-abstractions-are-failed-abstractions/), but [some are useful](https://en.wikipedia.org/wiki/All_models_are_wrong).
+
+The same can be said for the bits in Yin and Yang's world. Everything is ultimately bits for these programs -- even a video feed hooked up to the physical world only ever comes in as a stream of bits. If we really wanted to fool a program, it should be theoretically impossible for the program [to tell](https://en.wikipedia.org/wiki/Brain_in_a_vat) that it's actually running in a hermetically sealed continuous integration test environment instead of production. But it still makes sense to speak of pieces of data versus the relations between the data, even if the relations themselves can rightfully be considered data as well:
+
+```rust
+define!(data);
+data.add_parent(form);
+```
+
+In a sense, it's all about framing. Every series of bits forms a number, but unless you're Gödel and you're trying to establish an equivalence between a mathematical proof and an integer, reasoning about "a series of bits" is going to be quite different from reasoning about "a number."
+
+One type of data is a "string":
+
+```rust
+define!(string_concept);
+string_concept.add_parent(data);
+```
+
+Another type of data is a number:
+
+```rust
+define!(number);
+number.add_parent(data);
+```
+
+Every type of data usually has a "default" value that we think of when constructing one from scratch.
+
+```rust
+define!(default_value);
+default_value.add_parent(attribute);
+```
+
+For strings, this would be the empty string:
+
+```rust
+string_concept.set_default_value("String::new()");
+```
+
+For numbers, this would be zero:
+
+```rust
+number.set_default_value("0");
+```
+
 ### Implementation
 
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
@@ -177,7 +246,6 @@ form.implement_with(
     10,
     "All things that can be interacted with have form.",
 );
-form.mark_own_module();
 
 relation.implement_with(
     11,
@@ -212,7 +280,7 @@ inherits.implement_with(
 
 has_property.implement_with(
     6,
-    r#"Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in."#,
+    "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
 );
 
 owner_archetype.implement_with(
@@ -224,6 +292,53 @@ value_archetype.implement_with(
     8,
     "The type of value this attribute has. Only the most restrictive inherited value will be used.",
 );
+
+archetype.implement_with(
+    1,
+    "Represents patterns found across an entire class of concepts.",
+);
+
+attribute_archetype.implement_with(
+    9,
+    "Archetype representing attributes.",
+);
+
+data.implement_with(
+    13,
+    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
+);
+
+string_concept.implement_with(
+    14,
+    "The concept of a string of characters."
+);
+```
+
+When it comes to data, we should also tell Yang which Rust primitives these concepts refer to:
+
+```rust
+string_concept.activate_data_logic();
+string_concept.set_rust_primitive("String");
+```
+
+For now, we only use positive numbers:
+
+```rust
+number.implement_with(
+    15,
+    "The concept of numbers."
+);
+number.activate_data_logic();
+number.set_rust_primitive("usize");
+```
+
+And now for the rest of it:
+
+```rust
+default_value.implement_with(
+    16,
+    "The default value of a data structure."
+);
 ```
 
 ## Appendix
@@ -233,8 +348,8 @@ value_archetype.implement_with(
 These are the versions of Yin and Yang used to make this build happen:
 
 ```toml
-zamm_yin = "0.0.13"
-zamm_yang = "0.0.12"
+zamm_yin = "0.0.14"
+zamm_yang = "0.1.0"
 ```
 
 ### Imports
@@ -256,6 +371,7 @@ use zamm_yang::tao::ImplementConfig;
 use zamm_yang::tao::archetype::CodegenFlags;
 use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::form::DefinedMarker;
+use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::define;
 use zamm_yang::helper::aa;
 ```
