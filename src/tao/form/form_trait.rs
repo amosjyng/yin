@@ -35,6 +35,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
             .essence()
             .outgoing_nodes(Inherits::TYPE_ID)
             .into_iter()
+            .filter(|p| p != self.essence())
             .map(Archetype::from)
             .collect();
         let mut specific_parents = Vec::<Archetype>::new();
@@ -149,7 +150,6 @@ mod tests {
     #[test]
     fn test_ancestry_individual() {
         initialize_kb();
-        initialize_kb();
         let type1 = Tao::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
         let form = type2.individuate_as_form();
@@ -160,6 +160,23 @@ mod tests {
     fn test_tao_ancestry() {
         initialize_kb();
         assert_eq!(Tao::archetype().ancestry(), Vec::<Archetype>::new());
+    }
+
+    #[test]
+    fn test_looped_ancestry() {
+        initialize_kb();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        type1.add_parent(type1);
+        assert_eq!(type1.ancestry(), vec![Tao::archetype()]);
+    }
+
+    #[test]
+    fn test_looped_child_ancestry() {
+        initialize_kb();
+        let mut type1 = Tao::archetype().individuate_as_archetype();
+        type1.add_parent(type1);
+        let type2 = type1.individuate_as_archetype();
+        assert_eq!(type2.ancestry(), vec![Tao::archetype(), type1]);
     }
 
     #[test]
@@ -179,6 +196,14 @@ mod tests {
         assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
         assert!(owner.has_parent(Value::archetype().as_archetype()));
+    }
+
+    #[test]
+    fn test_self_parenthood_ignored() {
+        initialize_kb();
+        let mut new_type = Tao::archetype().individuate_as_archetype();
+        new_type.add_parent(new_type);
+        assert_eq!(new_type.parents(), vec![Tao::archetype()]);
     }
 
     #[test]
