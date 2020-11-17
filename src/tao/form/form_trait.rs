@@ -121,14 +121,14 @@ mod tests {
     #[test]
     fn test_parents() {
         initialize_kb();
-        let owner = Owner::individuate();
+        let owner = Owner::new();
         assert_eq!(owner.parents(), vec![Owner::archetype().as_archetype()]);
     }
 
     #[test]
     fn test_multiple_parents() {
         initialize_kb();
-        let mut owner = Owner::individuate();
+        let mut owner = Owner::new();
         owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
         assert_eq!(
             owner.parents(),
@@ -182,7 +182,7 @@ mod tests {
     #[test]
     fn test_parenthood() {
         initialize_kb();
-        let owner = Owner::individuate();
+        let owner = Owner::new();
         assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
         assert!(!owner.has_parent(Value::archetype().as_archetype()));
@@ -191,7 +191,7 @@ mod tests {
     #[test]
     fn test_multiple_parenthood() {
         initialize_kb();
-        let mut owner = Owner::individuate();
+        let mut owner = Owner::new();
         owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
         assert!(owner.has_parent(Owner::archetype().as_archetype()));
         assert!(!owner.has_parent(Tao::archetype()));
@@ -209,7 +209,7 @@ mod tests {
     #[test]
     fn specific_to_generic_parenthood() {
         initialize_kb();
-        let mut form = Form::individuate();
+        let mut form = Form::new();
         form.add_parent(Tao::archetype());
         assert_eq!(form.parents(), vec![Form::archetype()]);
     }
@@ -217,7 +217,7 @@ mod tests {
     #[test]
     fn generic_to_specific_parenthood() {
         initialize_kb();
-        let mut form = Tao::individuate();
+        let mut form = Tao::new();
         form.add_parent(Form::archetype());
         assert_eq!(form.parents(), vec![Form::archetype()]);
     }
@@ -225,7 +225,7 @@ mod tests {
     #[test]
     fn test_has_ancestor() {
         initialize_kb();
-        let owner = Owner::individuate();
+        let owner = Owner::new();
         assert!(owner.has_ancestor(Owner::archetype().as_archetype()));
         assert!(owner.has_ancestor(Tao::archetype()));
         assert!(!owner.has_ancestor(Value::archetype().as_archetype()));

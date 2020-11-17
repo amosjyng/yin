@@ -28,7 +28,7 @@
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::tao::form::{Form, FormTrait};
 //!
-//! let mut concept = Form::individuate();
+//! let mut concept = Form::new();
 //! assert!(concept.has_ancestor(Form::archetype()));
 //! ```
 //!
@@ -39,7 +39,7 @@
 //! # use zamm_yin::tao::archetype::ArchetypeTrait;
 //! # use zamm_yin::tao::form::Form;
 //! # initialize_kb();
-//! # let mut concept = Form::individuate();
+//! # let mut concept = Form::new();
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!

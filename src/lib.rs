@@ -13,7 +13,7 @@
 //!     initialize_kb();
 //!
 //!     // Create a new concept
-//!     let mut concept = Form::individuate();
+//!     let mut concept = Form::new();
 //!     assert!(concept.has_ancestor(Form::archetype()));
 //!
 //!     // Set a name for the concept

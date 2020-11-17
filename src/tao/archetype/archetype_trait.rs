@@ -43,7 +43,7 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
     /// From this countable infinity all forms emerged, dividing the Oneness again and again into
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
-    fn individuate() -> Self::Form {
+    fn new() -> Self::Form {
         Self::Form::from(FinalNode::new_with_inheritance(Self::TYPE_ID))
     }
 }
@@ -60,10 +60,10 @@ mod tests {
     #[test]
     fn test_new_node_inheritance() {
         initialize_kb();
-        let owner = Owner::individuate();
+        let owner = Owner::new();
         assert_eq!(owner.owner(), None);
 
-        let my_flag = Flag::individuate();
+        let my_flag = Flag::new();
         // todo: use as_relation() once yang generates that
         let my_flag_rel = Relation::from(my_flag.id());
         Owner::from(Owner::TYPE_ID).set_owner(&my_flag_rel);
