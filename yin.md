@@ -264,8 +264,8 @@ attribute_archetype.implement_with(
 These are the versions of Yin and Yang used to make this build happen:
 
 ```toml
-zamm_yin = "0.0.13"
-zamm_yang = "0.0.12"
+zamm_yin = "0.0.14"
+zamm_yang = "0.0.13"
 ```
 
 ### Imports
