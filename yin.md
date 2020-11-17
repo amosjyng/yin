@@ -233,7 +233,7 @@ inherits.implement_with(
 
 has_property.implement_with(
     6,
-    r#"Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length "attribute". That's where this attribute comes in."#,
+    "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
 );
 
 owner_archetype.implement_with(
