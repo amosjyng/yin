@@ -303,7 +303,8 @@ use zamm_yin::tao::Tao;
 use zamm_yin::tao::archetype::ArchetypeTrait;
 use zamm_yin::tao::archetype::ArchetypeFormTrait;
 use zamm_yin::tao::archetype::AttributeArchetype;
-use zamm_yin::tao::archetype::AttributeArchetypeFormTrait;
+// todo: restore after backwards compatibility workaround removed in Yang
+//use zamm_yin::tao::archetype::AttributeArchetypeFormTrait;
 use zamm_yin::tao::form::FormTrait;
 use zamm_yin::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
@@ -316,4 +317,5 @@ use zamm_yang::tao::form::DefinedMarker;
 use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::define;
 use zamm_yang::helper::aa;
+use zamm_yang::helper::BackwardsCompatibility;
 ```
