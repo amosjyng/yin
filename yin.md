@@ -113,7 +113,7 @@ value.add_parent(attribute);
 Last but not least, it seems fitting, albeit meaningless, to make the Tao inherit its own properties:
 
 ```rust
-//tao.add_parent(tao);
+tao.add_parent(tao);
 ```
 
 Ah, this is starting to look more like a proper universe, where all entities are connected to all other entities.
