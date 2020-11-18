@@ -8,6 +8,10 @@ Functionality is basically non-existent at the moment. Please do not use this li
 
 Note that there is currently only single-threaded support. Unless using a Neo4j Cypher backend, every spawned thread will have its own independent instance of the KB.
 
+### Semver
+
+Semver "backwards compatibility" will be interpreted to mean any changes that do not break Yang's release builds. For example, there may be many changes in the public API in between Yin versions `0.x.0` and `0.x.y`. But so long as the Yang releases that depend on `0.x.0` do not break, and the releases that depend on the most recent `0.x.y` version also do not break, this will be considered "backwards compatible" for all practical purposes.
+
 ## Examples
 
 See [the docs](https://docs.rs/zamm_yin/) for examples of how to use the library.
