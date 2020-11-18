@@ -109,5 +109,6 @@ mod auto_init;
 mod init;
 mod tao_form;
 
-pub use init::{initialize_cypher_kb, initialize_kb, YIN_MAX_ID};
+pub use auto_init::YIN_MAX_ID;
+pub use init::{initialize_cypher_kb, initialize_kb};
 pub use tao_form::Tao;

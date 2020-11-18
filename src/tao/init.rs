@@ -9,10 +9,6 @@ use super::relation::Relation;
 use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 
-/// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
-/// should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 16;
-
 /// Add the given Concept type to the KB.
 ///
 /// # Examples
