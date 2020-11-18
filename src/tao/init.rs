@@ -1,16 +1,13 @@
 use super::archetype::{
-    Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait,
+    ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait,
 };
-use super::form::Form;
+use super::auto_init::initialize_types;
 use super::relation::attribute::{
-    Attribute, DefaultValue, HasProperty, Inherits, Owner, OwnerArchetype, Value, ValueArchetype,
+    Attribute, HasProperty, Owner, OwnerArchetype, Value, ValueArchetype,
 };
-use super::relation::flag::Flag;
 use super::relation::Relation;
 use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
-use crate::graph::{Graph, InjectionGraph};
-use crate::tao::form::data::{Data, Number, StringConcept};
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-specific type concepts
 /// should continue their numbering on top of this.
@@ -48,32 +45,8 @@ macro_rules! initialize_type {
     };
 }
 
-/// Adds all concepts and relations to graph.
-pub fn initialize_types() {
-    let mut ig = InjectionGraph::default();
-    initialize_type!(
-        ig,
-        (
-            Tao,
-            Archetype,
-            Attribute,
-            Owner,
-            Value,
-            Inherits,
-            HasProperty,
-            OwnerArchetype,
-            ValueArchetype,
-            AttributeArchetype,
-            Form,
-            Relation,
-            Flag,
-            Data,
-            StringConcept,
-            Number,
-            DefaultValue
-        )
-    );
-
+/// Adds all concept relations to graph.
+fn initialize_relations() {
     let mut attributes = Attribute::archetype();
     attributes.add_attribute_type(Owner::archetype());
     attributes.add_attribute_type(Value::archetype());
@@ -97,6 +70,7 @@ pub fn initialize_types() {
 pub fn initialize_kb() {
     bind_in_memory_graph();
     initialize_types();
+    initialize_relations();
 }
 
 /// Initialize Yin with a Neo4j-backed graph database.
@@ -106,6 +80,7 @@ pub fn initialize_kb() {
 pub fn initialize_cypher_kb(uri: &str) {
     bind_cypher_graph(uri);
     initialize_types();
+    initialize_relations();
 }
 
 #[cfg(test)]

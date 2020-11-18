@@ -243,63 +243,63 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 
 ```rust
 form.implement_with(
-    10,
+    1,
     "All things that can be interacted with have form.",
 );
 
 relation.implement_with(
-    11,
+    2,
     "Links any number of nodes together.",
 );
 
 flag.implement_with(
-    12,
+    3,
     "Represents a unary relation.",
 );
 flag.mark_own_module();
 
 attribute.implement_with(
-    2,
+    4,
     "Represents a binary relation.",
 );
 
 owner.implement_with(
-    3,
+    5,
     "The owner/source/from-node of an attribute.",
 );
 
 value.implement_with(
-    4,
+    6,
     "The value/target/to-node of an attribute.",
 );
 
 inherits.implement_with(
-    5,
+    7,
     "Describes the owner as inheriting all attributes of the value.",
 );
 
 has_property.implement_with(
-    6,
+    8,
     "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
 );
 
 owner_archetype.implement_with(
-    7,
+    9,
     "The type of owner this attribute has. Only the most restrictive inherited value will be used.",
 );
 
 value_archetype.implement_with(
-    8,
+    10,
     "The type of value this attribute has. Only the most restrictive inherited value will be used.",
 );
 
 archetype.implement_with(
-    1,
+    11,
     "Represents patterns found across an entire class of concepts.",
 );
 
 attribute_archetype.implement_with(
-    9,
+    12,
     "Archetype representing attributes.",
 );
 
@@ -348,8 +348,8 @@ default_value.implement_with(
 These are the versions of Yin and Yang used to make this build happen:
 
 ```toml
-zamm_yin = "0.0.14"
-zamm_yang = "0.1.0"
+zamm_yin = "0.1.0"
+zamm_yang = "0.1.1"
 ```
 
 ### Imports
@@ -361,6 +361,7 @@ use zamm_yin::tao::Tao;
 use zamm_yin::tao::archetype::ArchetypeTrait;
 use zamm_yin::tao::archetype::ArchetypeFormTrait;
 use zamm_yin::tao::archetype::AttributeArchetype;
+use zamm_yin::tao::archetype::AttributeArchetypeFormTrait;
 use zamm_yin::tao::form::FormTrait;
 use zamm_yin::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;

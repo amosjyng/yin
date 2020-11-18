@@ -105,6 +105,7 @@ pub mod form {
     pub use form_form::Form;
     pub use form_trait::FormTrait;
 }
+mod auto_init;
 mod init;
 mod tao_form;
 
