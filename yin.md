@@ -113,7 +113,7 @@ value.add_parent(attribute);
 Last but not least, it seems fitting, albeit meaningless, to make the Tao inherit its own properties:
 
 ```rust
-//tao.add_parent(tao);
+tao.add_parent(tao);
 ```
 
 Ah, this is starting to look more like a proper universe, where all entities are connected to all other entities.
@@ -232,102 +232,47 @@ number.set_default_value("0");
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
 ```rust
-tao.implement_with(
-    0,
-    "The root node of all knowledge."
-);
+tao.implement_with_doc("The root node of all knowledge.");
 tao.activate_root_node_logic();
 ```
 
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```rust
-form.implement_with(
-    10,
-    "All things that can be interacted with have form.",
-);
+form.implement_with_doc("All things that can be interacted with have form.");
+relation.implement_with_doc("Links any number of nodes together.");
 
-relation.implement_with(
-    11,
-    "Links any number of nodes together.",
-);
-
-flag.implement_with(
-    12,
-    "Represents a unary relation.",
-);
+flag.implement_with_doc("Represents a unary relation.");
 flag.mark_own_module();
 
-attribute.implement_with(
-    2,
-    "Represents a binary relation.",
-);
-
-owner.implement_with(
-    3,
-    "The owner/source/from-node of an attribute.",
-);
-
-value.implement_with(
-    4,
-    "The value/target/to-node of an attribute.",
-);
-
-inherits.implement_with(
-    5,
-    "Describes the owner as inheriting all attributes of the value.",
-);
-
-has_property.implement_with(
-    6,
+attribute.implement_with_doc("Represents a binary relation.");
+owner.implement_with_doc("The owner/source/from-node of an attribute.");
+value.implement_with_doc("The value/target/to-node of an attribute.");
+inherits.implement_with_doc("Describes the owner as inheriting all attributes of the value.");
+has_property.implement_with_doc(
     "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
 );
-
-owner_archetype.implement_with(
-    7,
-    "The type of owner this attribute has. Only the most restrictive inherited value will be used.",
+owner_archetype.implement_with_doc(
+    "The type of owner this attribute has. Only the most restrictive inherited value will be used."
 );
-
-value_archetype.implement_with(
-    8,
-    "The type of value this attribute has. Only the most restrictive inherited value will be used.",
+value_archetype.implement_with_doc(
+    "The type of value this attribute has. Only the most restrictive inherited value will be used."
 );
-
-archetype.implement_with(
-    1,
-    "Represents patterns found across an entire class of concepts.",
-);
-
-attribute_archetype.implement_with(
-    9,
-    "Archetype representing attributes.",
-);
-
-data.implement_with(
-    13,
+archetype.implement_with_doc("Represents patterns found across an entire class of concepts.");
+attribute_archetype.implement_with_doc("Archetype representing attributes.");
+data.implement_with_doc(
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
-);
-
-string_concept.implement_with(
-    14,
-    "The concept of a string of characters."
 );
 ```
 
 When it comes to data, we should also tell Yang which Rust primitives these concepts refer to:
 
 ```rust
+string_concept.implement_with_doc("The concept of a string of characters.");
 string_concept.activate_data_logic();
 string_concept.set_rust_primitive("String");
-```
 
-For now, we only use positive numbers:
-
-```rust
-number.implement_with(
-    15,
-    "The concept of numbers."
-);
+number.implement_with_doc("The concept of numbers.");
 number.activate_data_logic();
 number.set_rust_primitive("usize");
 ```
@@ -335,10 +280,7 @@ number.set_rust_primitive("usize");
 And now for the rest of it:
 
 ```rust
-default_value.implement_with(
-    16,
-    "The default value of a data structure."
-);
+default_value.implement_with_doc("The default value of a data structure.");
 ```
 
 ## Appendix
@@ -348,8 +290,8 @@ default_value.implement_with(
 These are the versions of Yin and Yang used to make this build happen:
 
 ```toml
-zamm_yin = "0.0.14"
-zamm_yang = "0.1.0"
+zamm_yin = "0.1.0"
+zamm_yang = "0.1.1"
 ```
 
 ### Imports
@@ -361,17 +303,19 @@ use zamm_yin::tao::Tao;
 use zamm_yin::tao::archetype::ArchetypeTrait;
 use zamm_yin::tao::archetype::ArchetypeFormTrait;
 use zamm_yin::tao::archetype::AttributeArchetype;
+// todo: restore after backwards compatibility workaround removed in Yang
+//use zamm_yin::tao::archetype::AttributeArchetypeFormTrait;
 use zamm_yin::tao::form::FormTrait;
 use zamm_yin::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
 use zamm_yang::tao::callbacks::handle_all_implementations;
 use zamm_yang::tao::initialize_kb;
 use zamm_yang::tao::Implement;
-use zamm_yang::tao::ImplementConfig;
 use zamm_yang::tao::archetype::CodegenFlags;
 use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::form::DefinedMarker;
 use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::define;
 use zamm_yang::helper::aa;
+use zamm_yang::helper::BackwardsCompatibility;
 ```
