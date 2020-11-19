@@ -290,8 +290,7 @@ default_value.implement_with_doc("The default value of a data structure.");
 These are the versions of Yin and Yang used to make this build happen:
 
 ```toml
-zamm_yin = "=0.1.0"
-zamm_yang = "=0.1.1"
+zamm_yang = "0.1.2"
 ```
 
 ### Imports
@@ -299,23 +298,13 @@ zamm_yang = "=0.1.1"
 These are the generic imports for general Yang generation:
 
 ```rust
-use zamm_yin::tao::Tao;
-use zamm_yin::tao::archetype::ArchetypeTrait;
-use zamm_yin::tao::archetype::ArchetypeFormTrait;
-use zamm_yin::tao::archetype::AttributeArchetype;
-// todo: restore after backwards compatibility workaround removed in Yang
-//use zamm_yin::tao::archetype::AttributeArchetypeFormTrait;
-use zamm_yin::tao::form::FormTrait;
-use zamm_yin::node_wrappers::CommonNodeTrait;
+use zamm_yang::tao::*;
+use zamm_yang::tao::archetype::*;
+use zamm_yang::tao::form::FormTrait;
+use zamm_yang::tao::form::data::DataExtension;
+use zamm_yang::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
 use zamm_yang::tao::callbacks::handle_all_implementations;
-use zamm_yang::tao::initialize_kb;
-use zamm_yang::tao::Implement;
-use zamm_yang::tao::archetype::CodegenFlags;
-use zamm_yang::tao::archetype::CreateImplementation;
-use zamm_yang::tao::form::DefinedMarker;
-use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::define;
 use zamm_yang::helper::aa;
-use zamm_yang::helper::BackwardsCompatibility;
 ```
