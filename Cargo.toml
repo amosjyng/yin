@@ -17,3 +17,6 @@ cypher = ["rusted_cypher"]
 [dependencies]
 petgraph = "^0.5.1"
 rusted_cypher = { version = "^1.1.0", optional = true }
+
+[build-dependencies]
+zamm = {path = "/Users/amos/Documents/zamm/zamm"}
