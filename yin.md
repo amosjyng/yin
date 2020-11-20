@@ -244,6 +244,7 @@ relation.implement_with_doc("Links any number of nodes together.");
 
 flag.implement_with_doc("Represents a unary relation.");
 flag.mark_own_module();
+flag.impl_mod("Unary relations.");
 
 attribute.implement_with_doc("Represents a binary relation.");
 owner.implement_with_doc("The owner/source/from-node of an attribute.");
@@ -261,6 +262,9 @@ value_archetype.implement_with_doc(
 archetype.implement_with_doc("Represents patterns found across an entire class of concepts.");
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
 data.implement_with_doc(
+    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
+);
+data.impl_mod(
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
 );
 ```

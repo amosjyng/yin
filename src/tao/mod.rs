@@ -55,10 +55,7 @@ pub mod relation {
     pub use relation_form::Relation;
 
     /// Relations involving only one form.
-    pub mod flag {
-        mod flag_form;
-        pub use flag_form::Flag;
-    }
+    pub mod flag;
 
     /// Relations between two forms.
     pub mod attribute {
@@ -89,15 +86,7 @@ pub mod relation {
 /// Concept forms, as opposed to archetypes.
 pub mod form {
     /// Concepts that exist explicitly as bits.
-    pub mod data {
-        mod data_form;
-        mod number_form;
-        mod string_concept_form;
-
-        pub use data_form::Data;
-        pub use number_form::Number;
-        pub use string_concept_form::StringConcept;
-    }
+    pub mod data;
 
     mod form_form;
     mod form_trait;
