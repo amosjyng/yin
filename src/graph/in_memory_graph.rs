@@ -12,7 +12,7 @@ use std::rc::Rc;
 /// the edge weights, and also implement a custom Display for both of them.
 #[derive(Default)]
 struct NodeName {
-    name: Option<Rc<String>>,
+    name: Option<Rc<str>>,
 }
 
 #[derive(Default)]
@@ -53,7 +53,7 @@ impl Display for EdgeInfo {
 /// Graph that resides entirely in-memory, based on PetGraph.
 pub struct InMemoryGraph {
     graph: petgraph::graph::Graph<NodeInfo, EdgeInfo>,
-    names: HashMap<Rc<String>, Vec<usize>>,
+    names: HashMap<Rc<str>, Vec<usize>>,
 }
 
 impl InMemoryGraph {
@@ -84,8 +84,8 @@ impl Graph for InMemoryGraph {
             .value = Some(value);
     }
 
-    fn set_node_name(&mut self, id: usize, name: String) {
-        let name_rc = Rc::new(name);
+    fn set_node_name(&mut self, id: usize, name: &str) {
+        let name_rc: Rc<str> = Rc::from(name);
         match self.names.get_mut(&name_rc) {
             Some(existing_vec) => existing_vec.push(id),
             None => {
@@ -100,7 +100,7 @@ impl Graph for InMemoryGraph {
             .name = Some(name_rc);
     }
 
-    fn node_name(&self, id: usize) -> Option<Rc<String>> {
+    fn node_name(&self, id: usize) -> Option<Rc<str>> {
         self.graph
             .node_weight(NodeIndex::new(id))
             .map(|info| info.name.borrow().name.as_ref().cloned())
@@ -115,11 +115,7 @@ impl Graph for InMemoryGraph {
     }
 
     fn lookup(&self, name: &str) -> Vec<usize> {
-        let mut ids = self
-            .names
-            .get(&Rc::new(name.to_string()))
-            .cloned()
-            .unwrap_or_default();
+        let mut ids = self.names.get(&Rc::from(name)).cloned().unwrap_or_default();
         ids.sort_unstable();
         ids
     }
@@ -266,8 +262,8 @@ mod tests {
         bind_in_memory_graph();
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
-        g.set_node_name(a_id, "A".to_string());
-        assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
+        g.set_node_name(a_id, "A");
+        assert_eq!(g.node_name(a_id), Some(Rc::from("A")));
     }
 
     #[test]
@@ -276,9 +272,9 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new(5);
-        g.set_node_name(a_id, "A".to_string());
+        g.set_node_name(a_id, "A");
         g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
-        assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
+        assert_eq!(g.node_name(a_id), Some(Rc::from("A")));
         assert_eq!(unwrap_value::<i32>(g.node_value(a_id)), Some(v));
     }
 
@@ -297,7 +293,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         g.add_node();
-        g.set_node_name(a_id, "A".to_string());
+        g.set_node_name(a_id, "A");
         assert_eq!(g.lookup("A"), vec![a_id]);
     }
 
@@ -307,8 +303,8 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let b_id = g.add_node();
-        g.set_node_name(a_id, "A".to_string());
-        g.set_node_name(b_id, "A".to_string());
+        g.set_node_name(a_id, "A");
+        g.set_node_name(b_id, "A");
         assert_eq!(g.lookup("A"), vec![a_id, b_id]);
     }
 
@@ -482,8 +478,8 @@ mod tests {
         let b_id = g.add_node();
         let edge1_type_id = g.add_node();
         let edge2_type_id = g.add_node();
-        g.set_node_name(b_id, "B node".to_owned());
-        g.set_node_name(edge1_type_id, "test attr".to_owned());
+        g.set_node_name(b_id, "B node");
+        g.set_node_name(edge1_type_id, "test attr");
         g.add_edge(a_id, edge1_type_id, b_id);
         g.add_edge(a_id, edge2_type_id, b_id);
 

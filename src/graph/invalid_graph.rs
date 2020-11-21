@@ -22,11 +22,11 @@ impl Graph for InvalidGraph {
         panic!(Self::INVALID_MSG);
     }
 
-    fn set_node_name(&mut self, _: usize, _: String) {
+    fn set_node_name(&mut self, _: usize, _: &str) {
         panic!(Self::INVALID_MSG);
     }
 
-    fn node_name(&self, _: usize) -> Option<Rc<String>> {
+    fn node_name(&self, _: usize) -> Option<Rc<str>> {
         panic!(Self::INVALID_MSG);
     }
 

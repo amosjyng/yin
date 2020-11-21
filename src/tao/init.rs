@@ -33,7 +33,7 @@ macro_rules! initialize_type {
     ($g:expr, ($($t:ty),*)) => {
         $(
             $g.add_node();
-            $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME.to_string());
+            $g.set_node_name(<$t>::TYPE_ID, <$t>::TYPE_NAME);
         )*
         // set edges later, since edges contain references to node names, and that will be
         // impossible if the nodes themselves don't exist yet

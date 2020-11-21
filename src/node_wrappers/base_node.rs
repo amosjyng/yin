@@ -121,11 +121,13 @@ impl CommonNodeTrait for BaseNode {
     }
 
     fn set_internal_name(&mut self, name: String) {
-        self.graph.set_node_name(self.id, name);
+        self.graph.set_node_name(self.id, &name);
     }
 
     fn internal_name(&self) -> Option<Rc<String>> {
-        self.graph.node_name(self.id)
+        self.graph
+            .node_name(self.id)
+            .map(|s| Rc::new((*s).to_owned()))
     }
 }
 

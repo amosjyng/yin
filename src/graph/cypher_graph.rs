@@ -68,14 +68,14 @@ impl Graph for CypherGraph {
         });
     }
 
-    fn set_node_name(&mut self, id: usize, name: String) {
+    fn set_node_name(&mut self, id: usize, name: &str) {
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} SET n.name = {name}", {
             "id" => id,
-            "name" => name.as_str()
+            "name" => name
         });
     }
 
-    fn node_name(&self, id: usize) -> Option<Rc<String>> {
+    fn node_name(&self, id: usize) -> Option<Rc<str>> {
         exec_db!(self.db, "MATCH (n) WHERE ID(n) = {id} RETURN n.name", {
             "id" => id
         }, {
@@ -83,7 +83,7 @@ impl Graph for CypherGraph {
         })
         .next()
         .unwrap()
-        .map(Rc::new)
+        .map(|s| Rc::from(s.as_str()))
     }
 
     fn node_value(&self, id: usize) -> Option<Rc<dyn KBValue>> {
@@ -326,8 +326,8 @@ mod tests {
         bind_cypher_graph(TEST_DB_URI);
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
-        g.set_node_name(a_id, "A".to_string());
-        assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
+        g.set_node_name(a_id, "A");
+        assert_eq!(g.node_name(a_id), Some(Rc::from("A")));
     }
 
     #[test]
@@ -337,9 +337,9 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         let v = Rc::new("5".to_string());
-        g.set_node_name(a_id, "A".to_string());
+        g.set_node_name(a_id, "A");
         g.set_node_value(a_id, Rc::new(WeakValue::new(&v)));
-        assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
+        assert_eq!(g.node_name(a_id), Some(Rc::from("A")));
         assert_eq!(unwrap_value(g.node_value(a_id)), Some(v));
     }
 
@@ -360,7 +360,7 @@ mod tests {
         let mut g = InjectionGraph::new();
         let a_id = g.add_node();
         g.add_node();
-        g.set_node_name(a_id, "A".to_string());
+        g.set_node_name(a_id, "A");
         // Like with the size test, we cannot guarantee that this is the first run, so we test only
         // that the query returns successfully
         assert!(g.lookup("A").contains(&a_id));
@@ -549,8 +549,8 @@ mod tests {
         let b_id = g.add_node();
         let edge1_type_id = g.add_node();
         let edge2_type_id = g.add_node();
-        g.set_node_name(b_id, "B node".to_owned());
-        g.set_node_name(edge1_type_id, "test attr".to_owned());
+        g.set_node_name(b_id, "B node");
+        g.set_node_name(edge1_type_id, "test attr");
         g.add_edge(a_id, edge1_type_id, b_id);
         g.add_edge(a_id, edge2_type_id, b_id);
 

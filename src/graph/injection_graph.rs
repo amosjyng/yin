@@ -52,11 +52,11 @@ impl Graph for InjectionGraph {
         GRAPH.with(|g| g.borrow_mut().set_node_value(id, value));
     }
 
-    fn set_node_name(&mut self, id: usize, name: String) {
+    fn set_node_name(&mut self, id: usize, name: &str) {
         GRAPH.with(|g| g.borrow_mut().set_node_name(id, name));
     }
 
-    fn node_name(&self, id: usize) -> Option<Rc<String>> {
+    fn node_name(&self, id: usize) -> Option<Rc<str>> {
         GRAPH.with(|g| g.borrow().node_name(id))
     }
 
