@@ -241,8 +241,7 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 ```rust
 form.implement_with_doc("All things that can be interacted with have form.");
 let mut form_mod = form.impl_mod("Concept forms, as opposed to archetypes.");
-form_mod.add_submodule("form_trait");
-form_mod.re_export("form_trait::FormTrait");
+form_mod.has_extension("form_trait::FormTrait");
 
 relation.implement_with_doc("Links any number of nodes together.");
 relation.impl_mod("Relations between the forms.");
@@ -253,8 +252,7 @@ flag.impl_mod("Relations involving only one form.");
 
 attribute.implement_with_doc("Represents a binary relation.");
 let mut attr_mod = attribute.impl_mod("Relations between two forms.");
-attr_mod.add_submodule("attribute_trait");
-attr_mod.re_export("attribute_trait::AttributeTrait");
+attr_mod.has_extension("attribute_trait::AttributeTrait");
 
 owner.implement_with_doc("The owner/source/from-node of an attribute.");
 value.implement_with_doc("The value/target/to-node of an attribute.");
@@ -271,12 +269,9 @@ value_archetype.implement_with_doc(
 
 archetype.implement_with_doc("Represents patterns found across an entire class of concepts.");
 let mut archetype_mod = archetype.impl_mod("Types of forms, as opposed to the forms themselves.");
-archetype_mod.add_submodule("archetype_trait");
-archetype_mod.add_submodule("archetype_form_trait");
-archetype_mod.add_submodule("attribute_archetype_form_trait");
-archetype_mod.re_export("archetype_trait::ArchetypeTrait");
-archetype_mod.re_export("archetype_form_trait::ArchetypeFormTrait");
-archetype_mod.re_export("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
+archetype_mod.has_extension("archetype_trait::ArchetypeTrait");
+archetype_mod.has_extension("archetype_form_trait::ArchetypeFormTrait");
+archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
 
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
 data.implement_with_doc(
