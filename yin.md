@@ -240,7 +240,12 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 
 ```rust
 form.implement_with_doc("All things that can be interacted with have form.");
+let mut form_mod = form.impl_mod("Concept forms, as opposed to archetypes.");
+form_mod.add_submodule("form_trait");
+form_mod.re_export("form_trait::FormTrait");
+
 relation.implement_with_doc("Links any number of nodes together.");
+relation.impl_mod("Relations between the forms.");
 
 flag.implement_with_doc("Represents a unary relation.");
 flag.mark_own_module();

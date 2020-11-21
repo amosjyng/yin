@@ -47,26 +47,10 @@
 //! assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
 //! ```
 
-/// Types of forms, as opposed to the forms themselves.
 pub mod archetype;
-/// Relations between the forms.
-pub mod relation {
-    mod relation_form;
-    pub use relation_form::Relation;
+pub mod form;
+pub mod relation;
 
-    pub mod attribute;
-    pub mod flag;
-}
-/// Concept forms, as opposed to archetypes.
-pub mod form {
-    pub mod data;
-
-    mod form_form;
-    mod form_trait;
-
-    pub use form_form::Form;
-    pub use form_trait::FormTrait;
-}
 mod auto_init;
 mod init;
 mod tao_form;
