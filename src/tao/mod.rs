@@ -54,14 +54,11 @@ pub mod relation {
     mod relation_form;
     pub use relation_form::Relation;
 
-    /// Relations between two forms.
     pub mod attribute;
-    /// Relations involving only one form.
     pub mod flag;
 }
 /// Concept forms, as opposed to archetypes.
 pub mod form {
-    /// Concepts that exist explicitly as bits.
     pub mod data;
 
     mod form_form;
