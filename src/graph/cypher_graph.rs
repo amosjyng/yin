@@ -243,7 +243,7 @@ impl Graph for CypherGraph {
         for relation in relations {
             dot.push_str(relation.as_str())
         }
-        dot.push_str("}");
+        dot.push('}');
         dot
     }
 }
