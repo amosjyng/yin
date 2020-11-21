@@ -217,7 +217,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut node = InheritanceNode::new();
-        node.set_internal_name("A".to_string());
+        node.set_internal_name_str("A");
         assert_eq!(InheritanceNode::try_from("A"), Ok(node));
         assert!(InheritanceNode::try_from("B").is_err());
     }
