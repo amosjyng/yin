@@ -244,9 +244,13 @@ relation.implement_with_doc("Links any number of nodes together.");
 
 flag.implement_with_doc("Represents a unary relation.");
 flag.mark_own_module();
-flag.impl_mod("Unary relations.");
+flag.impl_mod("Relations involving only one form.");
 
 attribute.implement_with_doc("Represents a binary relation.");
+let mut attr_mod = attribute.impl_mod("Relations between two forms.");
+attr_mod.add_submodule("attribute_trait");
+attr_mod.re_export("attribute_trait::AttributeTrait");
+
 owner.implement_with_doc("The owner/source/from-node of an attribute.");
 value.implement_with_doc("The value/target/to-node of an attribute.");
 inherits.implement_with_doc("Describes the owner as inheriting all attributes of the value.");
@@ -259,7 +263,16 @@ owner_archetype.implement_with_doc(
 value_archetype.implement_with_doc(
     "The type of value this attribute has. Only the most restrictive inherited value will be used."
 );
+
 archetype.implement_with_doc("Represents patterns found across an entire class of concepts.");
+let mut archetype_mod = archetype.impl_mod("Types of forms, as opposed to the forms themselves.");
+archetype_mod.add_submodule("archetype_trait");
+archetype_mod.add_submodule("archetype_form_trait");
+archetype_mod.add_submodule("attribute_archetype_form_trait");
+archetype_mod.re_export("archetype_trait::ArchetypeTrait");
+archetype_mod.re_export("archetype_form_trait::ArchetypeFormTrait");
+archetype_mod.re_export("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
+
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
 data.implement_with_doc(
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
@@ -310,8 +323,9 @@ use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::archetype::ArchetypeTrait;
 use zamm_yang::tao::archetype::ArchetypeFormTrait;
 use zamm_yang::tao::archetype::AttributeArchetypeFormTrait;
-use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::tao::form::FormTrait;
+use zamm_yang::tao::form::ModuleExtension;
+use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
 use zamm_yang::tao::callbacks::handle_all_implementations;
