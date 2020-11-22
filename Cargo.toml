@@ -1,25 +1,22 @@
-[build-dependencies]
-zamm = "0.1.2"
+[package]
+name = "zamm_yin"
+version = "0.1.1-beta"
+authors = ["Amos Jun-yeung Ng <me@amos.ng>"]
+edition = "2018"
+description = "A basic, experimental knowledge-base"
+readme = "README.md"
+repository = "https://github.com/amosjyng/yin"
+license = "GPL-3.0"
+keywords = ["database", "knowledge-base"]
+categories = ["database"]
+
+[features]
+default = ["cypher"]
+cypher = ["rusted_cypher"]
 
 [dependencies]
 petgraph = "^0.5.1"
+rusted_cypher = { version = "^1.1.0", optional = true }
 
-[dependencies.rusted_cypher]
-optional = true
-version = "^1.1.0"
-
-[features]
-cypher = ["rusted_cypher"]
-default = ["cypher"]
-
-[package]
-authors = ["Amos Jun-yeung Ng <me@amos.ng>"]
-categories = ["database"]
-description = "A basic, experimental knowledge-base"
-edition = "2018"
-keywords = ["database", "knowledge-base"]
-license = "GPL-3.0"
-name = "zamm_yin"
-readme = "README.md"
-repository = "https://github.com/amosjyng/yin"
-version = "0.1.1"
+[build-dependencies]
+zamm = "0.1.2"
