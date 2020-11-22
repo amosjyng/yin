@@ -304,7 +304,7 @@ default_value.implement_with_doc("The default value of a data structure.");
 
 ### Dependencies
 
-These are the versions of Yin and Yang used to make this build happen:
+This is the version of Yang used to make this build happen:
 
 ```toml
 zamm_yang = "0.1.4"
