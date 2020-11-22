@@ -28,6 +28,7 @@ pub trait CommonNodeTrait {
 
     /// The internal name that's associated with this concept, if one exists.
     #[deprecated(since = "0.1.1", note = "Please use internal_name_str instead.")]
+    #[allow(clippy::rc_buffer)]
     fn internal_name(&self) -> Option<Rc<String>>;
 }
 
