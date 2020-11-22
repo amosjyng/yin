@@ -164,11 +164,11 @@ mod tests {
         initialize_kb();
         let i = Inherits::archetype();
         let kb_result: Option<Rc<dyn KBValue>> = Some(define_closure!(|t: Form| {
-            Box::new(t.internal_name().unwrap())
+            Box::new(t.internal_name_str().unwrap())
         }));
         assert_eq!(
-            run_closure::<Rc<String>>(&kb_result, i.as_form()),
-            Some(Box::new(Rc::new("inherits".to_string())))
+            run_closure::<Rc<str>>(&kb_result, i.as_form()),
+            Some(Box::new(Rc::from("inherits")))
         );
     }
 }

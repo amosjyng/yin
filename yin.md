@@ -240,12 +240,20 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 
 ```rust
 form.implement_with_doc("All things that can be interacted with have form.");
+let mut form_mod = form.impl_mod("Concept forms, as opposed to archetypes.");
+form_mod.has_extension("form_trait::FormTrait");
+
 relation.implement_with_doc("Links any number of nodes together.");
+relation.impl_mod("Relations between the forms.");
 
 flag.implement_with_doc("Represents a unary relation.");
 flag.mark_own_module();
+flag.impl_mod("Relations involving only one form.");
 
 attribute.implement_with_doc("Represents a binary relation.");
+let mut attr_mod = attribute.impl_mod("Relations between two forms.");
+attr_mod.has_extension("attribute_trait::AttributeTrait");
+
 owner.implement_with_doc("The owner/source/from-node of an attribute.");
 value.implement_with_doc("The value/target/to-node of an attribute.");
 inherits.implement_with_doc("Describes the owner as inheriting all attributes of the value.");
@@ -258,9 +266,18 @@ owner_archetype.implement_with_doc(
 value_archetype.implement_with_doc(
     "The type of value this attribute has. Only the most restrictive inherited value will be used."
 );
+
 archetype.implement_with_doc("Represents patterns found across an entire class of concepts.");
+let mut archetype_mod = archetype.impl_mod("Types of forms, as opposed to the forms themselves.");
+archetype_mod.has_extension("archetype_trait::ArchetypeTrait");
+archetype_mod.has_extension("archetype_form_trait::ArchetypeFormTrait");
+archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
+
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
 data.implement_with_doc(
+    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
+);
+data.impl_mod(
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
 );
 ```
@@ -287,10 +304,16 @@ default_value.implement_with_doc("The default value of a data structure.");
 
 ### Dependencies
 
-These are the versions of Yin and Yang used to make this build happen:
+This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.2"
+zamm_yang = "0.1.4"
+```
+
+Yang does his best to be backwards-compatible, so we should let him know that we're new here:
+
+```rust
+Crate::yin().set_version("0.1.1");
 ```
 
 ### Imports
@@ -306,8 +329,11 @@ use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::archetype::ArchetypeTrait;
 use zamm_yang::tao::archetype::ArchetypeFormTrait;
 use zamm_yang::tao::archetype::AttributeArchetypeFormTrait;
-use zamm_yang::tao::form::data::DataExtension;
+use zamm_yang::tao::form::Crate;
+use zamm_yang::tao::form::CrateExtension;
 use zamm_yang::tao::form::FormTrait;
+use zamm_yang::tao::form::ModuleExtension;
+use zamm_yang::tao::form::data::DataExtension;
 use zamm_yang::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
 use zamm_yang::tao::callbacks::handle_all_implementations;
