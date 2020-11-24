@@ -107,6 +107,22 @@ pub trait ArchetypeFormTrait<'a>:
             .map(AttributeArchetype::from)
             .collect()
     }
+
+    /// Get all the types of attributes that this concept is predefined to potentially have.
+    fn attributes(&self) -> Vec<AttributeArchetype> {
+        self.essence()
+            .outgoing_nodes(HasProperty::TYPE_ID)
+            .into_iter()
+            .map(AttributeArchetype::from)
+            .collect()
+    }
+
+    /// Checks to see if an archetype is one of the possible attribute types this concept could
+    /// have.
+    fn has_attribute(&self, possible_type: AttributeArchetype) -> bool {
+        self.essence()
+            .has_outgoing(HasProperty::TYPE_ID, possible_type.essence())
+    }
 }
 
 impl<'a> ArchetypeFormTrait<'a> for Archetype {
@@ -165,7 +181,7 @@ mod tests {
     }
 
     #[test]
-    fn test_attribute_types() {
+    fn test_attribute_introduced_types() {
         initialize_kb();
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
@@ -179,7 +195,7 @@ mod tests {
     }
 
     #[test]
-    fn test_attribute_types_not_inherited() {
+    fn test_attribute_introduced_types_not_inherited() {
         initialize_kb();
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
@@ -190,5 +206,36 @@ mod tests {
             type3.introduced_attribute_archetypes(),
             Vec::<AttributeArchetype>::new()
         );
+    }
+
+    #[test]
+    fn test_attribute_types() {
+        initialize_kb();
+        let mut type1 = Attribute::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
+        type1.add_attribute_type(type2);
+
+        assert_eq!(
+            type1.attributes(),
+            vec![Owner::archetype(), Value::archetype(), type2]
+        );
+        assert!(!type1.has_attribute(type1));
+        assert!(type1.has_attribute(type2));
+    }
+
+    #[test]
+    fn test_attribute_types_inherited() {
+        initialize_kb();
+        let mut type1 = Attribute::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_attribute_type(type2);
+
+        assert_eq!(
+            type3.attributes(),
+            vec![Owner::archetype(), Value::archetype(), type2]
+        );
+        assert!(!type3.has_attribute(type1));
+        assert!(type3.has_attribute(type2));
     }
 }
