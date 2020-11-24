@@ -271,6 +271,7 @@ archetype.implement_with_doc("Represents patterns found across an entire class o
 let mut archetype_mod = archetype.impl_mod("Types of forms, as opposed to the forms themselves.");
 archetype_mod.has_extension("archetype_trait::ArchetypeTrait");
 archetype_mod.has_extension("archetype_form_trait::ArchetypeFormTrait");
+archetype_mod.has_extension("archetype_form_extension_trait::ArchetypeFormExtensionTrait");
 archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
 
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
