@@ -38,6 +38,7 @@ pub trait ArchetypeFormExtensionTrait: FormTrait + Wrapper<BaseType = FinalNode>
             .outgoing_nodes(HasProperty::TYPE_ID)
             .into_iter()
             .map(|n| Archetype::from(n.id()))
+            .filter(|a| a.has_ancestor(Flag::archetype()))
             .collect()
     }
 }
@@ -51,6 +52,7 @@ mod tests {
     use crate::tao::archetype::{ArchetypeFormTrait, ArchetypeTrait};
     use crate::tao::form::Form;
     use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::Attribute;
 
     #[test]
     fn test_added_flags() {
@@ -64,7 +66,7 @@ mod tests {
     }
 
     #[test]
-    fn test_flags_not_inherited() {
+    fn test_added_flags_not_inherited() {
         initialize_kb();
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Flag::archetype().individuate_as_archetype();
@@ -97,5 +99,18 @@ mod tests {
         assert_eq!(type3.flags(), vec![type2]);
         assert!(!type3.has_flag(type1));
         assert!(type3.has_flag(type2));
+    }
+
+    #[test]
+    fn test_flags_no_attributes() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let flag_type = Flag::archetype().individuate_as_archetype();
+        let attr_type = Attribute::archetype().individuate_as_archetype();
+        form_type.add_flag(flag_type);
+        form_type.add_attribute_type(attr_type);
+
+        assert_eq!(form_type.flags(), vec![flag_type]);
+        assert_eq!(form_type.added_flags(), vec![flag_type]);
     }
 }
