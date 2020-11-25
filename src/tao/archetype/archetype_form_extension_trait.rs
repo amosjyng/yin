@@ -3,7 +3,6 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::has_property::HasFlag;
-use crate::tao::relation::flag::Flag;
 use crate::Wrapper;
 
 /// Public trait to store eventually-automated archetype attributes in.
@@ -14,7 +13,6 @@ pub trait ArchetypeFormExtensionTrait: FormTrait + Wrapper<BaseType = FinalNode>
             .outgoing_nodes(HasFlag::TYPE_ID)
             .into_iter()
             .map(Archetype::from)
-            .filter(|a| a.has_ancestor(Flag::archetype()))
             .collect()
     }
 
@@ -38,7 +36,6 @@ pub trait ArchetypeFormExtensionTrait: FormTrait + Wrapper<BaseType = FinalNode>
             .outgoing_nodes(HasFlag::TYPE_ID)
             .into_iter()
             .map(|n| Archetype::from(n.id()))
-            .filter(|a| a.has_ancestor(Flag::archetype()))
             .collect()
     }
 }
@@ -53,6 +50,8 @@ mod tests {
     use crate::tao::form::Form;
     use crate::tao::initialize_kb;
     use crate::tao::relation::attribute::Attribute;
+    use crate::tao::relation::flag::Flag;
+    use crate::tao::Tao;
 
     #[test]
     fn test_added_flags() {
@@ -84,6 +83,19 @@ mod tests {
         type1.add_flag(type2);
 
         assert_eq!(type1.flags(), vec![type2]);
+        assert!(!type1.has_flag(type1));
+        assert!(type1.has_flag(type2));
+    }
+
+    #[test]
+    fn test_flag_equivalents() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        type1.add_flag(type2);
+
+        assert_eq!(type1.flags(), vec![type2]);
+        assert_eq!(type1.added_flags(), vec![type2]);
         assert!(!type1.has_flag(type1));
         assert!(type1.has_flag(type2));
     }

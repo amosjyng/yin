@@ -105,7 +105,6 @@ pub trait ArchetypeFormTrait<'a>:
             .outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .map(|n| AttributeArchetype::from(n.id()))
-            .filter(|a| a.has_ancestor(Attribute::archetype().as_archetype()))
             .collect()
     }
 }
@@ -126,6 +125,7 @@ mod tests {
     use crate::tao::initialize_kb;
     use crate::tao::relation::attribute::{Attribute, Owner, Value};
     use crate::tao::relation::flag::Flag;
+    use crate::tao::Tao;
 
     #[test]
     fn test_individuation() {
@@ -178,6 +178,21 @@ mod tests {
 
         type1.add_attribute_type(type2);
         assert_eq!(type1.introduced_attribute_archetypes(), vec!(type2));
+    }
+
+    #[test]
+    fn test_attribute_equivalents() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        let type2_attr_arch = AttributeArchetype::from(type2.id());
+        type1.add_attribute_type(type2_attr_arch);
+
+        assert_eq!(type1.attribute_archetypes(), vec![type2_attr_arch]);
+        assert_eq!(
+            type1.introduced_attribute_archetypes(),
+            vec![type2_attr_arch]
+        );
     }
 
     #[test]
