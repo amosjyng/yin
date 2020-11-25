@@ -308,7 +308,7 @@ default_value.implement_with_doc("The default value of a data structure.");
 This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.4"
+zamm_yang = "0.1.5"
 ```
 
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:
