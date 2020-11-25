@@ -125,10 +125,20 @@ define!(has_property);
 has_property.add_parent(attribute);
 ```
 
-And go back and set this property for Attribute:
+There are arguably two different types of property-having: having attributes and having flags. Theoretically speaking, we want to keep the two categories separate. Practically speaking, we want to make sure that adding an attribute or a flag to a node will later result in the attribute or flag being retrieved from that same node. This would be violated when we define replacement attribute and flag nodes, because the children of these new replacement nodes would get filtered out because they aren't children of the existing attribute or flag nodes. Either way, all signs point to making this distinction:
 
 ```rust
-attribute.add_attribute_type(aa(owner));
+define!(has_flag);
+has_flag.add_parent(has_property);
+
+define!(has_attribute);
+has_attribute.add_parent(has_property);
+```
+
+Now we go back and set this property for the relations:
+
+```rust
+relation.add_attribute_type(aa(owner));
 attribute.add_attribute_type(aa(value));
 ```
 
@@ -259,6 +269,13 @@ value.implement_with_doc("The value/target/to-node of an attribute.");
 inherits.implement_with_doc("Describes the owner as inheriting all attributes of the value.");
 has_property.implement_with_doc(
     "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
+);
+has_property.impl_mod("Meta-attributes around what attributes instances of an archetype have.");
+has_flag.implement_with_doc(
+    "Describes instances of an archetype as generally having values set for this flag. Does not describe whether the value for the flag is true or false."
+);
+has_attribute.implement_with_doc(
+    "Describes instances of an archetype as generally having values set for this attribute."
 );
 owner_archetype.implement_with_doc(
     "The type of owner this attribute has. Only the most restrictive inherited value will be used."
