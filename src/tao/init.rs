@@ -2,9 +2,8 @@ use super::archetype::{
     ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait,
 };
 use super::auto_init::initialize_types;
-use super::relation::attribute::{
-    Attribute, HasProperty, Owner, OwnerArchetype, Value, ValueArchetype,
-};
+use super::relation::attribute::has_property::HasProperty;
+use super::relation::attribute::{Attribute, Owner, OwnerArchetype, Value, ValueArchetype};
 use super::relation::Relation;
 use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
@@ -43,12 +42,14 @@ macro_rules! initialize_type {
 
 /// Adds all concept relations to graph.
 fn initialize_relations() {
-    let mut attributes = Attribute::archetype();
-    attributes.add_attribute_type(Owner::archetype());
-    attributes.add_attribute_type(Value::archetype());
+    let mut relation = AttributeArchetype::from(Relation::TYPE_ID);
+    relation.add_attribute_type(Owner::archetype());
     // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
     // todo: add set_owner_archetype to Relation as well
-    AttributeArchetype::from(Relation::TYPE_ID).set_owner_archetype(Tao::archetype());
+    relation.set_owner_archetype(Tao::archetype());
+
+    let mut attributes = Attribute::archetype();
+    attributes.add_attribute_type(Value::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
     HasProperty::archetype().set_value_archetype(Relation::archetype().as_archetype());

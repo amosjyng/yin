@@ -2,7 +2,8 @@ use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
-use crate::tao::relation::attribute::{Attribute, HasProperty, Inherits};
+use crate::tao::relation::attribute::has_property::HasAttribute;
+use crate::tao::relation::attribute::{Attribute, Inherits};
 use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
 
@@ -93,7 +94,7 @@ pub trait ArchetypeFormTrait<'a>:
     /// Add an attribute type to this archetype.
     fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
         self.essence_mut()
-            .add_outgoing(HasProperty::TYPE_ID, attribute_type.essence());
+            .add_outgoing(HasAttribute::TYPE_ID, attribute_type.essence());
     }
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
@@ -101,7 +102,7 @@ pub trait ArchetypeFormTrait<'a>:
     fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .base_wrapper()
-            .outgoing_nodes(HasProperty::TYPE_ID)
+            .outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .map(|n| AttributeArchetype::from(n.id()))
             .filter(|a| a.has_ancestor(Attribute::archetype().as_archetype()))
