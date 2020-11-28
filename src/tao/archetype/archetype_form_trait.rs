@@ -1,7 +1,7 @@
 use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
-use crate::tao::form::{Form, FormTrait};
+use crate::tao::form::{Form, FormExtension, FormTrait};
 use crate::tao::relation::attribute::has_property::HasAttribute;
 use crate::tao::relation::attribute::{Attribute, Inherits};
 use crate::Wrapper;
@@ -32,7 +32,7 @@ pub trait ArchetypeFormTrait<'a>:
     ///
     /// Here, Self::ArchetypeForm should never be used, Self::Form is the self as the observer, and
     /// Self::SubjectForm is the subject archetype that is currently being observed.
-    type SubjectForm: ArchetypeTrait<'a> + FormTrait;
+    type SubjectForm: ArchetypeTrait<'a> + FormTrait + FormExtension;
 
     /// Forget everything about the current form, except that it's an ArchetypeForm representing
     /// some type.
@@ -49,7 +49,9 @@ pub trait ArchetypeFormTrait<'a>:
     ///
     /// Convenience function for the static one.
     fn individuate_as_form(&self) -> Self::SubjectForm {
-        Self::SubjectForm::from(FinalNode::new_with_inheritance(self.id()))
+        let mut result = Self::SubjectForm::from(FinalNode::new_with_inheritance(self.id()));
+        result.mark_individual();
+        result
     }
 
     /// Individuals that adhere to this archetype. It is possible that some of these individuals
@@ -87,6 +89,7 @@ pub trait ArchetypeFormTrait<'a>:
         self.essence()
             .incoming_nodes(Inherits::TYPE_ID)
             .into_iter()
+            .filter(|f| !Form::from(*f).is_individual())
             .map(Self::Form::from)
             .collect()
     }
@@ -104,6 +107,7 @@ pub trait ArchetypeFormTrait<'a>:
             .base_wrapper()
             .outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
+            .filter(|n| !Form::from(n.id()).is_individual())
             .map(|n| AttributeArchetype::from(n.id()))
             .collect()
     }
@@ -162,6 +166,16 @@ mod tests {
         initialize_kb();
         let type1 = Form::archetype().individuate_as_archetype();
         let type2 = type1.individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        assert_eq!(type1.child_archetypes(), vec![type2, type3]);
+    }
+
+    #[test]
+    fn test_child_archetypes_no_individuals() {
+        initialize_kb();
+        let type1 = Form::archetype().individuate_as_archetype();
+        let type2 = type1.individuate_as_archetype();
+        type1.individuate_as_form();
         let type3 = type1.individuate_as_archetype();
         assert_eq!(type1.child_archetypes(), vec![type2, type3]);
     }

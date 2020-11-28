@@ -1,5 +1,5 @@
-use crate::node_wrappers::FinalNode;
-use crate::tao::form::FormTrait;
+use crate::node_wrappers::{CommonNodeTrait, FinalNode};
+use crate::tao::form::{Form, FormExtension, FormTrait};
 use std::convert::TryFrom;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
@@ -44,7 +44,10 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
     fn new() -> Self::Form {
-        Self::Form::from(FinalNode::new_with_inheritance(Self::TYPE_ID))
+        let result = Self::Form::from(FinalNode::new_with_inheritance(Self::TYPE_ID));
+        // todo: require FormExtension on Self::Form after it's implemented everywhere
+        Form::from(result.id()).mark_individual();
+        result
     }
 }
 

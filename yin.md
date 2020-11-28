@@ -189,6 +189,25 @@ This can only be used to represent *attribute* archetypes, so unlike `Archetype`
 
 Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
 
+#### Individuation
+
+What exactly differentiates an archetype without subtypes from an individual? It's not just the inheritance relation -- individuals aren't necessarily leaves in the inheritance chain. Maybe you want to say "Script `B` does the same exact thing as script `A`, except that it pings server `D` instead of server `C`." Now, every change to script `A` also gets inherited by script `B`, even though both of them are individual scripts in their own right. Whether this could be better represented by both `A` and `B` referencing some behavior in common, or by combining the two into a single script with the server IP as a parameter, are irrelevant implementation details. What matters is that it is a valid idea that is readily understood by a human.
+
+It's not being a singular entity, either. Consider ZAMM itself. ZAMM is a program, and generally when we say "X is a Y" instead of "An X is a Y," we mean that X is an individual instance of Y. But if ZAMM is an individual program, then how could there be different simultaneous versions of ZAMM that all inherit from some base notion of ZAMM-ness? Even given the same ZAMM binary, what if there's multiple copies of it running in memory? It makes sense to model each running instance of ZAMM as its own individual, so that there are multiple units of ZAMM, but it also makes sense to model ZAMM itself as a singular unit of software. Is the Ford Pinto a car or a type of car, or both?
+
+Nor does the delineation around the entity need to stay consistent. Consider a specific, concrete string `<html>...</html>` that gets stored in a string variable named `s1`. Say it gets copied into a different variable `s2`. It is not illogical for a human to say, "The HTML is now in two different places," implying that the HTML is still the same singular individual after the copy. This holds even if that string is being sent across the wire. Alternatively, if `s2` does not exist and instead some more text was inserted in between the HTML tags, it is also not illogical for a human to say "The HTML now contains the sidebar," implying that the HTML is still the same singular individual after the change. We identify a continuous thread of identity throughout, even though this identity is held together by entirely different means in different contexts.
+
+Of course, this extends into meatspace too. I, the author, yours truly, was once a one-year-old human. In truth, one-year-old "me" had a lot more in common with all other one-year-olds around the world -- past, present, and future -- than he does with me today. Even "me" in college was living in a different place, a different time, doing different things, interacting with different people, and had different goals, values, and perspectives than I do today. For all practical purposes, that might as well have been a past life. In a certain sense, it's only the slimmest of threads that ties together all these radically different me's into a single coherent individual identity spanning all four dimensions of spacetime; in a different sense, the modern world strictly reifies this abstract identity into objective, static governmental records.
+
+Even archetypes themselves can be considered individual concepts in their own right.
+
+Perhaps natural language is hard because the underlying ideas language is meant to represent are [arbitrary](https://slatestarcodex.com/2014/11/21/the-categories-were-made-for-man-not-man-for-the-categories/) and [nebulous](https://meaningness.com/nebulosity) in the first place. Or perhaps there is actually an obvious and simple answer that perfectly delineates the two categories in this particular case. But if there is, it is unfortunately not available to me at this time. And even if it were, we would still want individuality to be a first-class concept in its own right. We'll simply arbitrarily mark a concept as representing an "individual" -- in other words, representing the boundary at which the Archetype perspective stops being useful.
+
+```rust
+define!(is_individual);
+is_individual.add_parent(flag);
+```
+
 ### Data
 
 One archetype type to look at is `Data`, perhaps roughly analogous to the linguistic concept of a "noun." What do we generally start out describing as nouns? Physical objects in the physical world.
@@ -252,12 +271,12 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 form.implement_with_doc("All things that can be interacted with have form.");
 let mut form_mod = form.impl_mod("Concept forms, as opposed to archetypes.");
 form_mod.has_extension("form_trait::FormTrait");
+form_mod.has_extension("form_extension::FormExtension");
 
 relation.implement_with_doc("Links any number of nodes together.");
 relation.impl_mod("Relations between the forms.");
 
 flag.implement_with_doc("Represents a unary relation.");
-flag.mark_own_module();
 flag.impl_mod("Relations involving only one form.");
 
 attribute.implement_with_doc("Represents a binary relation.");
@@ -292,6 +311,10 @@ archetype_mod.has_extension("archetype_form_extension_trait::ArchetypeFormExtens
 archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
 
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
+is_individual.implement_with_doc(
+    "Whether or not a concept is an individual, as opposed to an archetype."
+);
+
 data.implement_with_doc(
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
 );
