@@ -52,12 +52,12 @@ fn initialize_relations() {
     attributes.add_attribute_type(Value::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    HasProperty::archetype().set_value_archetype(Relation::archetype().as_archetype());
+    HasProperty::archetype().set_value_archetype(Relation::archetype().into());
 
-    Owner::archetype().set_owner_archetype(Relation::archetype().as_archetype());
-    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype().as_archetype());
-    Value::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
-    ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
+    Owner::archetype().set_owner_archetype(Relation::archetype().into());
+    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype().into());
+    Value::archetype().set_owner_archetype(Attribute::archetype().into());
+    ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().into());
 }
 
 /// Initialize Yin with an in-memory graph database.

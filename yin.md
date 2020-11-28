@@ -354,7 +354,7 @@ zamm_yang = "0.1.5"
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:
 
 ```rust
-Crate::yin().set_version("0.1.1");
+Crate::yin().set_version("0.1.4");
 ```
 
 We should also let him know what our current crate name is. There is as of yet no way to let him know that this is the same crate as the `Crate::yin()` mentioned above.

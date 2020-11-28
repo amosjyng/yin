@@ -123,19 +123,19 @@ mod tests {
     fn test_parents() {
         initialize_kb();
         let owner = Owner::new();
-        assert_eq!(owner.parents(), vec![Owner::archetype().as_archetype()]);
+        assert_eq!(owner.parents(), vec![Owner::archetype().into()]);
     }
 
     #[test]
     fn test_multiple_parents() {
         initialize_kb();
         let mut owner = Owner::new();
-        owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
+        owner.add_parent(Value::archetype().into()); // nonsensical, but okay for tests
         assert_eq!(
             owner.parents(),
             vec![
-                Owner::archetype().as_archetype(),
-                Value::archetype().as_archetype()
+                Owner::archetype().into(),
+                Value::archetype().into()
             ]
         );
     }
@@ -184,19 +184,19 @@ mod tests {
     fn test_parenthood() {
         initialize_kb();
         let owner = Owner::new();
-        assert!(owner.has_parent(Owner::archetype().as_archetype()));
+        assert!(owner.has_parent(Owner::archetype().into()));
         assert!(!owner.has_parent(Tao::archetype()));
-        assert!(!owner.has_parent(Value::archetype().as_archetype()));
+        assert!(!owner.has_parent(Value::archetype().into()));
     }
 
     #[test]
     fn test_multiple_parenthood() {
         initialize_kb();
         let mut owner = Owner::new();
-        owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
-        assert!(owner.has_parent(Owner::archetype().as_archetype()));
+        owner.add_parent(Value::archetype().into()); // nonsensical, but okay for tests
+        assert!(owner.has_parent(Owner::archetype().into()));
         assert!(!owner.has_parent(Tao::archetype()));
-        assert!(owner.has_parent(Value::archetype().as_archetype()));
+        assert!(owner.has_parent(Value::archetype().into()));
     }
 
     #[test]
@@ -227,9 +227,9 @@ mod tests {
     fn test_has_ancestor() {
         initialize_kb();
         let owner = Owner::new();
-        assert!(owner.has_ancestor(Owner::archetype().as_archetype()));
+        assert!(owner.has_ancestor(Owner::archetype().into()));
         assert!(owner.has_ancestor(Tao::archetype()));
-        assert!(!owner.has_ancestor(Value::archetype().as_archetype()));
+        assert!(!owner.has_ancestor(Value::archetype().into()));
     }
 
     #[test]

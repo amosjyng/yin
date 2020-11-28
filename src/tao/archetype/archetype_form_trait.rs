@@ -36,6 +36,7 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Forget everything about the current form, except that it's an ArchetypeForm representing
     /// some type.
+    #[deprecated(since = "0.1.4", note = "Please use the SubjectForm::into function instead.")]
     fn as_archetype(&self) -> Archetype {
         Archetype::from(*self.essence())
     }
@@ -136,11 +137,11 @@ mod tests {
         initialize_kb();
         let type1 = Owner::archetype().individuate_as_archetype();
         let type1_instance = type1.individuate_as_form();
-        assert!(type1.has_ancestor(Owner::archetype().as_archetype()));
-        assert!(!type1.has_ancestor(Value::archetype().as_archetype()));
-        assert!(type1_instance.has_ancestor(type1.as_archetype()));
-        assert!(type1_instance.has_ancestor(Owner::archetype().as_archetype()));
-        assert!(!type1_instance.has_ancestor(Value::archetype().as_archetype()));
+        assert!(type1.has_ancestor(Owner::archetype().into()));
+        assert!(!type1.has_ancestor(Value::archetype().into()));
+        assert!(type1_instance.has_ancestor(type1.into()));
+        assert!(type1_instance.has_ancestor(Owner::archetype().into()));
+        assert!(!type1_instance.has_ancestor(Value::archetype().into()));
     }
 
     #[test]
