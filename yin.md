@@ -125,10 +125,20 @@ define!(has_property);
 has_property.add_parent(attribute);
 ```
 
-And go back and set this property for Attribute:
+There are arguably two different types of property-having: having attributes and having flags. Theoretically speaking, we want to keep the two categories separate. Practically speaking, we want to make sure that adding an attribute or a flag to a node will later result in the attribute or flag being retrieved from that same node. This would be violated when we define replacement attribute and flag nodes, because the children of these new replacement nodes would get filtered out because they aren't children of the existing attribute or flag nodes. Either way, all signs point to making this distinction:
 
 ```rust
-attribute.add_attribute_type(aa(owner));
+define!(has_flag);
+has_flag.add_parent(has_property);
+
+define!(has_attribute);
+has_attribute.add_parent(has_property);
+```
+
+Now we go back and set this property for the relations:
+
+```rust
+relation.add_attribute_type(aa(owner));
 attribute.add_attribute_type(aa(value));
 ```
 
@@ -178,6 +188,25 @@ attribute_archetype.add_parent(archetype);
 This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can represent all archetypes, including its own archetype, because it's an archetype too), `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`, and cannot be used to represent its own archetype.
 
 Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
+
+#### Individuation
+
+What exactly differentiates an archetype without subtypes from an individual? It's not just the inheritance relation -- individuals aren't necessarily leaves in the inheritance chain. Maybe you want to say "Script `B` does the same exact thing as script `A`, except that it pings server `D` instead of server `C`." Now, every change to script `A` also gets inherited by script `B`, even though both of them are individual scripts in their own right. Whether this could be better represented by both `A` and `B` referencing some behavior in common, or by combining the two into a single script with the server IP as a parameter, are irrelevant implementation details. What matters is that it is a valid idea that is readily understood by a human.
+
+It's not being a singular entity, either. Consider ZAMM itself. ZAMM is a program, and generally when we say "X is a Y" instead of "An X is a Y," we mean that X is an individual instance of Y. But if ZAMM is an individual program, then how could there be different simultaneous versions of ZAMM that all inherit from some base notion of ZAMM-ness? Even given the same ZAMM binary, what if there's multiple copies of it running in memory? It makes sense to model each running instance of ZAMM as its own individual, so that there are multiple units of ZAMM, but it also makes sense to model ZAMM itself as a singular unit of software. Is the Ford Pinto a car or a type of car, or both?
+
+Nor does the delineation around the entity need to stay consistent. Consider a specific, concrete string `<html>...</html>` that gets stored in a string variable named `s1`. Say it gets copied into a different variable `s2`. It is not illogical for a human to say, "The HTML is now in two different places," implying that the HTML is still the same singular individual after the copy. This holds even if that string is being sent across the wire. Alternatively, if `s2` does not exist and instead some more text was inserted in between the HTML tags, it is also not illogical for a human to say "The HTML now contains the sidebar," implying that the HTML is still the same singular individual after the change. We identify a continuous thread of identity throughout, even though this identity is held together by entirely different means in different contexts.
+
+Of course, this extends into meatspace too. I, the author, yours truly, was once a one-year-old human. In truth, one-year-old "me" had a lot more in common with all other one-year-olds around the world -- past, present, and future -- than he does with me today. Even "me" in college was living in a different place, a different time, doing different things, interacting with different people, and had different goals, values, and perspectives than I do today. For all practical purposes, that might as well have been a past life. In a certain sense, it's only the slimmest of threads that ties together all these radically different me's into a single coherent individual identity spanning all four dimensions of spacetime; in a different sense, the modern world strictly reifies this abstract identity into objective, static governmental records.
+
+Even archetypes themselves can be considered individual concepts in their own right.
+
+Perhaps natural language is hard because the underlying ideas language is meant to represent are [arbitrary](https://slatestarcodex.com/2014/11/21/the-categories-were-made-for-man-not-man-for-the-categories/) and [nebulous](https://meaningness.com/nebulosity) in the first place. Or perhaps there is actually an obvious and simple answer that perfectly delineates the two categories in this particular case. But if there is, it is unfortunately not available to me at this time. And even if it were, we would still want individuality to be a first-class concept in its own right. We'll simply arbitrarily mark a concept as representing an "individual" -- in other words, representing the boundary at which the Archetype perspective stops being useful.
+
+```rust
+define!(is_individual);
+is_individual.add_parent(flag);
+```
 
 ### Data
 
@@ -242,12 +271,12 @@ Excellent, your reflexes work just as well at execution as they do at parsing! L
 form.implement_with_doc("All things that can be interacted with have form.");
 let mut form_mod = form.impl_mod("Concept forms, as opposed to archetypes.");
 form_mod.has_extension("form_trait::FormTrait");
+form_mod.has_extension("form_extension::FormExtension");
 
 relation.implement_with_doc("Links any number of nodes together.");
 relation.impl_mod("Relations between the forms.");
 
 flag.implement_with_doc("Represents a unary relation.");
-flag.mark_own_module();
 flag.impl_mod("Relations involving only one form.");
 
 attribute.implement_with_doc("Represents a binary relation.");
@@ -260,6 +289,13 @@ inherits.implement_with_doc("Describes the owner as inheriting all attributes of
 has_property.implement_with_doc(
     "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
 );
+has_property.impl_mod("Meta-attributes around what attributes instances of an archetype have.");
+has_flag.implement_with_doc(
+    "Describes instances of an archetype as generally having values set for this flag. Does not describe whether the value for the flag is true or false."
+);
+has_attribute.implement_with_doc(
+    "Describes instances of an archetype as generally having values set for this attribute."
+);
 owner_archetype.implement_with_doc(
     "The type of owner this attribute has. Only the most restrictive inherited value will be used."
 );
@@ -271,9 +307,14 @@ archetype.implement_with_doc("Represents patterns found across an entire class o
 let mut archetype_mod = archetype.impl_mod("Types of forms, as opposed to the forms themselves.");
 archetype_mod.has_extension("archetype_trait::ArchetypeTrait");
 archetype_mod.has_extension("archetype_form_trait::ArchetypeFormTrait");
+archetype_mod.has_extension("archetype_form_extension_trait::ArchetypeFormExtensionTrait");
 archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
 
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
+is_individual.implement_with_doc(
+    "Whether or not a concept is an individual, as opposed to an archetype."
+);
+
 data.implement_with_doc(
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
 );
@@ -307,7 +348,7 @@ default_value.implement_with_doc("The default value of a data structure.");
 This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.4"
+zamm_yang = "0.1.5"
 ```
 
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:

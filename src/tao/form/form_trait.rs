@@ -1,7 +1,8 @@
 use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
-use crate::tao::relation::attribute::{HasProperty, Inherits};
+use crate::tao::relation::attribute::has_property::HasAttribute;
+use crate::tao::relation::attribute::Inherits;
 use crate::tao::Tao;
 use crate::Wrapper;
 use std::collections::{HashMap, VecDeque};
@@ -98,7 +99,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
     #[deprecated(since = "0.1.2", note = "Please use Archetype::attributes.")]
     fn attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
-            .outgoing_nodes(HasProperty::TYPE_ID)
+            .outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .map(AttributeArchetype::from)
             .collect()
@@ -109,7 +110,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
     #[deprecated(since = "0.1.2", note = "Please use Archetype::has_attribute.")]
     fn has_attribute_type(&self, possible_type: AttributeArchetype) -> bool {
         self.essence()
-            .has_outgoing(HasProperty::TYPE_ID, possible_type.essence())
+            .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
     }
 }
 
