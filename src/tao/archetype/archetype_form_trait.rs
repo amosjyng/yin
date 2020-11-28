@@ -36,6 +36,10 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Forget everything about the current form, except that it's an ArchetypeForm representing
     /// some type.
+    #[deprecated(
+        since = "0.1.4",
+        note = "Please use the SubjectForm::into function instead."
+    )]
     fn as_archetype(&self) -> Archetype {
         Archetype::from(*self.essence())
     }
@@ -95,14 +99,14 @@ pub trait ArchetypeFormTrait<'a>:
     }
 
     /// Add an attribute type to this archetype.
-    fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
+    fn add_attribute(&mut self, attribute_type: AttributeArchetype) {
         self.essence_mut()
             .add_outgoing(HasAttribute::TYPE_ID, attribute_type.essence());
     }
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
     /// descendant archetypes. Attribute types introduced by an ancestor do not count.
-    fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
+    fn added_attributes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .base_wrapper()
             .outgoing_nodes(HasAttribute::TYPE_ID)
@@ -110,6 +114,35 @@ pub trait ArchetypeFormTrait<'a>:
             .filter(|n| !Form::from(n.id()).is_individual())
             .map(|n| AttributeArchetype::from(n.id()))
             .collect()
+    }
+
+    /// Get all the types of attributes that this concept is predefined to potentially have.
+    fn attributes(&self) -> Vec<AttributeArchetype> {
+        self.essence()
+            .outgoing_nodes(HasAttribute::TYPE_ID)
+            .into_iter()
+            .map(AttributeArchetype::from)
+            .collect()
+    }
+
+    /// Checks to see if an archetype is one of the possible attribute types this concept could
+    /// have.
+    fn has_attribute(&self, possible_type: AttributeArchetype) -> bool {
+        self.essence()
+            .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
+    }
+
+    /// Add an attribute type to this archetype.
+    #[deprecated(since = "0.1.4", note = "Please use Archetype::add_attribute.")]
+    fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
+        self.add_attribute(attribute_type)
+    }
+
+    /// Retrieve non-inherited attribute types that are introduced by this archetype to all
+    /// descendant archetypes. Attribute types introduced by an ancestor do not count.
+    #[deprecated(since = "0.1.4", note = "Please use Archetype::added_attributes.")]
+    fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
+        self.added_attributes()
     }
 }
 
@@ -136,11 +169,11 @@ mod tests {
         initialize_kb();
         let type1 = Owner::archetype().individuate_as_archetype();
         let type1_instance = type1.individuate_as_form();
-        assert!(type1.has_ancestor(Owner::archetype().as_archetype()));
-        assert!(!type1.has_ancestor(Value::archetype().as_archetype()));
-        assert!(type1_instance.has_ancestor(type1.as_archetype()));
-        assert!(type1_instance.has_ancestor(Owner::archetype().as_archetype()));
-        assert!(!type1_instance.has_ancestor(Value::archetype().as_archetype()));
+        assert!(type1.has_ancestor(Owner::archetype().into()));
+        assert!(!type1.has_ancestor(Value::archetype().into()));
+        assert!(type1_instance.has_ancestor(type1.into()));
+        assert!(type1_instance.has_ancestor(Owner::archetype().into()));
+        assert!(!type1_instance.has_ancestor(Value::archetype().into()));
     }
 
     #[test]
@@ -185,13 +218,10 @@ mod tests {
         initialize_kb();
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
-        assert_eq!(
-            type1.introduced_attribute_archetypes(),
-            Vec::<AttributeArchetype>::new()
-        );
+        assert_eq!(type1.added_attributes(), Vec::<AttributeArchetype>::new());
 
-        type1.add_attribute_type(type2);
-        assert_eq!(type1.introduced_attribute_archetypes(), vec!(type2));
+        type1.add_attribute(type2);
+        assert_eq!(type1.added_attributes(), vec!(type2));
     }
 
     #[test]
@@ -200,13 +230,26 @@ mod tests {
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Tao::archetype().individuate_as_archetype();
         let type2_attr_arch = AttributeArchetype::from(type2.id());
-        type1.add_attribute_type(type2_attr_arch);
+        type1.add_attribute(type2_attr_arch);
 
-        assert_eq!(type1.attribute_archetypes(), vec![type2_attr_arch]);
+        assert_eq!(type1.attributes(), vec![type2_attr_arch]);
+        assert_eq!(type1.added_attributes(), vec![type2_attr_arch]);
+    }
+
+    #[test]
+    fn test_attribute_types_inherited() {
+        initialize_kb();
+        let mut type1 = Attribute::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_attribute(type2);
+
         assert_eq!(
-            type1.introduced_attribute_archetypes(),
-            vec![type2_attr_arch]
+            type3.attributes(),
+            vec![Owner::archetype(), Value::archetype(), type2]
         );
+        assert!(!type3.has_attribute(type1));
+        assert!(type3.has_attribute(type2));
     }
 
     #[test]
@@ -215,12 +258,9 @@ mod tests {
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
-        type1.add_attribute_type(type2);
+        type1.add_attribute(type2);
 
-        assert_eq!(
-            type3.introduced_attribute_archetypes(),
-            Vec::<AttributeArchetype>::new()
-        );
+        assert_eq!(type3.added_attributes(), Vec::<AttributeArchetype>::new());
     }
 
     #[test]
@@ -230,9 +270,9 @@ mod tests {
         let flag_type = Flag::archetype().individuate_as_archetype();
         let attr_type = Attribute::archetype().individuate_as_archetype();
         form_type.add_flag(flag_type);
-        form_type.add_attribute_type(attr_type);
+        form_type.add_attribute(attr_type);
 
-        assert_eq!(form_type.attribute_archetypes(), vec![attr_type]);
-        assert_eq!(form_type.introduced_attribute_archetypes(), vec![attr_type]);
+        assert_eq!(form_type.attributes(), vec![attr_type]);
+        assert_eq!(form_type.added_attributes(), vec![attr_type]);
     }
 }

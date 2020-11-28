@@ -120,7 +120,7 @@ mod tests {
         let flag_type = Flag::archetype().individuate_as_archetype();
         let attr_type = Attribute::archetype().individuate_as_archetype();
         form_type.add_flag(flag_type);
-        form_type.add_attribute_type(attr_type);
+        form_type.add_attribute(attr_type);
 
         assert_eq!(form_type.flags(), vec![flag_type]);
         assert_eq!(form_type.added_flags(), vec![flag_type]);

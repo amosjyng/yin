@@ -43,21 +43,21 @@ macro_rules! initialize_type {
 /// Adds all concept relations to graph.
 fn initialize_relations() {
     let mut relation = AttributeArchetype::from(Relation::TYPE_ID);
-    relation.add_attribute_type(Owner::archetype());
+    relation.add_attribute(Owner::archetype());
     // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
     // todo: add set_owner_archetype to Relation as well
     relation.set_owner_archetype(Tao::archetype());
 
     let mut attributes = Attribute::archetype();
-    attributes.add_attribute_type(Value::archetype());
+    attributes.add_attribute(Value::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    HasProperty::archetype().set_value_archetype(Relation::archetype().as_archetype());
+    HasProperty::archetype().set_value_archetype(Relation::archetype());
 
-    Owner::archetype().set_owner_archetype(Relation::archetype().as_archetype());
-    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype().as_archetype());
-    Value::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
-    ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().as_archetype());
+    Owner::archetype().set_owner_archetype(Relation::archetype());
+    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype());
+    Value::archetype().set_owner_archetype(Attribute::archetype().into());
+    ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().into());
 }
 
 /// Initialize Yin with an in-memory graph database.

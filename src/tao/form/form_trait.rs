@@ -96,6 +96,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
+    #[deprecated(since = "0.1.4", note = "Please use Archetype::attributes.")]
     fn attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .outgoing_nodes(HasAttribute::TYPE_ID)
@@ -106,6 +107,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
 
     /// Checks to see if an archetype is one of the possible attribute types this concept could
     /// have.
+    #[deprecated(since = "0.1.4", note = "Please use Archetype::has_attribute.")]
     fn has_attribute_type(&self, possible_type: AttributeArchetype) -> bool {
         self.essence()
             .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
@@ -123,20 +125,17 @@ mod tests {
     fn test_parents() {
         initialize_kb();
         let owner = Owner::new();
-        assert_eq!(owner.parents(), vec![Owner::archetype().as_archetype()]);
+        assert_eq!(owner.parents(), vec![Owner::archetype().into()]);
     }
 
     #[test]
     fn test_multiple_parents() {
         initialize_kb();
         let mut owner = Owner::new();
-        owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
+        owner.add_parent(Value::archetype().into()); // nonsensical, but okay for tests
         assert_eq!(
             owner.parents(),
-            vec![
-                Owner::archetype().as_archetype(),
-                Value::archetype().as_archetype()
-            ]
+            vec![Owner::archetype().into(), Value::archetype().into()]
         );
     }
 
@@ -184,19 +183,19 @@ mod tests {
     fn test_parenthood() {
         initialize_kb();
         let owner = Owner::new();
-        assert!(owner.has_parent(Owner::archetype().as_archetype()));
+        assert!(owner.has_parent(Owner::archetype().into()));
         assert!(!owner.has_parent(Tao::archetype()));
-        assert!(!owner.has_parent(Value::archetype().as_archetype()));
+        assert!(!owner.has_parent(Value::archetype().into()));
     }
 
     #[test]
     fn test_multiple_parenthood() {
         initialize_kb();
         let mut owner = Owner::new();
-        owner.add_parent(Value::archetype().as_archetype()); // nonsensical, but okay for tests
-        assert!(owner.has_parent(Owner::archetype().as_archetype()));
+        owner.add_parent(Value::archetype().into()); // nonsensical, but okay for tests
+        assert!(owner.has_parent(Owner::archetype().into()));
         assert!(!owner.has_parent(Tao::archetype()));
-        assert!(owner.has_parent(Value::archetype().as_archetype()));
+        assert!(owner.has_parent(Value::archetype().into()));
     }
 
     #[test]
@@ -227,11 +226,12 @@ mod tests {
     fn test_has_ancestor() {
         initialize_kb();
         let owner = Owner::new();
-        assert!(owner.has_ancestor(Owner::archetype().as_archetype()));
+        assert!(owner.has_ancestor(Owner::archetype().into()));
         assert!(owner.has_ancestor(Tao::archetype()));
-        assert!(!owner.has_ancestor(Value::archetype().as_archetype()));
+        assert!(!owner.has_ancestor(Value::archetype().into()));
     }
 
+    #[allow(deprecated)]
     #[test]
     fn test_attribute_types() {
         initialize_kb();
@@ -248,6 +248,7 @@ mod tests {
         assert!(instance.has_attribute_type(type2));
     }
 
+    #[allow(deprecated)]
     #[test]
     fn test_attribute_types_inherited() {
         initialize_kb();
