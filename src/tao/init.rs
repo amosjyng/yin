@@ -43,13 +43,13 @@ macro_rules! initialize_type {
 /// Adds all concept relations to graph.
 fn initialize_relations() {
     let mut relation = AttributeArchetype::from(Relation::TYPE_ID);
-    relation.add_attribute_type(Owner::archetype());
+    relation.add_attribute(Owner::archetype());
     // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
     // todo: add set_owner_archetype to Relation as well
     relation.set_owner_archetype(Tao::archetype());
 
     let mut attributes = Attribute::archetype();
-    attributes.add_attribute_type(Value::archetype());
+    attributes.add_attribute(Value::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
     HasProperty::archetype().set_value_archetype(Relation::archetype().into());
