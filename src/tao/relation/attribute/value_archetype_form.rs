@@ -1,0 +1,164 @@
+use crate::node_wrappers::{debug_wrapper, FinalNode};
+use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
+use crate::tao::form::{Form, FormTrait};
+use crate::tao::relation::attribute::{Attribute, AttributeTrait};
+use crate::Wrapper;
+use std::convert::{From, TryFrom};
+use std::fmt;
+use std::fmt::{Debug, Formatter};
+
+/// The type of value this attribute has. Only the most restrictive inherited
+/// value will be used.
+#[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ValueArchetype {
+    base: FinalNode,
+}
+
+impl Debug for ValueArchetype {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        debug_wrapper("ValueArchetype", self, f)
+    }
+}
+
+impl From<usize> for ValueArchetype {
+    fn from(id: usize) -> Self {
+        Self {
+            base: FinalNode::from(id),
+        }
+    }
+}
+
+impl From<FinalNode> for ValueArchetype {
+    fn from(f: FinalNode) -> Self {
+        Self { base: f }
+    }
+}
+
+impl<'a> TryFrom<&'a str> for ValueArchetype {
+    type Error = String;
+
+    fn try_from(name: &'a str) -> Result<Self, Self::Error> {
+        FinalNode::try_from(name).map(|f| Self { base: f })
+    }
+}
+
+impl Wrapper for ValueArchetype {
+    type BaseType = FinalNode;
+
+    fn essence(&self) -> &FinalNode {
+        &self.base
+    }
+
+    fn essence_mut(&mut self) -> &mut FinalNode {
+        &mut self.base
+    }
+}
+
+impl<'a> ArchetypeTrait<'a> for ValueArchetype {
+    type ArchetypeForm = AttributeArchetype;
+    type Form = ValueArchetype;
+
+    const TYPE_ID: usize = 12;
+    const TYPE_NAME: &'static str = "value-archetype";
+    const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
+}
+
+impl FormTrait for ValueArchetype {}
+
+impl From<ValueArchetype> for Attribute {
+    fn from(this: ValueArchetype) -> Attribute {
+        Attribute::from(this.base)
+    }
+}
+
+impl AttributeTrait for ValueArchetype {
+    type OwnerForm = Attribute;
+    type ValueForm = Form;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::node_wrappers::CommonNodeTrait;
+    #[rustfmt::skip]
+    use crate::tao::archetype::{ArchetypeFormTrait, AttributeArchetypeFormTrait};
+    use crate::tao::relation::attribute::{Owner, Value};
+    use crate::tao::{initialize_kb, Tao};
+    use std::rc::Rc;
+
+    #[test]
+    fn check_type_created() {
+        initialize_kb();
+        assert_eq!(ValueArchetype::archetype().id(), ValueArchetype::TYPE_ID);
+        assert_eq!(
+            ValueArchetype::archetype().internal_name_str(),
+            Some(Rc::from(ValueArchetype::TYPE_NAME))
+        );
+    }
+
+    #[test]
+    fn check_type_attributes() {
+        initialize_kb();
+        assert_eq!(ValueArchetype::archetype().added_attributes(), vec![]);
+        #[rustfmt::skip]
+        assert_eq!(ValueArchetype::archetype().attributes(), vec![Owner::archetype(), Value::archetype()]);
+    }
+
+    #[test]
+    fn from_node_id() {
+        initialize_kb();
+        let concept = ValueArchetype::new();
+        let concept_copy = ValueArchetype::from(concept.id());
+        assert_eq!(concept.id(), concept_copy.id());
+    }
+
+    #[test]
+    fn from_name() {
+        initialize_kb();
+        let mut concept = ValueArchetype::new();
+        concept.set_internal_name_str("A");
+        #[rustfmt::skip]
+        assert_eq!(ValueArchetype::try_from("A").map(|c| c.id()), Ok(concept.id()));
+        assert!(ValueArchetype::try_from("B").is_err());
+    }
+
+    #[test]
+    fn test_wrapper_implemented() {
+        initialize_kb();
+        let concept = ValueArchetype::new();
+        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+    }
+
+    #[test]
+    fn check_attribute_constraints() {
+        initialize_kb();
+        assert_eq!(
+            ValueArchetype::archetype().owner_archetype(),
+            Attribute::archetype().into()
+        );
+        assert_eq!(
+            ValueArchetype::archetype().value_archetype(),
+            Tao::archetype()
+        );
+    }
+
+    #[test]
+    fn get_owner() {
+        initialize_kb();
+        let mut instance = ValueArchetype::new();
+        let owner_of_instance = Attribute::new();
+        instance.set_owner(&owner_of_instance);
+        assert_eq!(instance.owner(), Some(owner_of_instance));
+        assert_eq!(instance.value(), None);
+    }
+
+    #[test]
+    fn get_value() {
+        initialize_kb();
+        let mut instance = ValueArchetype::new();
+        let value_of_instance = Tao::new();
+        instance.set_value(&value_of_instance);
+        assert_eq!(instance.owner(), None);
+        assert_eq!(instance.value(), Some(value_of_instance));
+    }
+}
