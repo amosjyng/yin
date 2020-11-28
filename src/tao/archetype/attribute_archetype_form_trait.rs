@@ -3,6 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{OwnerArchetype, ValueArchetype};
+use crate::tao::relation::flag::Nonhereditary;
 use crate::tao::Tao;
 use crate::Wrapper;
 
@@ -46,6 +47,16 @@ pub trait AttributeArchetypeFormTrait<'a>:
                 .last()
                 .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
         )
+    }
+
+    /// Mark this attribute as non-hereditary.
+    fn mark_nonhereditary_attr(&mut self) {
+        self.essence_mut().add_flag(Nonhereditary::TYPE_ID);
+    }
+
+    /// Whether this represents a nonhereditary attribute.
+    fn is_nonhereditary_attr(&self) -> bool {
+        self.essence().has_flag(Nonhereditary::TYPE_ID)
     }
 }
 
@@ -92,5 +103,15 @@ mod tests {
             AttributeArchetype::from(Tao::archetype().individuate_as_archetype().id());
         assert_eq!(custom_attr.owner_archetype(), Tao::archetype());
         assert_eq!(custom_attr.value_archetype(), Tao::archetype());
+    }
+
+    #[test]
+    fn test_new_nonhereditary() {
+        initialize_kb();
+        let mut new_type = Attribute::archetype().individuate_as_archetype();
+        assert!(!new_type.is_nonhereditary_attr());
+
+        new_type.mark_nonhereditary_attr();
+        assert!(new_type.is_nonhereditary_attr());
     }
 }
