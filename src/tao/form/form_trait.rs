@@ -96,7 +96,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
-    #[deprecated(since = "0.1.2", note = "Please use Archetype::attributes.")]
+    #[deprecated(since = "0.1.4", note = "Please use Archetype::attributes.")]
     fn attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.essence()
             .outgoing_nodes(HasAttribute::TYPE_ID)
@@ -107,7 +107,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
 
     /// Checks to see if an archetype is one of the possible attribute types this concept could
     /// have.
-    #[deprecated(since = "0.1.2", note = "Please use Archetype::has_attribute.")]
+    #[deprecated(since = "0.1.4", note = "Please use Archetype::has_attribute.")]
     fn has_attribute_type(&self, possible_type: AttributeArchetype) -> bool {
         self.essence()
             .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
@@ -135,10 +135,7 @@ mod tests {
         owner.add_parent(Value::archetype().into()); // nonsensical, but okay for tests
         assert_eq!(
             owner.parents(),
-            vec![
-                Owner::archetype().into(),
-                Value::archetype().into()
-            ]
+            vec![Owner::archetype().into(), Value::archetype().into()]
         );
     }
 

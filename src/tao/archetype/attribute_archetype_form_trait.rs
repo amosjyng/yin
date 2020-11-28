@@ -68,10 +68,7 @@ mod tests {
 
         // owners should now be restricted to Attributes as opposed to Tao
         attr_type1.set_owner_archetype(Attribute::archetype().into());
-        assert_eq!(
-            attr_type2.owner_archetype(),
-            Attribute::archetype().into()
-        );
+        assert_eq!(attr_type2.owner_archetype(), Attribute::archetype().into());
     }
 
     #[test]
@@ -83,10 +80,7 @@ mod tests {
 
         // values should now be restricted to Attributes as opposed to Tao
         attr_type1.set_value_archetype(Attribute::archetype().into());
-        assert_eq!(
-            attr_type2.value_archetype(),
-            Attribute::archetype().into()
-        );
+        assert_eq!(attr_type2.value_archetype(), Attribute::archetype().into());
     }
 
     #[test]
