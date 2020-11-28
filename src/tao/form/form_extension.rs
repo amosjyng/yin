@@ -1,6 +1,7 @@
 use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::{Form, FormTrait};
+use crate::tao::relation::attribute::Attribute;
 use crate::tao::relation::flag::IsIndividual;
 use crate::Wrapper;
 
@@ -18,33 +19,27 @@ pub trait FormExtension: FormTrait + Wrapper<BaseType = FinalNode> {
 }
 
 impl FormExtension for Form {}
+impl FormExtension for Attribute {}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::node_wrappers::CommonNodeTrait;
     use crate::tao::archetype::ArchetypeFormTrait;
     use crate::tao::initialize_kb;
 
     #[test]
-    fn test_mark_and_check_newly_defined() {
+    fn test_new_is_individual() {
         initialize_kb();
-        let mut new_instance = Form::new();
-        assert!(!new_instance.is_individual());
-
-        new_instance.mark_individual();
+        let new_instance = Form::new();
+        // all individuals should automatically be marked as such
         assert!(new_instance.is_individual());
     }
 
     #[test]
-    fn test_newly_defined_inheritance() {
+    fn test_individual_as_form_is_individual() {
         initialize_kb();
-        let new_type = Form::archetype().individuate_as_archetype();
-        #[rustfmt::skip]
-        let new_instance = Form::from(new_type.individuate_as_form().id());
-        assert!(!new_instance.is_individual());
-
-        Form::from(new_type.id()).mark_individual();
+        let new_instance = Form::archetype().individuate_as_form();
+        // all individuals should automatically be marked as such
         assert!(new_instance.is_individual());
     }
 }
