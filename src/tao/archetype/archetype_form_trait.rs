@@ -112,6 +112,22 @@ pub trait ArchetypeFormTrait<'a>:
             .map(|n| AttributeArchetype::from(n.id()))
             .collect()
     }
+
+    /// Get all the types of attributes that this concept is predefined to potentially have.
+    fn attributes(&self) -> Vec<AttributeArchetype> {
+        self.essence()
+            .outgoing_nodes(HasAttribute::TYPE_ID)
+            .into_iter()
+            .map(AttributeArchetype::from)
+            .collect()
+    }
+
+    /// Checks to see if an archetype is one of the possible attribute types this concept could
+    /// have.
+    fn has_attribute(&self, possible_type: AttributeArchetype) -> bool {
+        self.essence()
+            .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
+    }
 }
 
 impl<'a> ArchetypeFormTrait<'a> for Archetype {
@@ -203,11 +219,27 @@ mod tests {
         let type2_attr_arch = AttributeArchetype::from(type2.id());
         type1.add_attribute_type(type2_attr_arch);
 
-        assert_eq!(type1.attribute_archetypes(), vec![type2_attr_arch]);
+        assert_eq!(type1.attributes(), vec![type2_attr_arch]);
         assert_eq!(
             type1.introduced_attribute_archetypes(),
             vec![type2_attr_arch]
         );
+    }
+
+    #[test]
+    fn test_attribute_types_inherited() {
+        initialize_kb();
+        let mut type1 = Attribute::archetype().individuate_as_archetype();
+        let type2 = Attribute::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_attribute_type(type2);
+
+        assert_eq!(
+            type3.attributes(),
+            vec![Owner::archetype(), Value::archetype(), type2]
+        );
+        assert!(!type3.has_attribute(type1));
+        assert!(type3.has_attribute(type2));
     }
 
     #[test]
@@ -233,7 +265,7 @@ mod tests {
         form_type.add_flag(flag_type);
         form_type.add_attribute_type(attr_type);
 
-        assert_eq!(form_type.attribute_archetypes(), vec![attr_type]);
+        assert_eq!(form_type.attributes(), vec![attr_type]);
         assert_eq!(form_type.introduced_attribute_archetypes(), vec![attr_type]);
     }
 }
