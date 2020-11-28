@@ -130,14 +130,8 @@ mod tests {
     #[test]
     fn check_attribute_constraints() {
         initialize_kb();
-        assert_eq!(
-            Inherits::archetype().owner_archetype(),
-            Tao::archetype()
-        );
-        assert_eq!(
-            Inherits::archetype().value_archetype(),
-            Tao::archetype()
-        );
+        assert_eq!(Inherits::archetype().owner_archetype(), Tao::archetype());
+        assert_eq!(Inherits::archetype().value_archetype(), Tao::archetype());
     }
 
     #[test]

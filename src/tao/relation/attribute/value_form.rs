@@ -134,10 +134,7 @@ mod tests {
             Value::archetype().owner_archetype(),
             Attribute::archetype().into()
         );
-        assert_eq!(
-            Value::archetype().value_archetype(),
-            Tao::archetype()
-        );
+        assert_eq!(Value::archetype().value_archetype(), Tao::archetype());
     }
 
     #[test]

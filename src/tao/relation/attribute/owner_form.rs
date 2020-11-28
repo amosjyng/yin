@@ -131,14 +131,8 @@ mod tests {
     #[test]
     fn check_attribute_constraints() {
         initialize_kb();
-        assert_eq!(
-            Owner::archetype().owner_archetype(),
-            Relation::archetype()
-        );
-        assert_eq!(
-            Owner::archetype().value_archetype(),
-            Tao::archetype()
-        );
+        assert_eq!(Owner::archetype().owner_archetype(), Relation::archetype());
+        assert_eq!(Owner::archetype().value_archetype(), Tao::archetype());
     }
 
     #[test]
