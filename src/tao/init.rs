@@ -52,10 +52,10 @@ fn initialize_relations() {
     attributes.add_attribute(Value::archetype());
     attributes.set_value_archetype(Tao::archetype());
 
-    HasProperty::archetype().set_value_archetype(Relation::archetype().into());
+    HasProperty::archetype().set_value_archetype(Relation::archetype());
 
-    Owner::archetype().set_owner_archetype(Relation::archetype().into());
-    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype().into());
+    Owner::archetype().set_owner_archetype(Relation::archetype());
+    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype());
     Value::archetype().set_owner_archetype(Attribute::archetype().into());
     ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().into());
 }
