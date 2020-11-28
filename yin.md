@@ -189,6 +189,15 @@ This can only be used to represent *attribute* archetypes, so unlike `Archetype`
 
 Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
 
+Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
+
+```rust
+define!(nonhereditary);
+nonhereditary.add_parent(flag);
+```
+
+Is nonhereditary itself a hereditary flag? It doesn't seem to matter because this concept is only meaningful for relation archetypes, and all its children will be instances of relations as opposed to types of relations.
+
 #### Individuation
 
 What exactly differentiates an archetype without subtypes from an individual? It's not just the inheritance relation -- individuals aren't necessarily leaves in the inheritance chain. Maybe you want to say "Script `B` does the same exact thing as script `A`, except that it pings server `D` instead of server `C`." Now, every change to script `A` also gets inherited by script `B`, even though both of them are individual scripts in their own right. Whether this could be better represented by both `A` and `B` referencing some behavior in common, or by combining the two into a single script with the server IP as a parameter, are irrelevant implementation details. What matters is that it is a valid idea that is readily understood by a human.
@@ -311,6 +320,7 @@ archetype_mod.has_extension("archetype_form_extension_trait::ArchetypeFormExtens
 archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
 
 attribute_archetype.implement_with_doc("Archetype representing attributes.");
+nonhereditary.implement_with_doc("Marks a property as not behing inherited.");
 is_individual.implement_with_doc(
     "Whether or not a concept is an individual, as opposed to an archetype."
 );
