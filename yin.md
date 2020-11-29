@@ -73,7 +73,7 @@ define!(attribute);
 You are primed to recognize and deal with attributes, so let's tell activate your instincts:
 
 ```rust
-attribute.activate_attribute_logic();
+KnowledgeGraphNode::from(attribute.id()).mark_attribute_analogue();
 ```
 
 What should we call the binary relation we've just described between `O` and `U`? Let's say that `O` is the "owner" of the unary relation `U`:
@@ -138,8 +138,8 @@ has_attribute.add_parent(has_property);
 Now we go back and set this property for the relations:
 
 ```rust
-relation.add_attribute_type(aa(owner));
-attribute.add_attribute_type(aa(value));
+relation.add_attribute(aa(owner));
+attribute.add_attribute(aa(value));
 ```
 
 Now we can say that unary relations, binary relations, and all the n-ary relations where n > 1, all have owners. While we should theoretically exclude 0-ary relations from this, we will instead delegate all reasoning about 0-ary relations to Form, so that we can simply ascribe the "owner" property to all relations.
@@ -337,11 +337,11 @@ When it comes to data, we should also tell Yang which Rust primitives these conc
 
 ```rust
 string_concept.implement_with_doc("The concept of a string of characters.");
-string_concept.activate_data_logic();
+KnowledgeGraphNode::from(string_concept.id()).mark_data_analogue();
 string_concept.set_rust_primitive("String");
 
 number.implement_with_doc("The concept of numbers.");
-number.activate_data_logic();
+KnowledgeGraphNode::from(number.id()).mark_data_analogue();
 number.set_rust_primitive("usize");
 ```
 
@@ -391,6 +391,7 @@ use zamm_yang::tao::form::CrateExtension;
 use zamm_yang::tao::form::FormTrait;
 use zamm_yang::tao::form::ModuleExtension;
 use zamm_yang::tao::form::data::DataExtension;
+use zamm_yang::tao::perspective::KnowledgeGraphNode;
 use zamm_yang::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
 use zamm_yang::tao::callbacks::handle_all_implementations;
