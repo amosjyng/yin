@@ -35,7 +35,7 @@ Hey look, you parsed that bit of information just fine! You may have no idea how
 The first idea is that we can only ever reason with and manipulate objects that have form. So let's start by giving everything a basic form:
 
 ```rust
-define!(form);
+define!(form, "All things that can be interacted with have form.");
 ```
 
 [Everything is a part of ultimate reality, but reality is also a part of everything.](https://biblehub.com/john/14-20.htm)
@@ -47,7 +47,7 @@ Each form alone would make its own universe, indistinguishable from all the univ
 This calls for a way to associate nodes with each other to make up a much richer reality:
 
 ```rust
-define!(relation);
+define!(relation, "Links any number of nodes together.");
 ```
 
 One node describing one other node -- a unary relation. Take a step forward, and you have one node describing two other nodes -- a binary relation. Take a step backward, and you have a node describing no other nodes -- and we have recovered the Tao, the solitary node, the null set, the 0-ary relation that stands by itself for all eternity within every possible and impossible reality.
@@ -57,7 +57,7 @@ There are [infinitely more](https://en.wikipedia.org/wiki/Finitary_relation) for
 We'll call the unary relations "flags":
 
 ```rust
-define!(flag);
+define!(flag, "Represents a unary relation.");
 ```
 
 Take a hypothetical unary relation. Let's call it `U`. Like all other unary relations, `U` describes one other node at a time -- the other node potentially being itself. Let's call this other node `O`.
@@ -67,7 +67,7 @@ But wait, the unary relation is a concept, an idea, in and of itself. It is a fi
 We'll call the binary relations "attributes":
 
 ```rust
-define!(attribute);
+define!(attribute, "Represents a binary relation.");
 ```
 
 You are primed to recognize and deal with attributes, so let's tell activate your instincts:
@@ -79,13 +79,13 @@ KnowledgeGraphNode::from(attribute.id()).mark_attribute_analogue();
 What should we call the binary relation we've just described between `O` and `U`? Let's say that `O` is the "owner" of the unary relation `U`:
 
 ```rust
-define!(owner);
+define!(owner, "The owner/source/from-node of an attribute.");
 ```
 
 This also applies to attributes -- we can call `O` the owner of the Owner relation that runs between `O` and `U`. But attributes, unlike flags, describe two nodes at a time, and we only have a name for the relation between an attribute and the first node the attribute describes. We should therefore come up with another name for the relation between an attribute and the second node the attribute describes:
 
 ```rust
-define!(value);
+define!(value, "The value/target/to-node of an attribute.");
 ```
 
 And so there we have it, Owner and Value as attributes describing attributes, including themselves!
@@ -93,8 +93,11 @@ And so there we have it, Owner and Value as attributes describing attributes, in
 Both flags and attributes have something in common -- the existence of their owner node. We should describe this commonality. Just about everything that can be said about the first (and only) node of a flag in relation to the flag can also be said about the first node of an attribute in relation to the attribute.
 
 ```rust
-define!(inherits);
-inherits.add_parent(attribute);
+define_child!(
+    inherits,
+    attribute,
+    "Describes the owner as inheriting all attributes of the value."
+);
 ```
 
 Even the `Inherits` attribute itself inherits from Attribute! Exciting, we can not only name things now, but also start describing their inheritance patterns.
@@ -121,18 +124,26 @@ Ah, this is starting to look more like a proper universe, where all entities are
 Let's also call unary and binary relations by the name of "properties." Note that the Owner attribute, as a child of Attribute, also inherits all properties of Attributes. All attributes have owners and values, and therefore each Owner attribute itself will also have an owner and a value to it. Ditto for Value. We should describe this property of a concept having properties:
 
 ```rust
-define!(has_property);
-has_property.add_parent(attribute);
+define_child!(
+    has_property,
+    attribute,
+    "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in."
+);
 ```
 
 There are arguably two different types of property-having: having attributes and having flags. Theoretically speaking, we want to keep the two categories separate. Practically speaking, we want to make sure that adding an attribute or a flag to a node will later result in the attribute or flag being retrieved from that same node. This would be violated when we define replacement attribute and flag nodes, because the children of these new replacement nodes would get filtered out because they aren't children of the existing attribute or flag nodes. Either way, all signs point to making this distinction:
 
 ```rust
-define!(has_flag);
-has_flag.add_parent(has_property);
-
-define!(has_attribute);
-has_attribute.add_parent(has_property);
+define_child!(
+    has_flag,
+    has_property,
+    "Describes instances of an archetype as generally having values set for this flag. Does not describe whether the value for the flag is true or false."
+);
+define_child!(
+    has_attribute,
+    has_property,
+    "Describes instances of an archetype as generally having values set for this attribute."
+);
 ```
 
 Now we go back and set this property for the relations:
@@ -147,12 +158,18 @@ Now we can say that unary relations, binary relations, and all the n-ary relatio
 Now, while we've encapsulated the idea that all flags and attributes have owners, we also want to encapsulate the idea that different flags and attributes will have owners and values of different types:
 
 ```rust
-define!(owner_archetype);
-owner_archetype.add_parent(attribute);
+define_child!(
+    owner_archetype,
+    attribute,
+    "The type of owner this attribute has. Only the most restrictive inherited value will be used."
+);
 aa(owner_archetype).set_owner_archetype(relation);
 
-define!(value_archetype);
-value_archetype.add_parent(attribute);
+define_child!(
+    value_archetype,
+    attribute,
+    "The type of value this attribute has. Only the most restrictive inherited value will be used."
+);
 aa(value_archetype).set_owner_archetype(attribute);
 ```
 
@@ -173,7 +190,10 @@ Remember that because Attribute inherits from Relation, Attribute also has an ow
 Different forms have a lot of different properties in common. Perhaps we can capture this sort of large-scale pattern across forms with a new word:
 
 ```rust
-define!(archetype);
+define!(
+    archetype,
+    "Represents patterns found across an entire class of concepts."
+);
 ```
 
 Then, we can assign meta-properties to a *type*, such as Attribute, rather than any specific instance of that type. For example, it makes sense to ask what the type of owner is for the Value attribute. It will be another attribute. Even though every instance of Value can have a different specific owner, they should all have owners that are attributes.
@@ -181,8 +201,11 @@ Then, we can assign meta-properties to a *type*, such as Attribute, rather than 
 The type of owner that exists for the Value attribute is actually a property that only makes sense for attribute archetypes, since other archetypes won't even have a Value attribute. As such, we should define a separate archetype for attributes specifically:
 
 ```rust
-define!(attribute_archetype);
-attribute_archetype.add_parent(archetype);
+define_child!(
+    attribute_archetype,
+    archetype,
+    "Archetype representing attributes."
+);
 ```
 
 This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can represent all archetypes, including its own archetype, because it's an archetype too), `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`, and cannot be used to represent its own archetype.
@@ -192,8 +215,11 @@ Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `Fo
 Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
 
 ```rust
-define!(nonhereditary);
-nonhereditary.add_parent(flag);
+define_child!(
+    nonhereditary,
+    flag,
+    "Marks a property as not behing inherited."
+);
 ```
 
 Is nonhereditary itself a hereditary flag? It doesn't seem to matter because this concept is only meaningful for relation archetypes, and all its children will be instances of relations as opposed to types of relations.
@@ -213,8 +239,11 @@ Even archetypes themselves can be considered individual concepts in their own ri
 Perhaps natural language is hard because the underlying ideas language is meant to represent are [arbitrary](https://slatestarcodex.com/2014/11/21/the-categories-were-made-for-man-not-man-for-the-categories/) and [nebulous](https://meaningness.com/nebulosity) in the first place. Or perhaps there is actually an obvious and simple answer that perfectly delineates the two categories in this particular case. But if there is, it is unfortunately not available to me at this time. And even if it were, we would still want individuality to be a first-class concept in its own right. We'll simply arbitrarily mark a concept as representing an "individual" -- in other words, representing the boundary at which the Archetype perspective stops being useful.
 
 ```rust
-define!(is_individual);
-is_individual.add_parent(flag);
+define_child!(
+    is_individual,
+    flag,
+    "Whether or not a concept is an individual, as opposed to an archetype."
+);
 ```
 
 ### Data
@@ -226,8 +255,11 @@ Now, not every noun corresponds directly to something physical. We have words th
 The same can be said for the bits in Yin and Yang's world. Everything is ultimately bits for these programs -- even a video feed hooked up to the physical world only ever comes in as a stream of bits. If we really wanted to fool a program, it should be theoretically impossible for the program [to tell](https://en.wikipedia.org/wiki/Brain_in_a_vat) that it's actually running in a hermetically sealed continuous integration test environment instead of production. But it still makes sense to speak of pieces of data versus the relations between the data, even if the relations themselves can rightfully be considered data as well:
 
 ```rust
-define!(data);
-data.add_parent(form);
+define_child!(
+    data,
+    form,
+    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
+);
 ```
 
 In a sense, it's all about framing. Every series of bits forms a number, but unless you're Gödel and you're trying to establish an equivalence between a mathematical proof and an integer, reasoning about "a series of bits" is going to be quite different from reasoning about "a number."
@@ -235,22 +267,31 @@ In a sense, it's all about framing. Every series of bits forms a number, but unl
 One type of data is a "string":
 
 ```rust
-define!(string_concept);
-string_concept.add_parent(data);
+define_child!(
+    string_concept,
+    data,
+    "The concept of a string of characters."
+);
 ```
 
 Another type of data is a number:
 
 ```rust
-define!(number);
-number.add_parent(data);
+define_child!(
+    number,
+    data,
+    "The concept of numbers."
+);
 ```
 
 Every type of data usually has a "default" value that we think of when constructing one from scratch.
 
 ```rust
-define!(default_value);
-default_value.add_parent(attribute);
+define_child!(
+    default_value,
+    attribute,
+    "The default value of a data structure."
+);
 ```
 
 For strings, this would be the empty string:
@@ -277,58 +318,37 @@ tao.activate_root_node_logic();
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```rust
-form.implement_with_doc("All things that can be interacted with have form.");
-let mut form_mod = form.impl_mod("Concept forms, as opposed to archetypes.");
-form_mod.has_extension("form_trait::FormTrait");
-form_mod.has_extension("form_extension::FormExtension");
-
-relation.implement_with_doc("Links any number of nodes together.");
-relation.impl_mod("Relations between the forms.");
-
-flag.implement_with_doc("Represents a unary relation.");
-flag.impl_mod("Relations involving only one form.");
-
-attribute.implement_with_doc("Represents a binary relation.");
-let mut attr_mod = attribute.impl_mod("Relations between two forms.");
-attr_mod.has_extension("attribute_trait::AttributeTrait");
-
-owner.implement_with_doc("The owner/source/from-node of an attribute.");
-value.implement_with_doc("The value/target/to-node of an attribute.");
-inherits.implement_with_doc("Describes the owner as inheriting all attributes of the value.");
-has_property.implement_with_doc(
-    "Describes instances of an archetype as having certain other properties.\n\nFor example, a string may have a length of 5. But on a more meta level, that means that the string has a length property or length \"attribute\". That's where this attribute comes in.",
+module!(
+    form,
+    "Concept forms, as opposed to archetypes.",
+    [
+        "form_trait::FormTrait",
+        "form_extension::FormExtension"
+    ]
 );
-has_property.impl_mod("Meta-attributes around what attributes instances of an archetype have.");
-has_flag.implement_with_doc(
-    "Describes instances of an archetype as generally having values set for this flag. Does not describe whether the value for the flag is true or false."
+module!(relation, "Relations between the forms.");
+module!(flag, "Relations involving only one form.");
+module!(
+    attribute,
+    "Relations between two forms.",
+    ["attribute_trait::AttributeTrait"]
 );
-has_attribute.implement_with_doc(
-    "Describes instances of an archetype as generally having values set for this attribute."
+module!(
+    has_property,
+    "Meta-attributes around what attributes instances of an archetype have."
 );
-owner_archetype.implement_with_doc(
-    "The type of owner this attribute has. Only the most restrictive inherited value will be used."
+module!(
+    archetype,
+    "Types of forms, as opposed to the forms themselves.",
+    [
+        "archetype_trait::ArchetypeTrait",
+        "archetype_form_trait::ArchetypeFormTrait",
+        "archetype_form_extension_trait::ArchetypeFormExtensionTrait",
+        "attribute_archetype_form_trait::AttributeArchetypeFormTrait"
+    ]
 );
-value_archetype.implement_with_doc(
-    "The type of value this attribute has. Only the most restrictive inherited value will be used."
-);
-
-archetype.implement_with_doc("Represents patterns found across an entire class of concepts.");
-let mut archetype_mod = archetype.impl_mod("Types of forms, as opposed to the forms themselves.");
-archetype_mod.has_extension("archetype_trait::ArchetypeTrait");
-archetype_mod.has_extension("archetype_form_trait::ArchetypeFormTrait");
-archetype_mod.has_extension("archetype_form_extension_trait::ArchetypeFormExtensionTrait");
-archetype_mod.has_extension("attribute_archetype_form_trait::AttributeArchetypeFormTrait");
-
-attribute_archetype.implement_with_doc("Archetype representing attributes.");
-nonhereditary.implement_with_doc("Marks a property as not behing inherited.");
-is_individual.implement_with_doc(
-    "Whether or not a concept is an individual, as opposed to an archetype."
-);
-
-data.implement_with_doc(
-    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
-);
-data.impl_mod(
+module!(
+    data,
     "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
 );
 ```
@@ -336,19 +356,11 @@ data.impl_mod(
 When it comes to data, we should also tell Yang which Rust primitives these concepts refer to:
 
 ```rust
-string_concept.implement_with_doc("The concept of a string of characters.");
 KnowledgeGraphNode::from(string_concept.id()).mark_data_analogue();
 string_concept.set_rust_primitive("String");
 
-number.implement_with_doc("The concept of numbers.");
 KnowledgeGraphNode::from(number.id()).mark_data_analogue();
 number.set_rust_primitive("usize");
-```
-
-And now for the rest of it:
-
-```rust
-default_value.implement_with_doc("The default value of a data structure.");
 ```
 
 ## Appendix
@@ -379,6 +391,8 @@ These are the generic imports for general Yang generation:
 
 ```rust
 use zamm_yang::define;
+use zamm_yang::define_child;
+use zamm_yang::module;
 use zamm_yang::tao::initialize_kb;
 use zamm_yang::tao::Tao;
 use zamm_yang::tao::archetype::CodegenFlags;
