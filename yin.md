@@ -23,7 +23,7 @@ Let me introduce you to Yin. Yin is a knowledge base -- or at least, the idea of
 We begin by assuming nothing. But cleary *something* exists, so we might as well assume *something*, start from *somewhere*. Let's start off with a name:
 
 ```rust
-define!(tao);
+define!(tao, "The root node of all knowledge.");
 ```
 
 Hey look, you parsed that bit of information just fine! You may have no idea how you just did that, but you did it all the same. See what I mean about reflexes? We'll get you up to speed in no time, on both yourself and the world around you.
@@ -311,7 +311,6 @@ number.set_default_value("0");
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
 ```rust
-tao.implement_with_doc("The root node of all knowledge.");
 tao.activate_root_node_logic();
 ```
 
