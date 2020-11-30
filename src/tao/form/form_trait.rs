@@ -1,5 +1,5 @@
 use super::Form;
-use crate::node_wrappers::{BaseNodeTrait, FinalNode, InheritanceNodeTrait};
+use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
 use crate::tao::relation::attribute::has_property::HasAttribute;
 use crate::tao::relation::attribute::Inherits;
@@ -36,7 +36,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
             .essence()
             .outgoing_nodes(Inherits::TYPE_ID)
             .into_iter()
-            .filter(|p| p != self.essence())
+            .filter(|p| p.id() == Tao::TYPE_ID || p != self.essence())
             .map(Archetype::from)
             .collect();
         let mut specific_parents = Vec::<Archetype>::new();
@@ -204,6 +204,12 @@ mod tests {
         let mut new_type = Tao::archetype().individuate_as_archetype();
         new_type.add_parent(new_type);
         assert_eq!(new_type.parents(), vec![Tao::archetype()]);
+    }
+
+    #[test]
+    fn test_tao_self_parenthood_not_ignored() {
+        initialize_kb();
+        assert_eq!(Tao::archetype().parents(), vec![Tao::archetype()]);
     }
 
     #[test]
