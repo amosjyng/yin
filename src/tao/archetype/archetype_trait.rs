@@ -22,7 +22,8 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
     /// The default parent this archetype inherits from. Every archetype should have at least one
     /// parent, so that it doesn't live in a separate universe of its own. This helps enforce that,
     /// since allocations are not allowed in Rust constants.
-    const PARENT_TYPE_ID: usize;
+    const PARENT_TYPE_ID: usize; // todo: deprecate this in favor of manual parent link
+                                 // initialization
 
     /// The incarnation of this archetype as a form.
     fn archetype() -> Self::ArchetypeForm {
