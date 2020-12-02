@@ -1,11 +1,4 @@
-use super::archetype::{
-    ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait,
-};
 use super::auto_init::initialize_types;
-use super::relation::attribute::has_property::HasProperty;
-use super::relation::attribute::{Attribute, Owner, OwnerArchetype, Value, ValueArchetype};
-use super::relation::Relation;
-use super::Tao;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
 
 /// Add the given Concept type to the KB.
@@ -40,26 +33,6 @@ macro_rules! initialize_type {
     };
 }
 
-/// Adds all concept relations to graph.
-fn initialize_relations() {
-    let mut relation = AttributeArchetype::from(Relation::TYPE_ID);
-    relation.add_attribute(Owner::archetype());
-    // Tao, not Form, here because even non-`Form`s like archetypes can have attributes
-    // todo: add set_owner_archetype to Relation as well
-    relation.set_owner_archetype(Tao::archetype());
-
-    let mut attributes = Attribute::archetype();
-    attributes.add_attribute(Value::archetype());
-    attributes.set_value_archetype(Tao::archetype());
-
-    HasProperty::archetype().set_value_archetype(Relation::archetype());
-
-    Owner::archetype().set_owner_archetype(Relation::archetype());
-    OwnerArchetype::archetype().set_owner_archetype(Relation::archetype());
-    Value::archetype().set_owner_archetype(Attribute::archetype().into());
-    ValueArchetype::archetype().set_owner_archetype(Attribute::archetype().into());
-}
-
 /// Initialize Yin with an in-memory graph database.
 ///
 /// This not only creates the graph for Yin to act on, but also seeds the graph with initial
@@ -67,7 +40,6 @@ fn initialize_relations() {
 pub fn initialize_kb() {
     bind_in_memory_graph();
     initialize_types();
-    initialize_relations();
 }
 
 /// Initialize Yin with a Neo4j-backed graph database.
@@ -77,7 +49,6 @@ pub fn initialize_kb() {
 pub fn initialize_cypher_kb(uri: &str) {
     bind_cypher_graph(uri);
     initialize_types();
-    initialize_relations();
 }
 
 #[cfg(test)]
