@@ -50,16 +50,3 @@ pub fn initialize_cypher_kb(uri: &str) {
     bind_cypher_graph(uri);
     initialize_types();
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::graph::{Graph, InjectionGraph};
-
-    #[test]
-    fn test_yin_size() {
-        initialize_kb();
-        let g = InjectionGraph::new();
-        assert_eq!(g.size(), crate::tao::YIN_MAX_ID + 1); // node IDs are zero-indexed
-    }
-}
