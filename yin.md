@@ -215,10 +215,11 @@ Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `Fo
 Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
 
 ```rust
-define_child!(
-    nonhereditary,
-    flag,
-    "Marks a property as not behing inherited."
+add_flag!(
+    nonhereditary <= flag,
+    relation,
+    "Marks a property as not behing inherited.",
+    "representing a nonhereditary property."
 );
 ```
 
@@ -390,15 +391,18 @@ Crate::current().set_implementation_name("zamm_yin");
 These are the generic imports for general Yang generation:
 
 ```rust
+use zamm_yang::add_flag;
 use zamm_yang::define;
 use zamm_yang::define_child;
 use zamm_yang::module;
 use zamm_yang::tao::initialize_kb;
+use zamm_yang::tao::ImplementExtension;
 use zamm_yang::tao::Tao;
 use zamm_yang::tao::archetype::CodegenFlags;
 use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::archetype::ArchetypeTrait;
 use zamm_yang::tao::archetype::ArchetypeFormTrait;
+use zamm_yang::tao::archetype::ArchetypeFormExtensionTrait;
 use zamm_yang::tao::archetype::AttributeArchetypeFormTrait;
 use zamm_yang::tao::form::Crate;
 use zamm_yang::tao::form::CrateExtension;
