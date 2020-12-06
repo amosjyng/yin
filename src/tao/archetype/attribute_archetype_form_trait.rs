@@ -3,7 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{OwnerArchetype, ValueArchetype};
-use crate::tao::relation::flag::{Meta, MultiValued, Nonhereditary};
+use crate::tao::relation::flag::{Nonhereditary, Meta, MultiValued};
 use crate::tao::Tao;
 use crate::Wrapper;
 
