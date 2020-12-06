@@ -21,6 +21,10 @@ pub trait AttributeArchetypeFormTrait<'a>:
     fn owner_archetype(&self) -> Archetype {
         // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
         // higher IDs
+        //
+        // todo: implement this properly, because this assumption forces Tao to be defined before
+        // everything else in Yin.md, because documentation is tied to the creation of an
+        // implementation.
         Archetype::from(
             *self
                 .essence()
@@ -40,6 +44,10 @@ pub trait AttributeArchetypeFormTrait<'a>:
     fn value_archetype(&self) -> Archetype {
         // outgoing nodes are sorted by ID, and more specific nodes are created later, resulting in
         // higher IDs
+        //
+        // todo: implement this properly, because this assumption forces Tao to be defined before
+        // everything else in Yin.md, because documentation is tied to the creation of an
+        // implementation.
         Archetype::from(
             *self
                 .essence()
