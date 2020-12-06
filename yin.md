@@ -224,6 +224,34 @@ define_child!(
 
 Is nonhereditary itself a hereditary flag? It doesn't seem to matter because this concept is only meaningful for relation archetypes, and all its children will be instances of relations as opposed to types of relations.
 
+Nonhereditary is a *meta* flag -- a toggle to be flipped on the archetype rather than the individual.
+
+```rust
+define_child!(
+    meta,
+    flag,
+    "Marks a property as meta."
+);
+```
+
+Meta is itself a meta property. So very autological.
+
+```rust
+//aa(meta).mark_meta();
+```
+
+A meta-property that's specific to attributes is whether or not an attribute represents a one-to-one or a one-to-many relation between owner and value(s). We are considering properties from an individual owner's point of view, so many-to-one and many-to-many relations are out of scope.
+
+```rust
+define_child!(
+    multi_valued,
+    flag,
+    "Marks an attribute as having multiple possible values for the same owner."
+);
+```
+
+Technically a flag could be repeated multiple times for the same owner too, but because that's identical to having a single flag, this property is meaningless for flags. Alternatively, a repeated flag for the same owner is like a repeated attribute for the same owner-value pair: it all collapses down to one.
+
 #### Individuation
 
 What exactly differentiates an archetype without subtypes from an individual? It's not just the inheritance relation -- individuals aren't necessarily leaves in the inheritance chain. Maybe you want to say "Script `B` does the same exact thing as script `A`, except that it pings server `D` instead of server `C`." Now, every change to script `A` also gets inherited by script `B`, even though both of them are individual scripts in their own right. Whether this could be better represented by both `A` and `B` referencing some behavior in common, or by combining the two into a single script with the server IP as a parameter, are irrelevant implementation details. What matters is that it is a valid idea that is readily understood by a human.

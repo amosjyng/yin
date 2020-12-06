@@ -3,7 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{OwnerArchetype, ValueArchetype};
-use crate::tao::relation::flag::Nonhereditary;
+use crate::tao::relation::flag::{Nonhereditary, Meta, MultiValued};
 use crate::tao::Tao;
 use crate::Wrapper;
 
@@ -66,6 +66,26 @@ pub trait AttributeArchetypeFormTrait<'a>:
     fn is_nonhereditary_attr(&self) -> bool {
         self.essence().has_flag(Nonhereditary::TYPE_ID)
     }
+
+    /// Mark this attribute as meta.
+    fn mark_meta_attr(&mut self) {
+        self.essence_mut().add_flag(Meta::TYPE_ID);
+    }
+
+    /// Whether this represents a meta attribute.
+    fn is_meta_attr(&self) -> bool {
+        self.essence().has_flag(Meta::TYPE_ID)
+    }
+
+    /// Mark this attribute as accepting multiple values.
+    fn mark_multi_valued_attr(&mut self) {
+        self.essence_mut().add_flag(MultiValued::TYPE_ID);
+    }
+
+    /// Whether this represents a multi-valued attribute.
+    fn is_multi_valued_attr(&self) -> bool {
+        self.essence().has_flag(MultiValued::TYPE_ID)
+    }
 }
 
 impl<'a> AttributeArchetypeFormTrait<'a> for AttributeArchetype {}
@@ -121,5 +141,25 @@ mod tests {
 
         new_type.mark_nonhereditary_attr();
         assert!(new_type.is_nonhereditary_attr());
+    }
+
+    #[test]
+    fn test_new_meta() {
+        initialize_kb();
+        let mut new_type = Attribute::archetype().individuate_as_archetype();
+        assert!(!new_type.is_meta_attr());
+
+        new_type.mark_meta_attr();
+        assert!(new_type.is_meta_attr());
+    }
+
+    #[test]
+    fn test_new_multi_valued() {
+        initialize_kb();
+        let mut new_type = Attribute::archetype().individuate_as_archetype();
+        assert!(!new_type.is_multi_valued_attr());
+
+        new_type.mark_multi_valued_attr();
+        assert!(new_type.is_multi_valued_attr());
     }
 }
