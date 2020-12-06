@@ -369,7 +369,7 @@ number.set_rust_primitive("usize");
 This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.6"
+zamm_yang = "0.1.7"
 ```
 
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:
