@@ -11,11 +11,6 @@ pub trait FormExtension: FormTrait + Wrapper<BaseType = FinalNode> {
     fn mark_individual(&mut self) {
         self.essence_mut().add_flag(IsIndividual::TYPE_ID);
     }
-
-    /// Whether this represents an individual.
-    fn is_individual(&self) -> bool {
-        self.essence().has_flag(IsIndividual::TYPE_ID)
-    }
 }
 
 impl FormExtension for Form {}
