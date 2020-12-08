@@ -2,7 +2,7 @@ use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
 use crate::tao::relation::attribute::has_property::HasAttribute;
-use crate::tao::relation::attribute::Inherits;
+use crate::tao::relation::attribute::{Inherits, MetaForm};
 use crate::tao::Tao;
 use crate::Wrapper;
 use std::collections::{HashMap, VecDeque};
@@ -93,6 +93,26 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
         self.essence()
             .inheritance_nodes()
             .contains(possible_ancestor.essence())
+    }
+
+    /// Get the meta-form for this Form.
+    fn meta(&self) -> Archetype {
+        // same assumption as in attribute archetype form trait
+        Archetype::from(
+            self
+                .essence()
+                .outgoing_nodes(MetaForm::TYPE_ID)
+                .last()
+                .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
+                .id()
+        )
+    }
+
+    /// Set the meta-form for this Form.
+    fn set_meta(&mut self, archetype: &Archetype) {
+        self
+                .essence_mut()
+                .add_outgoing(MetaForm::TYPE_ID, archetype.essence())
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
@@ -235,6 +255,19 @@ mod tests {
         assert!(owner.has_ancestor(Owner::archetype().into()));
         assert!(owner.has_ancestor(Tao::archetype()));
         assert!(!owner.has_ancestor(Value::archetype().into()));
+    }
+
+    #[test]
+    fn test_form_meta_set() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let form_indv = form_type.individuate_as_form();
+        let meta_type = Archetype::archetype().individuate_as_archetype();
+        // also test default value here
+        assert_eq!(form_indv.meta(), Archetype::archetype());
+
+        form_type.set_meta(&meta_type);
+        assert_eq!(form_indv.meta(), meta_type);
     }
 
     #[allow(deprecated)]

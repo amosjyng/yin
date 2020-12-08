@@ -212,6 +212,20 @@ This can only be used to represent *attribute* archetypes, so unlike `Archetype`
 
 Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
 
+We should declare the relation between forms and their meta objects:
+
+```rust
+define_child!(
+    meta_form,
+    attribute,
+    "Archetype associated with this form. This differs from parents, because this defines the form's meta-properties, whereas parents define the form's inherited properties."
+);
+```
+
+Every individual has its actual properties -- for example, owner and value properties for a specific `Owner` instance. The individual's parent defines these properties that gets inherited by the individual. The parent also has meta-properties -- for example, that the individual has these attributes in the first place. These properties are only accessible when looking at a parent from the Archetype's perspective, and not when looking at an individual from the parent's perspective. Therefore, the meta-objects inheriting from `Archetype` will define what meta-properties exist for this class of objects, but the actual meta-values for those meta-properties will be stored with the parents. This is similar to how the parents define what properties exist for their children, but the actual values for those properties resides with each individual.
+
+Parenthood is defined by inheritance. Meta-ness is defined by its own relation, separate from parenthood. The meta for an individual is the same as the meta for its parents.
+
 Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
 
 ```rust
