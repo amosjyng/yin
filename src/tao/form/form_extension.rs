@@ -1,12 +1,12 @@
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
-use crate::tao::archetype::{ArchetypeTrait, Archetype, AttributeArchetype};
+use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::Attribute;
 use crate::tao::relation::flag::IsIndividual;
 use crate::Wrapper;
 
 /// Public trait to store eventually-automated form attributes in.
-/// 
+///
 /// This differs from ArchetypeTrait in that ArchetypeTrait applies to the class, but these
 /// functions apply to individual instances of the class.
 pub trait FormExtension: FormTrait + Wrapper<BaseType = FinalNode> + CommonNodeTrait {
@@ -58,13 +58,13 @@ mod tests {
     #[test]
     fn test_query_meta() {
         initialize_kb();
-        // todo: use Owner::new() directly after `FormExtension` gets auto-generated for all 
+        // todo: use Owner::new() directly after `FormExtension` gets auto-generated for all
         // descendants in future version of Yang
         let new_attr = Attribute::from(Owner::new().id());
-        // todo: in the future, check that OwnerArchetype is not in this list, because that 
-        // attribute belongs to the meta-object. The information will still be associated with the 
-        // object node -- Owner will still have an OwnerArchetype. It's just that the Owner 
-        // perspective does not include OwnerArchetype and does not know what to do with it -- but 
+        // todo: in the future, check that OwnerArchetype is not in this list, because that
+        // attribute belongs to the meta-object. The information will still be associated with the
+        // object node -- Owner will still have an OwnerArchetype. It's just that the Owner
+        // perspective does not include OwnerArchetype and does not know what to do with it -- but
         // the meta-perspective for Owner (aka the AttributeArchetype perspective) does.
         assert!(new_attr.meta().attributes().contains(&Owner::archetype()));
     }

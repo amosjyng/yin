@@ -1,6 +1,6 @@
 use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
-use crate::tao::archetype::{Archetype, ArchetypeTrait, ArchetypeFormTrait, AttributeArchetype};
+use crate::tao::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype};
 use crate::tao::relation::attribute::has_property::HasAttribute;
 use crate::tao::relation::attribute::{Inherits, MetaForm};
 use crate::tao::relation::flag::IsIndividual;
@@ -103,38 +103,37 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
     }
 
     /// Get the node representing the current node's meta-perspective.
-    /// 
-    /// This is in contrast to `self.meta()`, which views the current node *from* the 
+    ///
+    /// This is in contrast to `self.meta()`, which views the current node *from* the
     /// meta-perspective.
     fn meta_archetype(&self) -> Archetype {
         // same assumption as in attribute archetype form trait about ID and specificity
         Archetype::from(
-            self
-                .essence()
+            self.essence()
                 .outgoing_nodes(MetaForm::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
-                .id()
+                .id(),
         )
     }
 
-    /// Grab the meta-perspective that's specific to the current type. If it doesn't exist yet, 
+    /// Grab the meta-perspective that's specific to the current type. If it doesn't exist yet,
     /// then it will be created.
     fn specific_meta(&mut self) -> Archetype {
         // there should only be one of these
-        let uninherited_metas =
-            self.essence()
-                .base_wrapper()
-                .outgoing_nodes(MetaForm::TYPE_ID);
+        let uninherited_metas = self
+            .essence()
+            .base_wrapper()
+            .outgoing_nodes(MetaForm::TYPE_ID);
         match uninherited_metas.last() {
             Some(specific_meta) => Archetype::from(specific_meta.id()),
             None => {
-                // grabbing parent metas first so that they get created first and the 
+                // grabbing parent metas first so that they get created first and the
                 // greater-ID-greater-specificity assumption still holds
                 let mut parent_metas = Vec::<Archetype>::new();
                 for parent in self.parents().iter_mut() {
                     // calling specific_meta() here instead of meta_archetype(), so that in case
-                    // the child meta is defined before the parent meta is, the child meta will 
+                    // the child meta is defined before the parent meta is, the child meta will
                     // still inherit from the parent
                     parent_metas.push(parent.specific_meta());
                 }
@@ -144,14 +143,15 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
                 }
                 self.set_meta_archetype(&new_meta);
                 new_meta
-            },
+            }
         }
     }
 
     /// Whether or not this type has its own specific meta. If it doesn't, that means its meta
     /// object is inherited.
     fn has_specific_meta(&self) -> bool {
-        !self.essence()
+        !self
+            .essence()
             .base_wrapper()
             .outgoing_nodes(MetaForm::TYPE_ID)
             .is_empty()
@@ -159,7 +159,8 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
 
     /// Set the meta-form for this Form.
     fn set_meta_archetype(&mut self, archetype: &Archetype) {
-        self.essence_mut().add_outgoing(MetaForm::TYPE_ID, archetype.essence())
+        self.essence_mut()
+            .add_outgoing(MetaForm::TYPE_ID, archetype.essence())
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
