@@ -121,11 +121,12 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
     /// Grab the meta-perspective that's specific to the current type. If it doesn't exist yet, 
     /// then it will be created.
     fn specific_meta(&mut self) -> Archetype {
-        match self
-        .essence()
-        .base_wrapper()
-        .outgoing_nodes(MetaForm::TYPE_ID)
-        .last() {
+        // there should only be one of these
+        let uninherited_metas =
+            self.essence()
+                .base_wrapper()
+                .outgoing_nodes(MetaForm::TYPE_ID);
+        match uninherited_metas.last() {
             Some(specific_meta) => Archetype::from(specific_meta.id()),
             None => {
                 // grabbing parent metas first so that they get created first and the 
@@ -145,6 +146,15 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
                 new_meta
             },
         }
+    }
+
+    /// Whether or not this type has its own specific meta. If it doesn't, that means its meta
+    /// object is inherited.
+    fn has_specific_meta(&self) -> bool {
+        !self.essence()
+            .base_wrapper()
+            .outgoing_nodes(MetaForm::TYPE_ID)
+            .is_empty()
     }
 
     /// Set the meta-form for this Form.
@@ -328,6 +338,7 @@ mod tests {
         let form_type2 = form_type.individuate_as_archetype();
         let form_type3 = form_type2.individuate_as_archetype();
         assert_eq!(form_type3.meta_archetype(), meta_type);
+        assert!(!form_type3.has_specific_meta());
     }
 
     #[test]
@@ -341,6 +352,7 @@ mod tests {
         let meta_type3 = form_type3.specific_meta();
         assert_eq!(form_type3.meta_archetype(), meta_type3);
         assert!(meta_type3.has_ancestor(meta_type));
+        assert!(form_type3.has_specific_meta());
     }
 
     #[allow(deprecated)]
