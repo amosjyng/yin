@@ -18,11 +18,6 @@ pub trait FormExtension: FormTrait + Wrapper<BaseType = FinalNode> + CommonNodeT
         self.essence_mut().add_flag(IsIndividual::TYPE_ID);
     }
 
-    /// Whether this represents an individual.
-    fn is_individual(&self) -> bool {
-        self.essence().has_flag(IsIndividual::TYPE_ID)
-    }
-
     /// View the current node from its meta perspective.
     fn meta(&self) -> Self::MetaType {
         Self::MetaType::from(self.id())

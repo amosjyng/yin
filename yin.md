@@ -278,7 +278,9 @@ Nor does the delineation around the entity need to stay consistent. Consider a s
 
 Of course, this extends into meatspace too. I, the author, yours truly, was once a one-year-old human. In truth, one-year-old "me" had a lot more in common with all other one-year-olds around the world -- past, present, and future -- than he does with me today. Even "me" in college was living in a different place, a different time, doing different things, interacting with different people, and had different goals, values, and perspectives than I do today. For all practical purposes, that might as well have been a past life. In a certain sense, it's only the slimmest of threads that ties together all these radically different me's into a single coherent individual identity spanning all four dimensions of spacetime; in a different sense, the modern world strictly reifies this abstract identity into objective, static governmental records.
 
-Even archetypes themselves can be considered individual concepts in their own right.
+Nor is it simply a matter of being abstract or concrete. We can talk about 5 as an individual number with a concrete value. But we can also talk about `x` as a hypothetical number with an unknown value, and still readily identify it as an individual. We can talk about individuals without knowing anything about their existence, other than that they must exist by proxy due to the existence of a crime scene.
+
+To top it all off, even archetypes themselves can be considered individual concepts in their own right. The line is blurred, the dichotomy false.
 
 Perhaps natural language is hard because the underlying ideas language is meant to represent are [arbitrary](https://slatestarcodex.com/2014/11/21/the-categories-were-made-for-man-not-man-for-the-categories/) and [nebulous](https://meaningness.com/nebulosity) in the first place. Or perhaps there is actually an obvious and simple answer that perfectly delineates the two categories in this particular case. But if there is, it is unfortunately not available to me at this time. And even if it were, we would still want individuality to be a first-class concept in its own right. We'll simply arbitrarily mark a concept as representing an "individual" -- in other words, representing the boundary at which the Archetype perspective stops being useful.
 
@@ -286,7 +288,7 @@ Perhaps natural language is hard because the underlying ideas language is meant 
 define_child!(
     is_individual,
     flag,
-    "Whether or not a concept is an individual, as opposed to an archetype."
+    "Whether or not a concept is an individual, as opposed to an archetype.\n\nMarking a concept as an individual will cause it to be filtered out from the `parents` and `child_archetypes` functions."
 );
 ```
 

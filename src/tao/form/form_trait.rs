@@ -3,6 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, Inheritanc
 use crate::tao::archetype::{Archetype, ArchetypeTrait, ArchetypeFormTrait, AttributeArchetype};
 use crate::tao::relation::attribute::has_property::HasAttribute;
 use crate::tao::relation::attribute::{Inherits, MetaForm};
+use crate::tao::relation::flag::IsIndividual;
 use crate::tao::Tao;
 use crate::Wrapper;
 use std::collections::{HashMap, VecDeque};
@@ -30,6 +31,11 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
             .add_outgoing(Inherits::TYPE_ID, parent.essence());
     }
 
+    /// Whether this represents an individual.
+    fn is_individual(&self) -> bool {
+        self.essence().has_flag(IsIndividual::TYPE_ID)
+    }
+
     /// Get all direct parent archetypes of this concept.
     fn parents(&self) -> Vec<Archetype> {
         let direct_parents: Vec<Archetype> = self
@@ -38,6 +44,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
             .into_iter()
             .filter(|p| p.id() == Tao::TYPE_ID || p != self.essence())
             .map(Archetype::from)
+            .filter(|a| !a.is_individual())
             .collect();
         let mut specific_parents = Vec::<Archetype>::new();
         for parent in direct_parents {
@@ -276,6 +283,16 @@ mod tests {
         let mut form = Tao::new();
         form.add_parent(Form::archetype());
         assert_eq!(form.parents(), vec![Form::archetype()]);
+    }
+
+    #[test]
+    fn test_individual_inheritance_ignored() {
+        initialize_kb();
+        let form1 = Tao::archetype().individuate_as_form();
+        let mut form2 = Tao::archetype().individuate_as_form();
+        // no high-level way to declare inheritance just yet
+        form2.add_parent(Archetype::from(form1.id()));
+        assert_eq!(form2.parents(), vec![Tao::archetype()]);
     }
 
     #[test]
