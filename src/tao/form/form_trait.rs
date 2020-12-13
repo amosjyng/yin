@@ -1,8 +1,8 @@
 use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
-use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
+use crate::tao::archetype::{Archetype, ArchetypeTrait, ArchetypeFormTrait, AttributeArchetype};
 use crate::tao::relation::attribute::has_property::HasAttribute;
-use crate::tao::relation::attribute::Inherits;
+use crate::tao::relation::attribute::{Inherits, MetaForm};
 use crate::tao::relation::flag::IsIndividual;
 use crate::tao::Tao;
 use crate::Wrapper;
@@ -10,7 +10,7 @@ use std::collections::{HashMap, VecDeque};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
 /// following interactions.
-pub trait FormTrait: Wrapper<BaseType = FinalNode> {
+pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or
     /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
@@ -100,6 +100,56 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> {
         self.essence()
             .inheritance_nodes()
             .contains(possible_ancestor.essence())
+    }
+
+    /// Get the node representing the current node's meta-perspective.
+    /// 
+    /// This is in contrast to `self.meta()`, which views the current node *from* the 
+    /// meta-perspective.
+    fn meta_archetype(&self) -> Archetype {
+        // same assumption as in attribute archetype form trait about ID and specificity
+        Archetype::from(
+            self
+                .essence()
+                .outgoing_nodes(MetaForm::TYPE_ID)
+                .last()
+                .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
+                .id()
+        )
+    }
+
+    /// Grab the meta-perspective that's specific to the current type. If it doesn't exist yet, 
+    /// then it will be created.
+    fn specific_meta(&mut self) -> Archetype {
+        match self
+        .essence()
+        .base_wrapper()
+        .outgoing_nodes(MetaForm::TYPE_ID)
+        .last() {
+            Some(specific_meta) => Archetype::from(specific_meta.id()),
+            None => {
+                // grabbing parent metas first so that they get created first and the 
+                // greater-ID-greater-specificity assumption still holds
+                let mut parent_metas = Vec::<Archetype>::new();
+                for parent in self.parents().iter_mut() {
+                    // calling specific_meta() here instead of meta_archetype(), so that in case
+                    // the child meta is defined before the parent meta is, the child meta will 
+                    // still inherit from the parent
+                    parent_metas.push(parent.specific_meta());
+                }
+                let mut new_meta = Archetype::archetype().individuate_as_archetype();
+                for parent_meta in parent_metas {
+                    new_meta.add_parent(parent_meta);
+                }
+                self.set_meta_archetype(&new_meta);
+                new_meta
+            },
+        }
+    }
+
+    /// Set the meta-form for this Form.
+    fn set_meta_archetype(&mut self, archetype: &Archetype) {
+        self.essence_mut().add_outgoing(MetaForm::TYPE_ID, archetype.essence())
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
@@ -252,6 +302,45 @@ mod tests {
         assert!(owner.has_ancestor(Owner::archetype().into()));
         assert!(owner.has_ancestor(Tao::archetype()));
         assert!(!owner.has_ancestor(Value::archetype().into()));
+    }
+
+    #[test]
+    fn test_form_meta_set() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let form_indv = form_type.individuate_as_form();
+        let meta_type = Archetype::archetype().individuate_as_archetype();
+        // also test default value here
+        assert_eq!(form_indv.meta_archetype(), Archetype::archetype());
+
+        form_type.set_meta_archetype(&meta_type);
+        assert_eq!(form_indv.meta_archetype(), meta_type);
+    }
+
+    #[test]
+    fn test_form_meta_inheritance() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let meta_type = Archetype::archetype().individuate_as_archetype();
+        form_type.set_meta_archetype(&meta_type);
+        assert_eq!(form_type.meta_archetype(), meta_type);
+
+        let form_type2 = form_type.individuate_as_archetype();
+        let form_type3 = form_type2.individuate_as_archetype();
+        assert_eq!(form_type3.meta_archetype(), meta_type);
+    }
+
+    #[test]
+    fn test_form_meta_inheritance_override() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let meta_type = Archetype::archetype().individuate_as_archetype();
+        form_type.set_meta_archetype(&meta_type);
+        let form_type2 = form_type.individuate_as_archetype();
+        let mut form_type3 = form_type2.individuate_as_archetype();
+        let meta_type3 = form_type3.specific_meta();
+        assert_eq!(form_type3.meta_archetype(), meta_type3);
+        assert!(meta_type3.has_ancestor(meta_type));
     }
 
     #[allow(deprecated)]
