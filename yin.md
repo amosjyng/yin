@@ -194,6 +194,8 @@ define!(
     archetype,
     "Represents patterns found across an entire class of concepts."
 );
+
+tao.set_meta_archetype(&archetype);
 ```
 
 Then, we can assign meta-properties to a *type*, such as Attribute, rather than any specific instance of that type. For example, it makes sense to ask what the type of owner is for the Value attribute. It will be another attribute. Even though every instance of Value can have a different specific owner, they should all have owners that are attributes.
@@ -288,6 +290,8 @@ define_child!(
 Every type of data usually has a "default" value that we think of when constructing one from scratch.
 
 ```rust
+data.specific_meta();
+
 define_child!(
     default_value,
     attribute,
