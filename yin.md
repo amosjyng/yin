@@ -275,6 +275,8 @@ define_child!(
     data,
     "The concept of a string of characters."
 );
+
+KnowledgeGraphNode::from(string_concept.id()).mark_data_analogue();
 ```
 
 Another type of data is a number:
@@ -285,17 +287,21 @@ define_child!(
     data,
     "The concept of numbers."
 );
+
+KnowledgeGraphNode::from(number.id()).mark_data_analogue();
 ```
 
 Every type of data usually has a "default" value that we think of when constructing one from scratch.
 
 ```rust
-data.specific_meta();
+let mut meta_data = data.specific_meta();
 
-define_child!(
-    default_value,
-    attribute,
-    "The default value of a data structure."
+add_attr!(
+    default_value <= attribute,
+    meta_data,
+    string_concept,
+    "The default value of a data structure.",
+    "the Rust code representation for the default value of this concept."
 );
 ```
 
@@ -309,6 +315,60 @@ For numbers, this would be zero:
 
 ```rust
 number.set_default_value("0");
+```
+
+This next bit is more of a Yang thing, but we'll define it here anyways to keep everything in one place. We need to refer to these data structures somehow in our code, and the "how" is to call them by their name as they're known in Rust.
+
+```rust
+add_attr!(
+    rust_primitive <= attribute,
+    meta_data,
+    string_concept,
+    "The Rust primitive that a Yin data concept is implemented by.",
+    "the name of the Rust primitive that this concept represents."
+);
+
+string_concept.set_rust_primitive("String");
+number.set_rust_primitive("usize");
+```
+
+The Rust data structure known as `str` has different boxed and unboxed representations. Unlike the other ones we've encountered so far, you refer to a boxed `str` as `Box<str>`, but to an unboxed one as `&str`. There are good reasons for this, namely because the size of a `str` is unknown at compile time, but regardless this is an edge case to note. We'll let the user make that override:
+
+```rust
+add_attr!(
+    unboxed_representation <= attribute,
+    meta_data,
+    string_concept,
+    "The syntax used to refer to an unboxed version of this primitive.",
+    "the unboxed version of this primitive."
+);
+```
+
+Since the reason was that `str` is unsized, we'll let the user mark it as such as well:
+
+```rust
+add_flag!(
+    unsized_flag <= flag,
+    meta_data,
+    "Whether or not this data structure has a known size at compile-time.",
+    "having a known size at compile-time."
+);
+unsized_flag.set_internal_name_str("unsized");
+```
+
+Last but not least, testing is important. While the default value is a good place to start, we'll want to come up with other values as well to test with. Ideally, we can simply figure out how to generate them, but for now we'll just specify an alternative value to use other than the default. This alternative value should be unique in the codebase, so that a grep for it will quickly return this spot as documentation.
+
+```rust
+add_attr!(
+    dummy_value <= attribute,
+    meta_data,
+    string_concept,
+    "A dummy value for a type of data. This helps with testing.",
+    "the the Rust code representation for the dummy test value of this concept."
+);
+
+string_concept.set_dummy_value("\"test-dummy\".to_owned()");
+number.set_dummy_value("17");
 ```
 
 ### Implementation
@@ -357,16 +417,6 @@ module!(
 );
 ```
 
-When it comes to data, we should also tell Yang which Rust primitives these concepts refer to:
-
-```rust
-KnowledgeGraphNode::from(string_concept.id()).mark_data_analogue();
-string_concept.set_rust_primitive("String");
-
-KnowledgeGraphNode::from(number.id()).mark_data_analogue();
-number.set_rust_primitive("usize");
-```
-
 ## Appendix
 
 ### Dependencies
@@ -381,7 +431,7 @@ Yang does his best to be backwards-compatible, so we should let him know that we
 
 ```rust
 Crate::yin().set_version("0.1.4");
-Crate::yang().set_version("0.1.7");
+Crate::yang().set_version("0.1.8");
 ```
 
 We should also let him know what our current crate name is. There is as of yet no way to let him know that this is the same crate as the `Crate::yin()` mentioned above.
@@ -395,6 +445,7 @@ Crate::current().set_implementation_name("zamm_yin");
 These are the generic imports for general Yang generation:
 
 ```rust
+use zamm_yang::add_attr;
 use zamm_yang::add_flag;
 use zamm_yang::define;
 use zamm_yang::define_child;
