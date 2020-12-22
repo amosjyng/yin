@@ -1,7 +1,7 @@
 use super::auto_init::initialize_types;
 use crate::graph::{bind_cypher_graph, bind_in_memory_graph, Graph, InjectionGraph};
-use crate::tao::archetype::{Archetype, ArchetypeTrait};
-use crate::tao::relation::attribute::MetaForm;
+use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
+use crate::tao::relation::attribute::{Attribute, MetaForm};
 use crate::tao::Tao;
 
 /// Add the given Concept type to the KB.
@@ -40,6 +40,11 @@ macro_rules! initialize_type {
 fn custom_relations_init() {
     let mut ig = InjectionGraph::new();
     ig.add_edge(Tao::TYPE_ID, MetaForm::TYPE_ID, Archetype::TYPE_ID);
+    ig.add_edge(
+        Attribute::TYPE_ID,
+        MetaForm::TYPE_ID,
+        AttributeArchetype::TYPE_ID,
+    );
 }
 
 /// Initialize Yin with an in-memory graph database.
