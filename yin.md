@@ -214,6 +214,22 @@ This can only be used to represent *attribute* archetypes, so unlike `Archetype`
 
 Note that there is a `ArchetypeFormTrait` combining the `ArchetypeTrait` and `FormTrait` into one, but no `AttributeArchetypeFormTrait` doing the same for `AttributeArchetypeTrait` and `AttributeTrait`. This is partially because of the above reason, and partially because there is no `AttributeArchetypeTrait` because all added archetype functionality is contained entirely within `AttributeArchetype` itself.
 
+We should declare the relation between forms and their meta objects:
+
+```rust
+define_child!(
+    meta_form,
+    attribute,
+    "Archetype associated with this form. This differs from parents, because this defines the form's meta-properties, whereas parents define the form's inherited properties."
+);
+```
+
+Every individual has its actual properties -- for example, owner and value properties for a specific `Owner` instance. The individual's parent defines these properties that gets inherited by the individual. The parent also has meta-properties -- for example, that the individual has these attributes in the first place. These properties are only accessible when looking at a parent from the Archetype's perspective, and not when looking at an individual from the parent's perspective. Therefore, the meta-objects inheriting from `Archetype` will define what meta-properties exist for this class of objects, but the actual meta-values for those meta-properties will be stored with the parents. This is similar to how the parents define what properties exist for their children, but the actual values for those properties resides with each individual.
+
+Parenthood is defined by inheritance. Meta-ness is defined by its own relation, separate from parenthood. The meta for an individual is still itself, viewed from the meta perspective. The meta relation merely denotes which meta perspective is best suited for reasoning about the individual. In a sense, the metas are lens/perspectives that do follow the usual patterns of archetypal inheritance and parenthood, but also do not have their own individual nodes. Technically, this is true of the archetypal lens themselves as well, but humans are seemingly wired to view the archetypal lens as more fundamental than other lens. Perhaps this is because the archetypal lens *is* whatever lens is the most fundamental one.
+
+A type's meta will inherit from the type's parents' metas. Meta objects effectively form their own parallel inheritance chain that corresponds to the regular object's inheritance chains. It's just that there's not always type-specific meta attributes, so the type-specific meta object can be obviated and the parent's meta object used instead to describe the type's meta-properties. (Note that runtime reasoning about meta-properties is essentially what [reflection](https://en.wikipedia.org/wiki/Reflective_programming) is.)
+
 Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
 
 ```rust
@@ -227,6 +243,34 @@ add_flag!(
 
 Is nonhereditary itself a hereditary flag? It doesn't seem to matter because this concept is only meaningful for relation archetypes, and all its children will be instances of relations as opposed to types of relations.
 
+Nonhereditary is a *meta* flag -- a toggle to be flipped on the archetype rather than the individual.
+
+```rust
+define_child!(
+    meta,
+    flag,
+    "Marks a property as meta."
+);
+```
+
+Meta is itself a meta property. So very autological.
+
+```rust
+//aa(meta).mark_meta();
+```
+
+A meta-property that's specific to attributes is whether or not an attribute represents a one-to-one or a one-to-many relation between owner and value(s). We are considering properties from an individual owner's point of view, so many-to-one and many-to-many relations are out of scope.
+
+```rust
+define_child!(
+    multi_valued,
+    flag,
+    "Marks an attribute as having multiple possible values for the same owner."
+);
+```
+
+Technically a flag could be repeated multiple times for the same owner too, but because that's identical to having a single flag, this property is meaningless for flags. Alternatively, a repeated flag for the same owner is like a repeated attribute for the same owner-value pair: it all collapses down to one.
+
 #### Individuation
 
 What exactly differentiates an archetype without subtypes from an individual? It's not just the inheritance relation -- individuals aren't necessarily leaves in the inheritance chain. Maybe you want to say "Script `B` does the same exact thing as script `A`, except that it pings server `D` instead of server `C`." Now, every change to script `A` also gets inherited by script `B`, even though both of them are individual scripts in their own right. Whether this could be better represented by both `A` and `B` referencing some behavior in common, or by combining the two into a single script with the server IP as a parameter, are irrelevant implementation details. What matters is that it is a valid idea that is readily understood by a human.
@@ -237,7 +281,9 @@ Nor does the delineation around the entity need to stay consistent. Consider a s
 
 Of course, this extends into meatspace too. I, the author, yours truly, was once a one-year-old human. In truth, one-year-old "me" had a lot more in common with all other one-year-olds around the world -- past, present, and future -- than he does with me today. Even "me" in college was living in a different place, a different time, doing different things, interacting with different people, and had different goals, values, and perspectives than I do today. For all practical purposes, that might as well have been a past life. In a certain sense, it's only the slimmest of threads that ties together all these radically different me's into a single coherent individual identity spanning all four dimensions of spacetime; in a different sense, the modern world strictly reifies this abstract identity into objective, static governmental records.
 
-Even archetypes themselves can be considered individual concepts in their own right.
+Nor is it simply a matter of being abstract or concrete. We can talk about 5 as an individual number with a concrete value. But we can also talk about `x` as a hypothetical number with an unknown value, and still readily identify it as an individual. We can talk about individuals without knowing anything about their existence, other than that they must exist by proxy due to the existence of a crime scene.
+
+To top it all off, even archetypes themselves can be considered individual concepts in their own right. The line is blurred, the dichotomy false.
 
 Perhaps natural language is hard because the underlying ideas language is meant to represent are [arbitrary](https://slatestarcodex.com/2014/11/21/the-categories-were-made-for-man-not-man-for-the-categories/) and [nebulous](https://meaningness.com/nebulosity) in the first place. Or perhaps there is actually an obvious and simple answer that perfectly delineates the two categories in this particular case. But if there is, it is unfortunately not available to me at this time. And even if it were, we would still want individuality to be a first-class concept in its own right. We'll simply arbitrarily mark a concept as representing an "individual" -- in other words, representing the boundary at which the Archetype perspective stops being useful.
 
@@ -245,7 +291,7 @@ Perhaps natural language is hard because the underlying ideas language is meant 
 define_child!(
     is_individual,
     flag,
-    "Whether or not a concept is an individual, as opposed to an archetype."
+    "Whether or not a concept is an individual, as opposed to an archetype.\n\nMarking a concept as an individual will cause it to be filtered out from the `parents` and `child_archetypes` functions."
 );
 ```
 
