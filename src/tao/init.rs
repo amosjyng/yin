@@ -1,5 +1,8 @@
 use super::auto_init::initialize_types;
-use crate::graph::{bind_cypher_graph, bind_in_memory_graph};
+use crate::graph::{bind_cypher_graph, bind_in_memory_graph, Graph, InjectionGraph};
+use crate::tao::archetype::{Archetype, ArchetypeTrait};
+use crate::tao::relation::attribute::MetaForm;
+use crate::tao::Tao;
 
 /// Add the given Concept type to the KB.
 ///
@@ -33,6 +36,12 @@ macro_rules! initialize_type {
     };
 }
 
+/// Initialize custom relations that aren't automatically generated just yet.
+fn custom_relations_init() {
+    let mut ig = InjectionGraph::new();
+    ig.add_edge(Tao::TYPE_ID, MetaForm::TYPE_ID, Archetype::TYPE_ID);
+}
+
 /// Initialize Yin with an in-memory graph database.
 ///
 /// This not only creates the graph for Yin to act on, but also seeds the graph with initial
@@ -40,6 +49,7 @@ macro_rules! initialize_type {
 pub fn initialize_kb() {
     bind_in_memory_graph();
     initialize_types();
+    custom_relations_init();
 }
 
 /// Initialize Yin with a Neo4j-backed graph database.
@@ -49,4 +59,5 @@ pub fn initialize_kb() {
 pub fn initialize_cypher_kb(uri: &str) {
     bind_cypher_graph(uri);
     initialize_types();
+    custom_relations_init();
 }
