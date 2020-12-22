@@ -332,6 +332,8 @@ string_concept.set_rust_primitive("String");
 number.set_rust_primitive("usize");
 ```
 
+This is basically build information, except that it's information about how this primitive is built inside of Rust, as opposed to how this primitive is built as a higher-level Yin concept. Both representations ultimately refer to the same basic idea, but the two representations live on different levels and interact with different neighbors. The Rust primitive interacts with other Rust code, and the Yin concept interacts with other Yin concepts. Even though all Yin concepts are currently implemented in Rust anyways, the specifics of the Rust language has little impact on the Yin API and abstractions.
+
 The Rust data structure known as `str` has different boxed and unboxed representations. Unlike the other ones we've encountered so far, you refer to a boxed `str` as `Box<str>`, but to an unboxed one as `&str`. There are good reasons for this, namely because the size of a `str` is unknown at compile time, but regardless this is an edge case to note. We'll let the user make that override:
 
 ```rust
