@@ -2,7 +2,7 @@ use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
 use crate::tao::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype};
 use crate::tao::relation::attribute::has_property::HasAttribute;
-use crate::tao::relation::attribute::{Inherits, MetaForm};
+use crate::tao::relation::attribute::{Inherits, MetaObject};
 use crate::tao::relation::flag::IsIndividual;
 use crate::tao::Tao;
 use crate::Wrapper;
@@ -110,7 +110,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
         // same assumption as in attribute archetype form trait about ID and specificity
         Archetype::from(
             self.essence()
-                .outgoing_nodes(MetaForm::TYPE_ID)
+                .outgoing_nodes(MetaObject::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
                 .id(),
@@ -124,7 +124,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
         let uninherited_metas = self
             .essence()
             .base_wrapper()
-            .outgoing_nodes(MetaForm::TYPE_ID);
+            .outgoing_nodes(MetaObject::TYPE_ID);
         match uninherited_metas.last() {
             Some(specific_meta) => Archetype::from(specific_meta.id()),
             None => {
@@ -153,14 +153,14 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
         !self
             .essence()
             .base_wrapper()
-            .outgoing_nodes(MetaForm::TYPE_ID)
+            .outgoing_nodes(MetaObject::TYPE_ID)
             .is_empty()
     }
 
     /// Set the meta-form for this Form.
     fn set_meta_archetype(&mut self, archetype: &Archetype) {
         self.essence_mut()
-            .add_outgoing(MetaForm::TYPE_ID, archetype.essence())
+            .add_outgoing(MetaObject::TYPE_ID, archetype.essence())
     }
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
