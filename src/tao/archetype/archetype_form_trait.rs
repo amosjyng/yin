@@ -3,7 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormExtension, FormTrait};
 use crate::tao::relation::attribute::has_property::HasAttribute;
-use crate::tao::relation::attribute::{Attribute, Inherits};
+use crate::tao::relation::attribute::{Attribute, Inherits, MetaForm};
 use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
 
@@ -130,6 +130,23 @@ pub trait ArchetypeFormTrait<'a>:
     fn has_attribute(&self, possible_type: AttributeArchetype) -> bool {
         self.essence()
             .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
+    }
+
+    /// Opposite of a form's `meta_archetype`. This retrieves the form that this meta represents.
+    ///
+    /// Given the lack of a conventional antonym to "meta", this uses
+    /// "[mesa](https://www.gwiznlp.com/wp-content/uploads/2014/08/Whats-the-opposite-of-meta.pdf)"
+    /// as a proposed antonym.
+    fn mesa_archetype(&self) -> Archetype {
+        // todo: this is an archetype-specific attribute. There should therefore be an archetype 
+        // for archetypes
+        Archetype::from(
+            self.essence()
+                .incoming_nodes(MetaForm::TYPE_ID)
+                .last()
+                .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
+                .id(),
+        )
     }
 
     /// Add an attribute type to this archetype.
@@ -274,5 +291,19 @@ mod tests {
 
         assert_eq!(form_type.attributes(), vec![attr_type]);
         assert_eq!(form_type.added_attributes(), vec![attr_type]);
+    }
+
+    #[test]
+    fn test_infra_archetype() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let meta_type = Archetype::archetype().individuate_as_archetype();
+        form_type.set_meta_archetype(&meta_type);
+        let form_type2 = form_type.individuate_as_archetype();
+        let mut form_type3 = form_type2.individuate_as_archetype();
+        let meta_type3 = form_type3.specific_meta();
+
+        assert_eq!(meta_type.mesa_archetype(), form_type);
+        assert_eq!(meta_type3.mesa_archetype(), form_type3);
     }
 }
