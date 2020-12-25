@@ -3,7 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormExtension, FormTrait};
 use crate::tao::relation::attribute::has_property::HasAttribute;
-use crate::tao::relation::attribute::{Inherits};
+use crate::tao::relation::attribute::Inherits;
 use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
 
