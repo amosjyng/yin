@@ -333,6 +333,18 @@ define_child!(
 KnowledgeGraphNode::from(string_concept.id()).mark_data_analogue();
 ```
 
+A string takes multiple forms in Rust:
+
+```rust
+define_child!(
+    str_concept,
+    data,
+    "The Rust-specific concept of an immutable string of characters."
+);
+
+KnowledgeGraphNode::from(str_concept.id()).mark_data_analogue();
+```
+
 Another type of data is a number:
 
 ```rust
@@ -363,6 +375,7 @@ For strings, this would be the empty string:
 
 ```rust
 string_concept.set_default_value("String::new()");
+str_concept.set_default_value("\"\"");
 ```
 
 For numbers, this would be zero:
@@ -383,6 +396,7 @@ add_attr!(
 );
 
 string_concept.set_rust_primitive("String");
+str_concept.set_rust_primitive("str");
 number.set_rust_primitive("usize");
 ```
 
@@ -398,6 +412,8 @@ add_attr!(
     "The syntax used to refer to an unboxed version of this primitive.",
     "the unboxed version of this primitive."
 );
+
+str_concept.set_unboxed_representation("&str");
 ```
 
 Since the reason was that `str` is unsized, we'll let the user mark it as such as well:
