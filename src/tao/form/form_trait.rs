@@ -292,7 +292,7 @@ mod tests {
     fn generic_to_specific_parenthood() {
         initialize_kb();
         let mut form = Tao::new();
-        form.add_parent(Form::archetype().into());
+        form.add_parent(Form::archetype());
         assert_eq!(form.parents(), vec![Form::archetype()]);
     }
 
