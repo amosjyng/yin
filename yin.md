@@ -226,7 +226,7 @@ We should declare the relation between forms and their meta objects:
 
 ```rust
 define_child!(
-    meta_object,
+    meta_form,
     attribute,
     "Archetype associated with this form. This differs from parents, because this defines the form's meta-properties, whereas parents define the form's inherited properties."
 );
