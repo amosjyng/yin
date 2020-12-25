@@ -365,7 +365,7 @@ let mut meta_data = data.specific_meta();
 add_attr!(
     default_value <= attribute,
     meta_data,
-    string_concept,
+    str_concept,
     "The default value of a data structure.",
     "the Rust code representation for the default value of this concept."
 );
@@ -390,7 +390,7 @@ This next bit is more of a Yang thing, but we'll define it here anyways to keep 
 add_attr!(
     rust_primitive <= attribute,
     meta_data,
-    string_concept,
+    str_concept,
     "The Rust primitive that a Yin data concept is implemented by.",
     "the name of the Rust primitive that this concept represents."
 );
@@ -408,7 +408,7 @@ The Rust data structure known as `str` has different boxed and unboxed represent
 add_attr!(
     unboxed_representation <= attribute,
     meta_data,
-    string_concept,
+    str_concept,
     "The syntax used to refer to an unboxed version of this primitive.",
     "the unboxed version of this primitive."
 );
@@ -434,12 +434,13 @@ Last but not least, testing is important. While the default value is a good plac
 add_attr!(
     dummy_value <= attribute,
     meta_data,
-    string_concept,
+    str_concept,
     "A dummy value for a type of data. This helps with testing.",
     "the the Rust code representation for the dummy test value of this concept."
 );
 
-string_concept.set_dummy_value("\"test-dummy\".to_owned()");
+string_concept.set_dummy_value("\"test-dummy-string\".to_owned()");
+str_concept.set_dummy_value("\"test-dummy-str\"");
 number.set_dummy_value("17");
 ```
 
