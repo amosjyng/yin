@@ -196,6 +196,10 @@ define!(
 );
 
 tao.set_meta_archetype(&archetype);
+form.set_meta_archetype(&archetype);
+let mut archetype_node = KnowledgeGraphNode::from(archetype.id());
+archetype_node.mark_root_archetype_analogue();
+archetype_node.mark_archetype_analogue();
 ```
 
 Then, we can assign meta-properties to a *type*, such as Attribute, rather than any specific instance of that type. For example, it makes sense to ask what the type of owner is for the Value attribute. It will be another attribute. Even though every instance of Value can have a different specific owner, they should all have owners that are attributes.
@@ -208,7 +212,11 @@ define_child!(
     archetype,
     "Archetype representing attributes."
 );
+
+attribute.set_meta_archetype(&attribute_archetype);
 ```
+
+This should reuse the default meta-definition functionality, but due to a current lack of autogeneation support for backwards-compatibility, we will manually define the meta-ness of attributes here.
 
 This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can represent all archetypes, including its own archetype, because it's an archetype too), `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`, and cannot be used to represent its own archetype.
 
@@ -424,7 +432,7 @@ number.set_dummy_value("17");
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
 ```rust
-tao.activate_root_node_logic();
+KnowledgeGraphNode::from(tao.id()).mark_root_analogue();
 ```
 
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
