@@ -133,7 +133,11 @@ pub trait ArchetypeFormTrait<'a>:
     }
 
     /// Opposite of a form's `meta_archetype`. This retrieves the form that this meta represents.
-    fn infra_archetype(&self) -> Archetype {
+    ///
+    /// Given the lack of a conventional antonym to "meta", this uses
+    /// "[mesa](https://www.gwiznlp.com/wp-content/uploads/2014/08/Whats-the-opposite-of-meta.pdf)"
+    /// as a proposed antonym.
+    fn mesa_archetype(&self) -> Archetype {
         // todo: this is an archetype-specific attribute. There should therefore be an archetype 
         // for archetypes
         Archetype::from(
@@ -299,7 +303,7 @@ mod tests {
         let mut form_type3 = form_type2.individuate_as_archetype();
         let meta_type3 = form_type3.specific_meta();
 
-        assert_eq!(meta_type.infra_archetype(), form_type);
-        assert_eq!(meta_type3.infra_archetype(), form_type3);
+        assert_eq!(meta_type.mesa_archetype(), form_type);
+        assert_eq!(meta_type3.mesa_archetype(), form_type3);
     }
 }
