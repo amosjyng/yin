@@ -138,7 +138,7 @@ pub trait ArchetypeFormTrait<'a>:
     /// "[mesa](https://www.gwiznlp.com/wp-content/uploads/2014/08/Whats-the-opposite-of-meta.pdf)"
     /// as a proposed antonym.
     fn mesa_archetype(&self) -> Archetype {
-        // todo: this is an archetype-specific attribute. There should therefore be an archetype 
+        // todo: this is an archetype-specific attribute. There should therefore be an archetype
         // for archetypes
         Archetype::from(
             self.essence()
