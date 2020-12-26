@@ -345,6 +345,8 @@ define_child!(
 KnowledgeGraphNode::from(str_concept.id()).mark_data_analogue();
 ```
 
+Ideally, this would be modeled as string and integers being fundamental CS concepts, and `str` and `String` being Rust's implementations of those particular concepts. However, that sort of refactor is perhaps best left to a future version of ZAMM.
+
 Another type of data is a number:
 
 ```rust
