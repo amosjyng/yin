@@ -1,7 +1,6 @@
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
-use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
-use crate::tao::form::{Form, FormTrait};
-use crate::tao::relation::attribute::Attribute;
+use crate::tao::archetype::ArchetypeTrait;
+use crate::tao::form::FormTrait;
 use crate::tao::relation::flag::IsIndividual;
 use crate::Wrapper;
 
@@ -24,19 +23,13 @@ pub trait FormExtension: FormTrait + Wrapper<BaseType = FinalNode> + CommonNodeT
     }
 }
 
-impl FormExtension for Form {
-    type MetaType = Archetype;
-}
-
-impl FormExtension for Attribute {
-    type MetaType = AttributeArchetype;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::tao::archetype::ArchetypeFormTrait;
+    use crate::tao::form::Form;
     use crate::tao::initialize_kb;
+    use crate::tao::relation::attribute::Attribute;
     use crate::tao::relation::attribute::Owner;
 
     #[test]

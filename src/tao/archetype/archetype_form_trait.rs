@@ -3,7 +3,7 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormExtension, FormTrait};
 use crate::tao::relation::attribute::has_property::HasAttribute;
-use crate::tao::relation::attribute::{Attribute, Inherits, MetaForm};
+use crate::tao::relation::attribute::{Inherits, MetaForm};
 use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
 
@@ -161,14 +161,6 @@ pub trait ArchetypeFormTrait<'a>:
     fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
         self.added_attributes()
     }
-}
-
-impl<'a> ArchetypeFormTrait<'a> for Archetype {
-    type SubjectForm = Form;
-}
-
-impl<'a> ArchetypeFormTrait<'a> for AttributeArchetype {
-    type SubjectForm = Attribute;
 }
 
 #[cfg(test)]
