@@ -43,8 +43,8 @@
 //! use zamm_yin::node_wrappers::CommonNodeTrait;
 //! use std::rc::Rc;
 //!
-//! concept.set_internal_name("A".to_string());
-//! assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+//! concept.set_internal_name("A");
+//! assert_eq!(concept.internal_name(), Some(Rc::from("A")));
 //! ```
 
 pub mod archetype;

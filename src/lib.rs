@@ -17,7 +17,7 @@
 //!     assert!(concept.has_ancestor(Form::archetype()));
 //!
 //!     // Set a name for the concept
-//!     concept.set_internal_name("Hello, world.".to_string());
+//!     concept.set_internal_name("Hello, world.");
 //!     println!("{}", concept.internal_name().unwrap());
 //! }
 //! ```

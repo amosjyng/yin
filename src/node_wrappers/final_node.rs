@@ -168,7 +168,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut node = FinalNode::new();
-        node.set_internal_name_str("A");
+        node.set_internal_name("A");
         assert_eq!(FinalNode::try_from("A"), Ok(node));
         assert!(FinalNode::try_from("B").is_err());
     }
