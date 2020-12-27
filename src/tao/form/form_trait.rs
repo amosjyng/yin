@@ -1,7 +1,6 @@
 use super::Form;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode, InheritanceNodeTrait};
-use crate::tao::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait, AttributeArchetype};
-use crate::tao::relation::attribute::has_property::HasAttribute;
+use crate::tao::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait};
 use crate::tao::relation::attribute::{Inherits, MetaForm};
 use crate::tao::relation::flag::IsIndividual;
 use crate::tao::Tao;
@@ -162,24 +161,6 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
         self.essence_mut()
             .add_outgoing(MetaForm::TYPE_ID, archetype.essence())
     }
-
-    /// Get all the types of attributes that this concept is predefined to potentially have.
-    #[deprecated(since = "0.1.4", note = "Please use Archetype::attributes.")]
-    fn attribute_archetypes(&self) -> Vec<AttributeArchetype> {
-        self.essence()
-            .outgoing_nodes(HasAttribute::TYPE_ID)
-            .into_iter()
-            .map(AttributeArchetype::from)
-            .collect()
-    }
-
-    /// Checks to see if an archetype is one of the possible attribute types this concept could
-    /// have.
-    #[deprecated(since = "0.1.4", note = "Please use Archetype::has_attribute.")]
-    fn has_attribute_type(&self, possible_type: AttributeArchetype) -> bool {
-        self.essence()
-            .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
-    }
 }
 
 #[cfg(test)]
@@ -187,7 +168,7 @@ mod tests {
     use super::*;
     use crate::tao::archetype::{Archetype, ArchetypeFormTrait};
     use crate::tao::initialize_kb;
-    use crate::tao::relation::attribute::{Attribute, Owner, Value};
+    use crate::tao::relation::attribute::{Owner, Value};
 
     #[test]
     fn test_parents() {
@@ -354,40 +335,5 @@ mod tests {
         assert_eq!(form_type3.meta_archetype(), meta_type3);
         assert!(meta_type3.has_ancestor(meta_type));
         assert!(form_type3.has_specific_meta());
-    }
-
-    #[allow(deprecated)]
-    #[test]
-    fn test_attribute_types() {
-        initialize_kb();
-        let mut type1 = Attribute::archetype().individuate_as_archetype();
-        let type2 = Attribute::archetype().individuate_as_archetype();
-        type1.add_attribute_type(type2);
-        let instance = type1.individuate_as_form();
-
-        assert_eq!(
-            instance.attribute_archetypes(),
-            vec![Owner::archetype(), Value::archetype(), type2]
-        );
-        assert!(!instance.has_attribute_type(type1));
-        assert!(instance.has_attribute_type(type2));
-    }
-
-    #[allow(deprecated)]
-    #[test]
-    fn test_attribute_types_inherited() {
-        initialize_kb();
-        let mut type1 = Attribute::archetype().individuate_as_archetype();
-        let type2 = Attribute::archetype().individuate_as_archetype();
-        let type3 = type1.individuate_as_archetype();
-        type1.add_attribute_type(type2);
-        let instance = type3.individuate_as_form();
-
-        assert_eq!(
-            instance.attribute_archetypes(),
-            vec![Owner::archetype(), Value::archetype(), type2]
-        );
-        assert!(!instance.has_attribute_type(type1));
-        assert!(instance.has_attribute_type(type2));
     }
 }

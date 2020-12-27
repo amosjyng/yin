@@ -34,16 +34,6 @@ pub trait ArchetypeFormTrait<'a>:
     /// Self::SubjectForm is the subject archetype that is currently being observed.
     type SubjectForm: ArchetypeTrait<'a> + FormTrait + FormExtension;
 
-    /// Forget everything about the current form, except that it's an ArchetypeForm representing
-    /// some type.
-    #[deprecated(
-        since = "0.1.4",
-        note = "Please use the SubjectForm::into function instead."
-    )]
-    fn as_archetype(&self) -> Archetype {
-        Archetype::from(*self.essence())
-    }
-
     /// Create a subtype of the archetype represented by this Archetype instance.
     fn individuate_as_archetype(&self) -> Self::Form {
         Self::Form::from(FinalNode::new_with_inheritance(self.id()))
@@ -147,19 +137,6 @@ pub trait ArchetypeFormTrait<'a>:
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
                 .id(),
         )
-    }
-
-    /// Add an attribute type to this archetype.
-    #[deprecated(since = "0.1.4", note = "Please use Archetype::add_attribute.")]
-    fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
-        self.add_attribute(attribute_type)
-    }
-
-    /// Retrieve non-inherited attribute types that are introduced by this archetype to all
-    /// descendant archetypes. Attribute types introduced by an ancestor do not count.
-    #[deprecated(since = "0.1.4", note = "Please use Archetype::added_attributes.")]
-    fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
-        self.added_attributes()
     }
 }
 
