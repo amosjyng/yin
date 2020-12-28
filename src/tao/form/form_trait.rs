@@ -4,44 +4,42 @@ use crate::tao::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait};
 use crate::tao::relation::attribute::{Inherits, MetaForm};
 use crate::tao::relation::flag::IsIndividual;
 use crate::tao::Tao;
-use crate::Wrapper;
 use std::collections::{HashMap, VecDeque};
+use std::ops::{Deref, DerefMut};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
 /// following interactions.
-pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
+pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug {
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or
     /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
     /// boundaries, be at peace with the universe again.
     fn ego_death(&self) -> Tao {
-        Tao::from(*self.essence())
+        Tao::from(self.id())
     }
 
     /// A less severe form of ego-death, where you still remember that you exist.
     fn as_form(&self) -> Form {
-        Form::from(*self.essence())
+        Form::from(self.id())
     }
 
     /// Set a parent archetype. The current archetype will inherit all attributes of the parent
     /// archetype.
     fn add_parent(&mut self, parent: Archetype) {
-        self.essence_mut()
-            .add_outgoing(Inherits::TYPE_ID, parent.essence());
+        self.add_outgoing(Inherits::TYPE_ID, &parent);
     }
 
     /// Whether this represents an individual.
     fn is_individual(&self) -> bool {
-        self.essence().has_flag(IsIndividual::TYPE_ID)
+        self.has_flag(IsIndividual::TYPE_ID)
     }
 
     /// Get all direct parent archetypes of this concept.
     fn parents(&self) -> Vec<Archetype> {
         let direct_parents: Vec<Archetype> = self
-            .essence()
             .outgoing_nodes(Inherits::TYPE_ID)
             .into_iter()
-            .filter(|p| p.id() == Tao::TYPE_ID || p != self.essence())
+            .filter(|p| p.id() == Tao::TYPE_ID || p != self.deref())
             .map(Archetype::from)
             .filter(|a| !a.is_individual())
             .collect();
@@ -80,7 +78,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
         let mut next_node = Tao::archetype().as_form();
         let selfless_ego = self.as_form();
         while next_node != selfless_ego {
-            ancestry.push(Archetype::from(*next_node.essence()));
+            ancestry.push(Archetype::from(next_node.id()));
             next_node = *backpointers.get(&next_node).unwrap();
         }
         ancestry
@@ -88,17 +86,15 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
 
     /// Checks to see if another archetype is a direct parent of this one.
     fn has_parent(&self, possible_ancestor: Archetype) -> bool {
-        self.essence()
-            .outgoing_nodes(Inherits::TYPE_ID)
-            .contains(possible_ancestor.essence())
+        self.outgoing_nodes(Inherits::TYPE_ID)
+            .contains(&possible_ancestor)
     }
 
     /// Checks to see if another archetype is an ancestor of this one. If so, the current archetype
     /// will inherit all attributes of the ancestor.
     fn has_ancestor(&self, possible_ancestor: Archetype) -> bool {
-        self.essence()
-            .inheritance_nodes()
-            .contains(possible_ancestor.essence())
+        self.inheritance_nodes()
+            .contains(&possible_ancestor)
     }
 
     /// Get the node representing the current node's meta-perspective.
@@ -108,8 +104,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
     fn meta_archetype(&self) -> Archetype {
         // same assumption as in attribute archetype form trait about ID and specificity
         Archetype::from(
-            self.essence()
-                .outgoing_nodes(MetaForm::TYPE_ID)
+            self.outgoing_nodes(MetaForm::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
                 .id(),
@@ -121,7 +116,6 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
     fn specific_meta(&mut self) -> Archetype {
         // there should only be one of these
         let uninherited_metas = self
-            .essence()
             .base_wrapper()
             .outgoing_nodes(MetaForm::TYPE_ID);
         match uninherited_metas.last() {
@@ -150,7 +144,6 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
     /// object is inherited.
     fn has_specific_meta(&self) -> bool {
         !self
-            .essence()
             .base_wrapper()
             .outgoing_nodes(MetaForm::TYPE_ID)
             .is_empty()
@@ -158,8 +151,7 @@ pub trait FormTrait: Wrapper<BaseType = FinalNode> + std::fmt::Debug {
 
     /// Set the meta-form for this Form.
     fn set_meta_archetype(&mut self, archetype: &Archetype) {
-        self.essence_mut()
-            .add_outgoing(MetaForm::TYPE_ID, archetype.essence())
+        self.add_outgoing(MetaForm::TYPE_ID, &archetype)
     }
 }
 

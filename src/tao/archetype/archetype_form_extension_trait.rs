@@ -3,14 +3,13 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::has_property::HasFlag;
-use crate::Wrapper;
+use std::ops::{Deref, DerefMut};
 
 /// Public trait to store eventually-automated archetype attributes in.
-pub trait ArchetypeFormExtensionTrait: FormTrait + Wrapper<BaseType = FinalNode> {
+pub trait ArchetypeFormExtensionTrait: FormTrait + Deref<Target = FinalNode> + DerefMut {
     /// Get all the types of flags that this type of concept is predefined to potentially have.
     fn flags(&self) -> Vec<Archetype> {
-        self.essence()
-            .outgoing_nodes(HasFlag::TYPE_ID)
+        self.outgoing_nodes(HasFlag::TYPE_ID)
             .into_iter()
             .map(Archetype::from)
             .collect()
@@ -18,21 +17,18 @@ pub trait ArchetypeFormExtensionTrait: FormTrait + Wrapper<BaseType = FinalNode>
 
     /// Checks to see if this type of concept is predefined to have this as a flag.
     fn has_flag(&self, possible_type: Archetype) -> bool {
-        self.essence()
-            .has_outgoing(HasFlag::TYPE_ID, possible_type.essence())
+        self.has_outgoing(HasFlag::TYPE_ID, &possible_type)
     }
 
     /// Add a flag type to this archetype.
     fn add_flag(&mut self, attribute_type: Archetype) {
-        self.essence_mut()
-            .add_outgoing(HasFlag::TYPE_ID, attribute_type.essence());
+        self.add_outgoing(HasFlag::TYPE_ID, &attribute_type);
     }
 
     /// Retrieve non-inherited flag types that are introduced by this archetype to all descendant
     /// archetypes. Flag types introduced by an ancestor do not count.
     fn added_flags(&self) -> Vec<Archetype> {
-        self.essence()
-            .base_wrapper()
+        self.base_wrapper()
             .outgoing_nodes(HasFlag::TYPE_ID)
             .into_iter()
             .map(|n| Archetype::from(n.id()))

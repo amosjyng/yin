@@ -4,8 +4,8 @@ use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormExtension, FormTrait};
 use crate::tao::relation::attribute::has_property::HasAttribute;
 use crate::tao::relation::attribute::{Inherits, MetaForm};
-use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
+use std::ops::{Deref, DerefMut};
 
 /// Every concept represents a different way of looking at and manipulating the world. This one
 /// allows one to treat an archetype -- nothing more than an idea, a piece of *meta*data -- as if
@@ -22,7 +22,7 @@ use std::collections::{HashSet, VecDeque};
 /// to `Self` refers to the Archetype node itself. Since this FormTrait is supposed to reason about
 /// the node-as-archetype, **there should be no instances of `Self` here**.
 pub trait ArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait + Wrapper<BaseType = FinalNode>
+    ArchetypeTrait<'a> + FormTrait + Deref<Target = FinalNode> + DerefMut
 {
     /// The ArchetypeTrait as defined for an Archetype will have an Archetype-based Form for
     /// reasoning about other nodes as archetypes. The Archetype's Form is the observer, and the
@@ -52,9 +52,9 @@ pub trait ArchetypeFormTrait<'a>:
     /// might not be direct descendants of the archetype in question.
     fn individuals(&self) -> Vec<Self::SubjectForm> {
         let mut visited: HashSet<FinalNode> = HashSet::new();
-        visited.insert(*self.essence());
+        visited.insert(self.deref().clone());
         let mut to_be_visited: VecDeque<FinalNode> = VecDeque::new();
-        to_be_visited.push_back(*self.essence());
+        to_be_visited.push_back(self.deref().clone());
         let mut leaves: Vec<FinalNode> = Vec::new();
         while let Some(next) = to_be_visited.pop_front() {
             let children = next.incoming_nodes(Inherits::TYPE_ID);
@@ -71,7 +71,7 @@ pub trait ArchetypeFormTrait<'a>:
         }
         let mut result: Vec<Self::SubjectForm> = leaves
             .into_iter()
-            .filter(|l| l != self.essence()) // never return self, even if it's the only leaf
+            .filter(|l| l != self.deref()) // never return self, even if it's the only leaf
             .map(Self::SubjectForm::from)
             .collect();
         result.sort();
@@ -80,8 +80,7 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Retrieve child archetypes.
     fn child_archetypes(&self) -> Vec<Self::Form> {
-        self.essence()
-            .incoming_nodes(Inherits::TYPE_ID)
+        self.incoming_nodes(Inherits::TYPE_ID)
             .into_iter()
             .filter(|f| !Form::from(*f).is_individual())
             .map(Self::Form::from)
@@ -90,15 +89,13 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Add an attribute type to this archetype.
     fn add_attribute(&mut self, attribute_type: AttributeArchetype) {
-        self.essence_mut()
-            .add_outgoing(HasAttribute::TYPE_ID, attribute_type.essence());
+        self.add_outgoing(HasAttribute::TYPE_ID, &attribute_type);
     }
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
     /// descendant archetypes. Attribute types introduced by an ancestor do not count.
     fn added_attributes(&self) -> Vec<AttributeArchetype> {
-        self.essence()
-            .base_wrapper()
+        self.base_wrapper()
             .outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .filter(|n| !Form::from(n.id()).is_individual())
@@ -108,8 +105,7 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
     fn attributes(&self) -> Vec<AttributeArchetype> {
-        self.essence()
-            .outgoing_nodes(HasAttribute::TYPE_ID)
+        self.outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .map(AttributeArchetype::from)
             .collect()
@@ -118,8 +114,7 @@ pub trait ArchetypeFormTrait<'a>:
     /// Checks to see if an archetype is one of the possible attribute types this concept could
     /// have.
     fn has_attribute(&self, possible_type: AttributeArchetype) -> bool {
-        self.essence()
-            .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
+        self.has_outgoing(HasAttribute::TYPE_ID, &possible_type)
     }
 
     /// Opposite of a form's `meta_archetype`. This retrieves the form that this meta represents.
@@ -131,8 +126,7 @@ pub trait ArchetypeFormTrait<'a>:
         // todo: this is an archetype-specific attribute. There should therefore be an archetype
         // for archetypes
         Archetype::from(
-            self.essence()
-                .incoming_nodes(MetaForm::TYPE_ID)
+            self.incoming_nodes(MetaForm::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
                 .id(),
