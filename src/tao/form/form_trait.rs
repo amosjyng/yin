@@ -93,8 +93,7 @@ pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug {
     /// Checks to see if another archetype is an ancestor of this one. If so, the current archetype
     /// will inherit all attributes of the ancestor.
     fn has_ancestor(&self, possible_ancestor: Archetype) -> bool {
-        self.inheritance_nodes()
-            .contains(&possible_ancestor)
+        self.inheritance_nodes().contains(&possible_ancestor)
     }
 
     /// Get the node representing the current node's meta-perspective.
@@ -115,9 +114,7 @@ pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug {
     /// then it will be created.
     fn specific_meta(&mut self) -> Archetype {
         // there should only be one of these
-        let uninherited_metas = self
-            .base_wrapper()
-            .outgoing_nodes(MetaForm::TYPE_ID);
+        let uninherited_metas = self.base_wrapper().outgoing_nodes(MetaForm::TYPE_ID);
         match uninherited_metas.last() {
             Some(specific_meta) => Archetype::from(specific_meta.id()),
             None => {

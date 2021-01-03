@@ -8,7 +8,9 @@ use std::ops::{Deref, DerefMut};
 ///
 /// This differs from ArchetypeTrait in that ArchetypeTrait applies to the class, but these
 /// functions apply to individual instances of the class.
-pub trait FormExtension: FormTrait + Deref<Target = FinalNode> + DerefMut + CommonNodeTrait {
+pub trait FormExtension:
+    FormTrait + Deref<Target = FinalNode> + DerefMut + CommonNodeTrait
+{
     /// What meta perspective will be used to represent this by default.
     type MetaType: From<usize>;
 

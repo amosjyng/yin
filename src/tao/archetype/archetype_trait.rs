@@ -5,7 +5,9 @@ use std::ops::Deref;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
 /// through the archetype will return a more generic result than might be desired).
-pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> + Ord + Deref<Target = FinalNode> {
+pub trait ArchetypeTrait<'a>:
+    From<usize> + From<FinalNode> + TryFrom<&'a str> + Ord + Deref<Target = FinalNode>
+{
     /// The Form that will be used to reason about this node and its children as archetypes and
     /// subtypes.
     type ArchetypeForm: ArchetypeTrait<'a> + FormTrait;

@@ -25,7 +25,8 @@ pub trait AttributeArchetypeFormTrait<'a>:
         // everything else in Yin.md, because documentation is tied to the creation of an
         // implementation.
         Archetype::from(
-            *self.outgoing_nodes(OwnerArchetype::TYPE_ID)
+            *self
+                .outgoing_nodes(OwnerArchetype::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
         )
@@ -45,7 +46,8 @@ pub trait AttributeArchetypeFormTrait<'a>:
         // everything else in Yin.md, because documentation is tied to the creation of an
         // implementation.
         Archetype::from(
-            *self.outgoing_nodes(ValueArchetype::TYPE_ID)
+            *self
+                .outgoing_nodes(ValueArchetype::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
         )
