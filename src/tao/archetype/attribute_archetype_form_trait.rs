@@ -12,7 +12,7 @@ pub trait AttributeArchetypeFormTrait<'a>:
     ArchetypeTrait<'a> + FormTrait + Deref<Target = FinalNode> + DerefMut
 {
     /// Restrict the owners for this type of attribute.
-    fn set_owner_archetype(&mut self, owner_archetype: Archetype) {
+    fn set_owner_archetype(&mut self, owner_archetype: &Archetype) {
         self.add_outgoing(OwnerArchetype::TYPE_ID, &owner_archetype);
     }
 
@@ -33,7 +33,7 @@ pub trait AttributeArchetypeFormTrait<'a>:
     }
 
     /// Restrict the values for this type of attribute.
-    fn set_value_archetype(&mut self, value_archetype: Archetype) {
+    fn set_value_archetype(&mut self, value_archetype: &Archetype) {
         self.add_outgoing(ValueArchetype::TYPE_ID, &value_archetype);
     }
 
@@ -102,7 +102,7 @@ mod tests {
         assert_eq!(attr_type2.owner_archetype(), Tao::archetype());
 
         // owners should now be restricted to Attributes as opposed to Tao
-        attr_type1.set_owner_archetype(Attribute::archetype().into());
+        attr_type1.set_owner_archetype(&Attribute::archetype().into());
         assert_eq!(attr_type2.owner_archetype(), Attribute::archetype().into());
     }
 
@@ -114,7 +114,7 @@ mod tests {
         assert_eq!(attr_type2.value_archetype(), Tao::archetype());
 
         // values should now be restricted to Attributes as opposed to Tao
-        attr_type1.set_value_archetype(Attribute::archetype().into());
+        attr_type1.set_value_archetype(&Attribute::archetype().into());
         assert_eq!(attr_type2.value_archetype(), Attribute::archetype().into());
     }
 
