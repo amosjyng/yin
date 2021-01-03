@@ -52,9 +52,9 @@ pub trait ArchetypeFormTrait<'a>:
     /// might not be direct descendants of the archetype in question.
     fn individuals(&self) -> Vec<Self::SubjectForm> {
         let mut visited: HashSet<FinalNode> = HashSet::new();
-        visited.insert(self.deref().clone());
+        visited.insert(*self.deref());
         let mut to_be_visited: VecDeque<FinalNode> = VecDeque::new();
-        to_be_visited.push_back(self.deref().clone());
+        to_be_visited.push_back(*self.deref());
         let mut leaves: Vec<FinalNode> = Vec::new();
         while let Some(next) = to_be_visited.pop_front() {
             let children = next.incoming_nodes(Inherits::TYPE_ID);
