@@ -340,7 +340,6 @@ module!(
     [
         "archetype_trait::ArchetypeTrait",
         "archetype_form_trait::ArchetypeFormTrait",
-        "archetype_form_extension_trait::ArchetypeFormExtensionTrait",
         "attribute_archetype_form_trait::AttributeArchetypeFormTrait"
     ]
 );
