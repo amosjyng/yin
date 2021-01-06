@@ -2,19 +2,21 @@ use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
 use crate::tao::relation::flag::IsIndividual;
-use crate::Wrapper;
+use std::ops::{Deref, DerefMut};
 
 /// Public trait to store eventually-automated form attributes in.
 ///
 /// This differs from ArchetypeTrait in that ArchetypeTrait applies to the class, but these
 /// functions apply to individual instances of the class.
-pub trait FormExtension: FormTrait + Wrapper<BaseType = FinalNode> + CommonNodeTrait {
+pub trait FormExtension:
+    FormTrait + Deref<Target = FinalNode> + DerefMut + CommonNodeTrait
+{
     /// What meta perspective will be used to represent this by default.
     type MetaType: From<usize>;
 
     /// Mark this concept as representing an individual.
     fn mark_individual(&mut self) {
-        self.essence_mut().add_flag(IsIndividual::TYPE_ID);
+        self.add_flag(IsIndividual::TYPE_ID);
     }
 
     /// View the current node from its meta perspective.

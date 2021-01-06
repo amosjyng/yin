@@ -2,10 +2,10 @@ use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormExtension, FormTrait};
-use crate::tao::relation::attribute::has_property::HasAttribute;
+use crate::tao::relation::attribute::has_property::{HasAttribute, HasFlag};
 use crate::tao::relation::attribute::{Inherits, MetaForm};
-use crate::Wrapper;
 use std::collections::{HashSet, VecDeque};
+use std::ops::{Deref, DerefMut};
 
 /// Every concept represents a different way of looking at and manipulating the world. This one
 /// allows one to treat an archetype -- nothing more than an idea, a piece of *meta*data -- as if
@@ -22,7 +22,7 @@ use std::collections::{HashSet, VecDeque};
 /// to `Self` refers to the Archetype node itself. Since this FormTrait is supposed to reason about
 /// the node-as-archetype, **there should be no instances of `Self` here**.
 pub trait ArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait + Wrapper<BaseType = FinalNode>
+    ArchetypeTrait<'a> + FormTrait + Deref<Target = FinalNode> + DerefMut
 {
     /// The ArchetypeTrait as defined for an Archetype will have an Archetype-based Form for
     /// reasoning about other nodes as archetypes. The Archetype's Form is the observer, and the
@@ -33,16 +33,6 @@ pub trait ArchetypeFormTrait<'a>:
     /// Here, Self::ArchetypeForm should never be used, Self::Form is the self as the observer, and
     /// Self::SubjectForm is the subject archetype that is currently being observed.
     type SubjectForm: ArchetypeTrait<'a> + FormTrait + FormExtension;
-
-    /// Forget everything about the current form, except that it's an ArchetypeForm representing
-    /// some type.
-    #[deprecated(
-        since = "0.1.4",
-        note = "Please use the SubjectForm::into function instead."
-    )]
-    fn as_archetype(&self) -> Archetype {
-        Archetype::from(*self.essence())
-    }
 
     /// Create a subtype of the archetype represented by this Archetype instance.
     fn individuate_as_archetype(&self) -> Self::Form {
@@ -62,9 +52,9 @@ pub trait ArchetypeFormTrait<'a>:
     /// might not be direct descendants of the archetype in question.
     fn individuals(&self) -> Vec<Self::SubjectForm> {
         let mut visited: HashSet<FinalNode> = HashSet::new();
-        visited.insert(*self.essence());
+        visited.insert(*self.deref());
         let mut to_be_visited: VecDeque<FinalNode> = VecDeque::new();
-        to_be_visited.push_back(*self.essence());
+        to_be_visited.push_back(*self.deref());
         let mut leaves: Vec<FinalNode> = Vec::new();
         while let Some(next) = to_be_visited.pop_front() {
             let children = next.incoming_nodes(Inherits::TYPE_ID);
@@ -81,7 +71,7 @@ pub trait ArchetypeFormTrait<'a>:
         }
         let mut result: Vec<Self::SubjectForm> = leaves
             .into_iter()
-            .filter(|l| l != self.essence()) // never return self, even if it's the only leaf
+            .filter(|l| l != self.deref()) // never return self, even if it's the only leaf
             .map(Self::SubjectForm::from)
             .collect();
         result.sort();
@@ -90,8 +80,7 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Retrieve child archetypes.
     fn child_archetypes(&self) -> Vec<Self::Form> {
-        self.essence()
-            .incoming_nodes(Inherits::TYPE_ID)
+        self.incoming_nodes(Inherits::TYPE_ID)
             .into_iter()
             .filter(|f| !Form::from(*f).is_individual())
             .map(Self::Form::from)
@@ -99,16 +88,14 @@ pub trait ArchetypeFormTrait<'a>:
     }
 
     /// Add an attribute type to this archetype.
-    fn add_attribute(&mut self, attribute_type: AttributeArchetype) {
-        self.essence_mut()
-            .add_outgoing(HasAttribute::TYPE_ID, attribute_type.essence());
+    fn add_attribute(&mut self, attribute_type: &AttributeArchetype) {
+        self.add_outgoing(HasAttribute::TYPE_ID, attribute_type);
     }
 
     /// Retrieve non-inherited attribute types that are introduced by this archetype to all
     /// descendant archetypes. Attribute types introduced by an ancestor do not count.
     fn added_attributes(&self) -> Vec<AttributeArchetype> {
-        self.essence()
-            .base_wrapper()
+        self.base_wrapper()
             .outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .filter(|n| !Form::from(n.id()).is_individual())
@@ -118,8 +105,7 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Get all the types of attributes that this concept is predefined to potentially have.
     fn attributes(&self) -> Vec<AttributeArchetype> {
-        self.essence()
-            .outgoing_nodes(HasAttribute::TYPE_ID)
+        self.outgoing_nodes(HasAttribute::TYPE_ID)
             .into_iter()
             .map(AttributeArchetype::from)
             .collect()
@@ -127,9 +113,8 @@ pub trait ArchetypeFormTrait<'a>:
 
     /// Checks to see if an archetype is one of the possible attribute types this concept could
     /// have.
-    fn has_attribute(&self, possible_type: AttributeArchetype) -> bool {
-        self.essence()
-            .has_outgoing(HasAttribute::TYPE_ID, possible_type.essence())
+    fn has_attribute(&self, possible_type: &AttributeArchetype) -> bool {
+        self.has_outgoing(HasAttribute::TYPE_ID, &possible_type)
     }
 
     /// Opposite of a form's `meta_archetype`. This retrieves the form that this meta represents.
@@ -141,32 +126,46 @@ pub trait ArchetypeFormTrait<'a>:
         // todo: this is an archetype-specific attribute. There should therefore be an archetype
         // for archetypes
         Archetype::from(
-            self.essence()
-                .incoming_nodes(MetaForm::TYPE_ID)
+            self.incoming_nodes(MetaForm::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
                 .id(),
         )
     }
 
-    /// Add an attribute type to this archetype.
-    #[deprecated(since = "0.1.4", note = "Please use Archetype::add_attribute.")]
-    fn add_attribute_type(&mut self, attribute_type: AttributeArchetype) {
-        self.add_attribute(attribute_type)
+    /// Get all the types of flags that this type of concept is predefined to potentially have.
+    fn flags(&self) -> Vec<Archetype> {
+        self.outgoing_nodes(HasFlag::TYPE_ID)
+            .into_iter()
+            .map(Archetype::from)
+            .collect()
     }
 
-    /// Retrieve non-inherited attribute types that are introduced by this archetype to all
-    /// descendant archetypes. Attribute types introduced by an ancestor do not count.
-    #[deprecated(since = "0.1.4", note = "Please use Archetype::added_attributes.")]
-    fn introduced_attribute_archetypes(&self) -> Vec<AttributeArchetype> {
-        self.added_attributes()
+    /// Checks to see if this type of concept is predefined to have this as a flag.
+    fn has_flag(&self, possible_type: &Archetype) -> bool {
+        self.has_outgoing(HasFlag::TYPE_ID, &possible_type)
+    }
+
+    /// Add a flag type to this archetype.
+    fn add_flag(&mut self, attribute_type: &Archetype) {
+        self.add_outgoing(HasFlag::TYPE_ID, &attribute_type);
+    }
+
+    /// Retrieve non-inherited flag types that are introduced by this archetype to all descendant
+    /// archetypes. Flag types introduced by an ancestor do not count.
+    fn added_flags(&self) -> Vec<Archetype> {
+        self.base_wrapper()
+            .outgoing_nodes(HasFlag::TYPE_ID)
+            .into_iter()
+            .map(|n| Archetype::from(n.id()))
+            .collect()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tao::archetype::{ArchetypeFormExtensionTrait, ArchetypeTrait, AttributeArchetype};
+    use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
     use crate::tao::form::Form;
     use crate::tao::initialize_kb;
     use crate::tao::relation::attribute::{Attribute, Owner, Value};
@@ -229,7 +228,7 @@ mod tests {
         let type2 = Attribute::archetype().individuate_as_archetype();
         assert_eq!(type1.added_attributes(), Vec::<AttributeArchetype>::new());
 
-        type1.add_attribute(type2);
+        type1.add_attribute(&type2);
         assert_eq!(type1.added_attributes(), vec!(type2));
     }
 
@@ -239,7 +238,7 @@ mod tests {
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Tao::archetype().individuate_as_archetype();
         let type2_attr_arch = AttributeArchetype::from(type2.id());
-        type1.add_attribute(type2_attr_arch);
+        type1.add_attribute(&type2_attr_arch);
 
         assert_eq!(type1.attributes(), vec![type2_attr_arch]);
         assert_eq!(type1.added_attributes(), vec![type2_attr_arch]);
@@ -251,14 +250,14 @@ mod tests {
         let mut type1 = Attribute::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
-        type1.add_attribute(type2);
+        type1.add_attribute(&type2);
 
         assert_eq!(
             type3.attributes(),
             vec![Owner::archetype(), Value::archetype(), type2]
         );
-        assert!(!type3.has_attribute(type1));
-        assert!(type3.has_attribute(type2));
+        assert!(!type3.has_attribute(&type1));
+        assert!(type3.has_attribute(&type2));
     }
 
     #[test]
@@ -267,7 +266,7 @@ mod tests {
         let mut type1 = Form::archetype().individuate_as_archetype();
         let type2 = Attribute::archetype().individuate_as_archetype();
         let type3 = type1.individuate_as_archetype();
-        type1.add_attribute(type2);
+        type1.add_attribute(&type2);
 
         assert_eq!(type3.added_attributes(), Vec::<AttributeArchetype>::new());
     }
@@ -278,8 +277,8 @@ mod tests {
         let mut form_type = Form::archetype().individuate_as_archetype();
         let flag_type = Flag::archetype().individuate_as_archetype();
         let attr_type = Attribute::archetype().individuate_as_archetype();
-        form_type.add_flag(flag_type);
-        form_type.add_attribute(attr_type);
+        form_type.add_flag(&flag_type);
+        form_type.add_attribute(&attr_type);
 
         assert_eq!(form_type.attributes(), vec![attr_type]);
         assert_eq!(form_type.added_attributes(), vec![attr_type]);
@@ -297,5 +296,78 @@ mod tests {
 
         assert_eq!(meta_type.mesa_archetype(), form_type);
         assert_eq!(meta_type3.mesa_archetype(), form_type3);
+    }
+
+    #[test]
+    fn test_added_flags() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Flag::archetype().individuate_as_archetype();
+        assert_eq!(type1.added_flags(), Vec::<Archetype>::new());
+
+        type1.add_flag(&type2);
+        assert_eq!(type1.added_flags(), vec!(type2));
+    }
+
+    #[test]
+    fn test_added_flags_not_inherited() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Flag::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_flag(&type2);
+
+        assert_eq!(type3.added_flags(), Vec::<Archetype>::new());
+    }
+
+    #[test]
+    fn test_flags() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Flag::archetype().individuate_as_archetype();
+        type1.add_flag(&type2);
+
+        assert_eq!(type1.flags(), vec![type2]);
+        assert!(!type1.has_flag(&type1));
+        assert!(type1.has_flag(&type2));
+    }
+
+    #[test]
+    fn test_flag_equivalents() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Tao::archetype().individuate_as_archetype();
+        type1.add_flag(&type2);
+
+        assert_eq!(type1.flags(), vec![type2]);
+        assert_eq!(type1.added_flags(), vec![type2]);
+        assert!(!type1.has_flag(&type1));
+        assert!(type1.has_flag(&type2));
+    }
+
+    #[test]
+    fn test_flags_inherited() {
+        initialize_kb();
+        let mut type1 = Form::archetype().individuate_as_archetype();
+        let type2 = Flag::archetype().individuate_as_archetype();
+        let type3 = type1.individuate_as_archetype();
+        type1.add_flag(&type2);
+
+        assert_eq!(type3.flags(), vec![type2]);
+        assert!(!type3.has_flag(&type1));
+        assert!(type3.has_flag(&type2));
+    }
+
+    #[test]
+    fn test_flags_no_attributes() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let flag_type = Flag::archetype().individuate_as_archetype();
+        let attr_type = Attribute::archetype().individuate_as_archetype();
+        form_type.add_flag(&flag_type);
+        form_type.add_attribute(&attr_type);
+
+        assert_eq!(form_type.flags(), vec![flag_type]);
+        assert_eq!(form_type.added_flags(), vec![flag_type]);
     }
 }
