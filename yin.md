@@ -318,10 +318,7 @@ BuildInfo::from(form.id()).mark_own_module();
 module!(
     form,
     "Concept forms, as opposed to archetypes.",
-    [
-        "form_trait::FormTrait",
-        "form_extension::FormExtension"
-    ]
+    ["form_trait::FormTrait"]
 );
 module!(relation, "Relations between the forms.");
 module!(flag, "Relations involving only one form.");
@@ -352,7 +349,7 @@ module!(
 This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.9"
+zamm_yang = "0.1.10"
 ```
 
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:

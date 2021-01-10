@@ -1,20 +1,19 @@
 use crate::node_wrappers::{CommonNodeTrait, FinalNode};
-use crate::tao::form::{Form, FormExtension, FormTrait};
-use std::convert::TryFrom;
+use crate::tao::form::{Form, FormTrait};
 use std::ops::Deref;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
 /// through the archetype will return a more generic result than might be desired).
-pub trait ArchetypeTrait<'a>:
-    From<usize> + From<FinalNode> + TryFrom<&'a str> + Ord + Deref<Target = FinalNode>
+pub trait ArchetypeTrait:
+    From<usize> + From<FinalNode> + Ord + Deref<Target = FinalNode>
 {
     /// The Form that will be used to reason about this node and its children as archetypes and
     /// subtypes.
-    type ArchetypeForm: ArchetypeTrait<'a> + FormTrait;
+    type ArchetypeForm: ArchetypeTrait + FormTrait + From<usize>;
     /// The Form that will be used to reason about this node's leaves as individuals. Unless you
     /// are the Tao, this should be the same as the type that `ArchetypeTrait` is being implemented
     /// on.
-    type Form: ArchetypeTrait<'a> + FormTrait;
+    type Form: ArchetypeTrait + FormTrait;
 
     /// The ID for this archetype.
     const TYPE_ID: usize;
