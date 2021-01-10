@@ -21,8 +21,8 @@ use std::ops::{Deref, DerefMut};
 /// references to `self` here refers to the node-as-archetype in question, whereas any references
 /// to `Self` refers to the Archetype node itself. Since this FormTrait is supposed to reason about
 /// the node-as-archetype, **there should be no instances of `Self` here**.
-pub trait ArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait<'a> + Deref<Target = FinalNode> + DerefMut
+pub trait ArchetypeFormTrait:
+    ArchetypeTrait + FormTrait + Deref<Target = FinalNode> + DerefMut
 {
     /// The ArchetypeTrait as defined for an Archetype will have an Archetype-based Form for
     /// reasoning about other nodes as archetypes. The Archetype's Form is the observer, and the
@@ -32,7 +32,7 @@ pub trait ArchetypeFormTrait<'a>:
     ///
     /// Here, Self::ArchetypeForm should never be used, Self::Form is the self as the observer, and
     /// Self::SubjectForm is the subject archetype that is currently being observed.
-    type SubjectForm: ArchetypeTrait<'a> + FormTrait<'a>;
+    type SubjectForm: ArchetypeTrait + FormTrait;
 
     /// Create a subtype of the archetype represented by this Archetype instance.
     fn individuate_as_archetype(&self) -> Self::Form {

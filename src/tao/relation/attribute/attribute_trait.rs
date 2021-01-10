@@ -5,11 +5,11 @@ use crate::tao::relation::attribute::{Owner, Value};
 use std::ops::{Deref, DerefMut};
 
 /// Interface for all attributes.
-pub trait AttributeTrait<'a>: FormTrait<'a> + Deref<Target = FinalNode> + DerefMut {
+pub trait AttributeTrait: FormTrait + Deref<Target = FinalNode> + DerefMut {
     /// The Form representing the owner.
-    type OwnerForm: FormTrait<'a> + From<FinalNode>;
+    type OwnerForm: FormTrait + From<FinalNode>;
     /// The Form representing the value.
-    type ValueForm: FormTrait<'a> + From<FinalNode>;
+    type ValueForm: FormTrait + From<FinalNode>;
 
     /// Set the owner for this attribute.
     fn set_owner(&mut self, owner: &Self::OwnerForm) {

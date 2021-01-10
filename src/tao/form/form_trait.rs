@@ -9,7 +9,7 @@ use std::ops::{Deref, DerefMut};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
 /// following interactions.
-pub trait FormTrait<'a>: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug + ArchetypeTrait<'a> {
+pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug + ArchetypeTrait {
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or
     /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
