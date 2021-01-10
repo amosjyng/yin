@@ -1,5 +1,5 @@
 use crate::node_wrappers::{CommonNodeTrait, FinalNode};
-use crate::tao::form::{Form, FormExtension, FormTrait};
+use crate::tao::form::{Form, FormTrait};
 use std::convert::TryFrom;
 use std::ops::Deref;
 
@@ -10,11 +10,11 @@ pub trait ArchetypeTrait<'a>:
 {
     /// The Form that will be used to reason about this node and its children as archetypes and
     /// subtypes.
-    type ArchetypeForm: ArchetypeTrait<'a> + FormTrait;
+    type ArchetypeForm: ArchetypeTrait<'a> + FormTrait<'a> + From<usize>;
     /// The Form that will be used to reason about this node's leaves as individuals. Unless you
     /// are the Tao, this should be the same as the type that `ArchetypeTrait` is being implemented
     /// on.
-    type Form: ArchetypeTrait<'a> + FormTrait;
+    type Form: ArchetypeTrait<'a> + FormTrait<'a>;
 
     /// The ID for this archetype.
     const TYPE_ID: usize;

@@ -9,7 +9,7 @@ use std::ops::{Deref, DerefMut};
 
 /// All forms are derived from archetypes. All forms, by their very existence, are capable of the
 /// following interactions.
-pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug {
+pub trait FormTrait<'a>: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug + ArchetypeTrait<'a> {
     /// Jung called, and you answered. It is time to let go of your individuality and return to
     /// the Oneness from which you once came. There is no life or death, there is no existence or
     /// non-existence, there is no form or abstraction. Forget all preconceptions, blur all
@@ -96,6 +96,11 @@ pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug {
         self.inheritance_nodes().contains(&possible_ancestor)
     }
 
+    /// View the current node from its meta perspective.
+    fn meta(&self) -> Self::ArchetypeForm {
+        Self::ArchetypeForm::from(self.id())
+    }
+
     /// Get the node representing the current node's meta-perspective.
     ///
     /// This is in contrast to `self.meta()`, which views the current node *from* the
@@ -150,6 +155,11 @@ pub trait FormTrait: Deref<Target = FinalNode> + DerefMut + std::fmt::Debug {
     fn set_meta_archetype(&mut self, archetype: &Archetype) {
         self.add_outgoing(MetaForm::TYPE_ID, &archetype)
     }
+
+    /// Mark this concept as representing an individual.
+    fn mark_individual(&mut self) {
+        self.add_flag(IsIndividual::TYPE_ID);
+    }
 }
 
 #[cfg(test)]
@@ -157,7 +167,7 @@ mod tests {
     use super::*;
     use crate::tao::archetype::{Archetype, ArchetypeFormTrait};
     use crate::tao::initialize_kb;
-    use crate::tao::relation::attribute::{Owner, Value};
+    use crate::tao::relation::attribute::{Attribute, Owner, Value};
 
     #[test]
     fn test_parents() {
@@ -324,5 +334,35 @@ mod tests {
         assert_eq!(form_type3.meta_archetype(), meta_type3);
         assert!(meta_type3.has_ancestor(meta_type));
         assert!(form_type3.has_specific_meta());
+    }
+
+    #[test]
+    fn test_new_is_individual() {
+        initialize_kb();
+        let new_instance = Form::new();
+        // all individuals should automatically be marked as such
+        assert!(new_instance.is_individual());
+    }
+
+    #[test]
+    fn test_individual_as_form_is_individual() {
+        initialize_kb();
+        let new_instance = Form::archetype().individuate_as_form();
+        // all individuals should automatically be marked as such
+        assert!(new_instance.is_individual());
+    }
+
+    #[test]
+    fn test_query_meta() {
+        initialize_kb();
+        // todo: use Owner::new() directly after `FormExtension` gets auto-generated for all
+        // descendants in future version of Yang
+        let new_attr = Attribute::from(Owner::new().id());
+        // todo: in the future, check that OwnerArchetype is not in this list, because that
+        // attribute belongs to the meta-object. The information will still be associated with the
+        // object node -- Owner will still have an OwnerArchetype. It's just that the Owner
+        // perspective does not include OwnerArchetype and does not know what to do with it -- but
+        // the meta-perspective for Owner (aka the AttributeArchetype perspective) does.
+        assert!(new_attr.meta().attributes().contains(&Owner::archetype()));
     }
 }

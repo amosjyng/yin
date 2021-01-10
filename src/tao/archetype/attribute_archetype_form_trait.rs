@@ -9,7 +9,7 @@ use std::ops::{Deref, DerefMut};
 
 /// Archetype functionality that is specific to attribute archetypes.
 pub trait AttributeArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait + Deref<Target = FinalNode> + DerefMut
+    ArchetypeTrait<'a> + FormTrait<'a> + Deref<Target = FinalNode> + DerefMut
 {
     /// Restrict the owners for this type of attribute.
     fn set_owner_archetype(&mut self, owner_archetype: &Archetype) {
