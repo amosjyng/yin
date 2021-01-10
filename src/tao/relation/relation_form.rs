@@ -2,10 +2,10 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::FormTrait;
 use crate::tao::Tao;
-use crate::Wrapper;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Links any number of nodes together.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -41,25 +41,27 @@ impl<'a> TryFrom<&'a str> for Relation {
     }
 }
 
-impl Wrapper for Relation {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Relation {
+impl ArchetypeTrait for Relation {
     type ArchetypeForm = Archetype;
     type Form = Relation;
 
     const TYPE_ID: usize = 2;
     const TYPE_NAME: &'static str = "relation";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
+}
+
+impl Deref for Relation {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Relation {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
 }
 
 impl FormTrait for Relation {}
@@ -84,7 +86,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Relation::archetype().id(), Relation::TYPE_ID);
         assert_eq!(
-            Relation::archetype().internal_name_str(),
+            Relation::archetype().internal_name(),
             Some(Rc::from(Relation::TYPE_NAME))
         );
     }
@@ -93,7 +95,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Relation::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Relation::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Relation::try_from("B").is_err());
     }
@@ -120,6 +122,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Relation::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

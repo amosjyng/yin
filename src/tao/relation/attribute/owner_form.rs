@@ -3,10 +3,11 @@ use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::{Attribute, AttributeTrait};
 use crate::tao::relation::Relation;
-use crate::Wrapper;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// The owner/source/from-node of an attribute.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -42,19 +43,7 @@ impl<'a> TryFrom<&'a str> for Owner {
     }
 }
 
-impl Wrapper for Owner {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Owner {
+impl ArchetypeTrait for Owner {
     type ArchetypeForm = AttributeArchetype;
     type Form = Owner;
 
@@ -63,7 +52,33 @@ impl<'a> ArchetypeTrait<'a> for Owner {
     const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 }
 
+impl Deref for Owner {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Owner {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for Owner {}
+
+impl From<Owner> for Tao {
+    fn from(this: Owner) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<Owner> for Relation {
+    fn from(this: Owner) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<Owner> for Attribute {
     fn from(this: Owner) -> Attribute {
@@ -90,7 +105,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Owner::archetype().id(), Owner::TYPE_ID);
         assert_eq!(
-            Owner::archetype().internal_name_str(),
+            Owner::archetype().internal_name(),
             Some(Rc::from(Owner::TYPE_NAME))
         );
     }
@@ -99,7 +114,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Owner::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Owner::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Owner::try_from("B").is_err());
     }
@@ -126,14 +141,21 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Owner::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 
     #[test]
+    #[allow(clippy::useless_conversion)]
     fn check_attribute_constraints() {
         initialize_kb();
-        assert_eq!(Owner::archetype().owner_archetype(), Relation::archetype());
-        assert_eq!(Owner::archetype().value_archetype(), Tao::archetype());
+        assert_eq!(
+            Owner::archetype().owner_archetype(),
+            Relation::archetype().into()
+        );
+        assert_eq!(
+            Owner::archetype().value_archetype(),
+            Tao::archetype().into()
+        );
     }
 
     #[test]

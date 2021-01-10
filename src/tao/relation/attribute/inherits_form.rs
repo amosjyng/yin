@@ -2,10 +2,12 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::{Attribute, AttributeTrait};
-use crate::Wrapper;
+use crate::tao::relation::Relation;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Describes the owner as inheriting all attributes of the value.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -41,19 +43,7 @@ impl<'a> TryFrom<&'a str> for Inherits {
     }
 }
 
-impl Wrapper for Inherits {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Inherits {
+impl ArchetypeTrait for Inherits {
     type ArchetypeForm = AttributeArchetype;
     type Form = Inherits;
 
@@ -62,7 +52,33 @@ impl<'a> ArchetypeTrait<'a> for Inherits {
     const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 }
 
+impl Deref for Inherits {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Inherits {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for Inherits {}
+
+impl From<Inherits> for Tao {
+    fn from(this: Inherits) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<Inherits> for Relation {
+    fn from(this: Inherits) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<Inherits> for Attribute {
     fn from(this: Inherits) -> Attribute {
@@ -89,7 +105,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Inherits::archetype().id(), Inherits::TYPE_ID);
         assert_eq!(
-            Inherits::archetype().internal_name_str(),
+            Inherits::archetype().internal_name(),
             Some(Rc::from(Inherits::TYPE_NAME))
         );
     }
@@ -98,7 +114,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Inherits::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Inherits::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Inherits::try_from("B").is_err());
     }
@@ -125,14 +141,21 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Inherits::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 
     #[test]
+    #[allow(clippy::useless_conversion)]
     fn check_attribute_constraints() {
         initialize_kb();
-        assert_eq!(Inherits::archetype().owner_archetype(), Tao::archetype());
-        assert_eq!(Inherits::archetype().value_archetype(), Tao::archetype());
+        assert_eq!(
+            Inherits::archetype().owner_archetype(),
+            Tao::archetype().into()
+        );
+        assert_eq!(
+            Inherits::archetype().value_archetype(),
+            Tao::archetype().into()
+        );
     }
 
     #[test]

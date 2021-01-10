@@ -5,16 +5,15 @@ use crate::tao::form::FormTrait;
 use crate::tao::relation::attribute::{OwnerArchetype, ValueArchetype};
 use crate::tao::relation::flag::{Meta, MultiValued, Nonhereditary};
 use crate::tao::Tao;
-use crate::Wrapper;
+use std::ops::{Deref, DerefMut};
 
 /// Archetype functionality that is specific to attribute archetypes.
-pub trait AttributeArchetypeFormTrait<'a>:
-    ArchetypeTrait<'a> + FormTrait + Wrapper<BaseType = FinalNode>
+pub trait AttributeArchetypeFormTrait:
+    ArchetypeTrait + FormTrait + Deref<Target = FinalNode> + DerefMut
 {
     /// Restrict the owners for this type of attribute.
-    fn set_owner_archetype(&mut self, owner_archetype: Archetype) {
-        self.essence_mut()
-            .add_outgoing(OwnerArchetype::TYPE_ID, owner_archetype.essence());
+    fn set_owner_archetype(&mut self, owner_archetype: &Archetype) {
+        self.add_outgoing(OwnerArchetype::TYPE_ID, &owner_archetype);
     }
 
     /// Retrieve the owner type for this type of attribute.
@@ -27,7 +26,6 @@ pub trait AttributeArchetypeFormTrait<'a>:
         // implementation.
         Archetype::from(
             *self
-                .essence()
                 .outgoing_nodes(OwnerArchetype::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
@@ -35,9 +33,8 @@ pub trait AttributeArchetypeFormTrait<'a>:
     }
 
     /// Restrict the values for this type of attribute.
-    fn set_value_archetype(&mut self, value_archetype: Archetype) {
-        self.essence_mut()
-            .add_outgoing(ValueArchetype::TYPE_ID, value_archetype.essence());
+    fn set_value_archetype(&mut self, value_archetype: &Archetype) {
+        self.add_outgoing(ValueArchetype::TYPE_ID, &value_archetype);
     }
 
     /// Retrieve the value type for this type of attribute.
@@ -50,7 +47,6 @@ pub trait AttributeArchetypeFormTrait<'a>:
         // implementation.
         Archetype::from(
             *self
-                .essence()
                 .outgoing_nodes(ValueArchetype::TYPE_ID)
                 .last()
                 .unwrap_or(&FinalNode::from(Tao::TYPE_ID)),
@@ -59,36 +55,36 @@ pub trait AttributeArchetypeFormTrait<'a>:
 
     /// Mark this attribute as non-hereditary.
     fn mark_nonhereditary_attr(&mut self) {
-        self.essence_mut().add_flag(Nonhereditary::TYPE_ID);
+        self.add_flag(Nonhereditary::TYPE_ID);
     }
 
     /// Whether this represents a nonhereditary attribute.
     fn is_nonhereditary_attr(&self) -> bool {
-        self.essence().has_flag(Nonhereditary::TYPE_ID)
+        self.has_flag(Nonhereditary::TYPE_ID)
     }
 
     /// Mark this attribute as meta.
     fn mark_meta_attr(&mut self) {
-        self.essence_mut().add_flag(Meta::TYPE_ID);
+        self.add_flag(Meta::TYPE_ID);
     }
 
     /// Whether this represents a meta attribute.
     fn is_meta_attr(&self) -> bool {
-        self.essence().has_flag(Meta::TYPE_ID)
+        self.has_flag(Meta::TYPE_ID)
     }
 
     /// Mark this attribute as accepting multiple values.
     fn mark_multi_valued_attr(&mut self) {
-        self.essence_mut().add_flag(MultiValued::TYPE_ID);
+        self.add_flag(MultiValued::TYPE_ID);
     }
 
     /// Whether this represents a multi-valued attribute.
     fn is_multi_valued_attr(&self) -> bool {
-        self.essence().has_flag(MultiValued::TYPE_ID)
+        self.has_flag(MultiValued::TYPE_ID)
     }
 }
 
-impl<'a> AttributeArchetypeFormTrait<'a> for AttributeArchetype {}
+impl AttributeArchetypeFormTrait for AttributeArchetype {}
 
 #[cfg(test)]
 mod tests {
@@ -106,7 +102,7 @@ mod tests {
         assert_eq!(attr_type2.owner_archetype(), Tao::archetype());
 
         // owners should now be restricted to Attributes as opposed to Tao
-        attr_type1.set_owner_archetype(Attribute::archetype().into());
+        attr_type1.set_owner_archetype(&Attribute::archetype().into());
         assert_eq!(attr_type2.owner_archetype(), Attribute::archetype().into());
     }
 
@@ -118,7 +114,7 @@ mod tests {
         assert_eq!(attr_type2.value_archetype(), Tao::archetype());
 
         // values should now be restricted to Attributes as opposed to Tao
-        attr_type1.set_value_archetype(Attribute::archetype().into());
+        attr_type1.set_value_archetype(&Attribute::archetype().into());
         assert_eq!(attr_type2.value_archetype(), Attribute::archetype().into());
     }
 

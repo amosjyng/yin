@@ -2,10 +2,10 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::FormTrait;
 use crate::tao::Tao;
-use crate::Wrapper;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// All things that can be interacted with have form.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -41,25 +41,27 @@ impl<'a> TryFrom<&'a str> for Form {
     }
 }
 
-impl Wrapper for Form {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Form {
+impl ArchetypeTrait for Form {
     type ArchetypeForm = Archetype;
     type Form = Form;
 
     const TYPE_ID: usize = 1;
     const TYPE_NAME: &'static str = "form";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
+}
+
+impl Deref for Form {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Form {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
 }
 
 impl FormTrait for Form {}
@@ -83,7 +85,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Form::archetype().id(), Form::TYPE_ID);
         assert_eq!(
-            Form::archetype().internal_name_str(),
+            Form::archetype().internal_name(),
             Some(Rc::from(Form::TYPE_NAME))
         );
     }
@@ -92,7 +94,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Form::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Form::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Form::try_from("B").is_err());
     }
@@ -116,6 +118,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Form::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

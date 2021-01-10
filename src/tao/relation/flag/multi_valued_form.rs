@@ -2,10 +2,12 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::flag::Flag;
-use crate::Wrapper;
+use crate::tao::relation::Relation;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Marks an attribute as having multiple possible values for the same owner.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -41,19 +43,7 @@ impl<'a> TryFrom<&'a str> for MultiValued {
     }
 }
 
-impl Wrapper for MultiValued {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for MultiValued {
+impl ArchetypeTrait for MultiValued {
     type ArchetypeForm = Archetype;
     type Form = MultiValued;
 
@@ -62,7 +52,33 @@ impl<'a> ArchetypeTrait<'a> for MultiValued {
     const PARENT_TYPE_ID: usize = Flag::TYPE_ID;
 }
 
+impl Deref for MultiValued {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for MultiValued {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for MultiValued {}
+
+impl From<MultiValued> for Tao {
+    fn from(this: MultiValued) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<MultiValued> for Relation {
+    fn from(this: MultiValued) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<MultiValued> for Flag {
     fn from(this: MultiValued) -> Flag {
@@ -84,7 +100,7 @@ mod tests {
         initialize_kb();
         assert_eq!(MultiValued::archetype().id(), MultiValued::TYPE_ID);
         assert_eq!(
-            MultiValued::archetype().internal_name_str(),
+            MultiValued::archetype().internal_name(),
             Some(Rc::from(MultiValued::TYPE_NAME))
         );
     }
@@ -93,7 +109,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = MultiValued::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(MultiValued::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(MultiValued::try_from("B").is_err());
     }
@@ -120,6 +136,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = MultiValued::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

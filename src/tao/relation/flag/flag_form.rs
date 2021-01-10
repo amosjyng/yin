@@ -2,10 +2,11 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::Relation;
-use crate::Wrapper;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Represents a unary relation.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -41,19 +42,7 @@ impl<'a> TryFrom<&'a str> for Flag {
     }
 }
 
-impl Wrapper for Flag {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Flag {
+impl ArchetypeTrait for Flag {
     type ArchetypeForm = Archetype;
     type Form = Flag;
 
@@ -62,7 +51,27 @@ impl<'a> ArchetypeTrait<'a> for Flag {
     const PARENT_TYPE_ID: usize = Relation::TYPE_ID;
 }
 
+impl Deref for Flag {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Flag {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for Flag {}
+
+impl From<Flag> for Tao {
+    fn from(this: Flag) -> Tao {
+        Tao::from(this.base)
+    }
+}
 
 impl From<Flag> for Relation {
     fn from(this: Flag) -> Relation {
@@ -84,7 +93,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Flag::archetype().id(), Flag::TYPE_ID);
         assert_eq!(
-            Flag::archetype().internal_name_str(),
+            Flag::archetype().internal_name(),
             Some(Rc::from(Flag::TYPE_NAME))
         );
     }
@@ -93,7 +102,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Flag::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Flag::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Flag::try_from("B").is_err());
     }
@@ -117,6 +126,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Flag::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

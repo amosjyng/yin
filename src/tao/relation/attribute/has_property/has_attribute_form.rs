@@ -2,12 +2,13 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::has_property::HasProperty;
-use crate::tao::relation::attribute::AttributeTrait;
+use crate::tao::relation::attribute::{Attribute, AttributeTrait};
 use crate::tao::relation::Relation;
-use crate::Wrapper;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Describes instances of an archetype as generally having values set for this
 /// attribute.
@@ -44,19 +45,7 @@ impl<'a> TryFrom<&'a str> for HasAttribute {
     }
 }
 
-impl Wrapper for HasAttribute {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for HasAttribute {
+impl ArchetypeTrait for HasAttribute {
     type ArchetypeForm = AttributeArchetype;
     type Form = HasAttribute;
 
@@ -65,7 +54,39 @@ impl<'a> ArchetypeTrait<'a> for HasAttribute {
     const PARENT_TYPE_ID: usize = HasProperty::TYPE_ID;
 }
 
+impl Deref for HasAttribute {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for HasAttribute {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for HasAttribute {}
+
+impl From<HasAttribute> for Tao {
+    fn from(this: HasAttribute) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<HasAttribute> for Relation {
+    fn from(this: HasAttribute) -> Relation {
+        Relation::from(this.base)
+    }
+}
+
+impl From<HasAttribute> for Attribute {
+    fn from(this: HasAttribute) -> Attribute {
+        Attribute::from(this.base)
+    }
+}
 
 impl From<HasAttribute> for HasProperty {
     fn from(this: HasAttribute) -> HasProperty {
@@ -92,7 +113,7 @@ mod tests {
         initialize_kb();
         assert_eq!(HasAttribute::archetype().id(), HasAttribute::TYPE_ID);
         assert_eq!(
-            HasAttribute::archetype().internal_name_str(),
+            HasAttribute::archetype().internal_name(),
             Some(Rc::from(HasAttribute::TYPE_NAME))
         );
     }
@@ -101,7 +122,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = HasAttribute::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(
             HasAttribute::try_from("A").map(|c| c.id()),
             Ok(concept.id())
@@ -131,19 +152,20 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = HasAttribute::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 
     #[test]
+    #[allow(clippy::useless_conversion)]
     fn check_attribute_constraints() {
         initialize_kb();
         assert_eq!(
             HasAttribute::archetype().owner_archetype(),
-            Tao::archetype()
+            Tao::archetype().into()
         );
         assert_eq!(
             HasAttribute::archetype().value_archetype(),
-            Relation::archetype()
+            Relation::archetype().into()
         );
     }
 

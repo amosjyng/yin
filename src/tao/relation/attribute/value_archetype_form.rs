@@ -2,10 +2,12 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::{Attribute, AttributeTrait};
-use crate::Wrapper;
+use crate::tao::relation::Relation;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// The type of value this attribute has. Only the most restrictive inherited
 /// value will be used.
@@ -42,19 +44,7 @@ impl<'a> TryFrom<&'a str> for ValueArchetype {
     }
 }
 
-impl Wrapper for ValueArchetype {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for ValueArchetype {
+impl ArchetypeTrait for ValueArchetype {
     type ArchetypeForm = AttributeArchetype;
     type Form = ValueArchetype;
 
@@ -63,7 +53,33 @@ impl<'a> ArchetypeTrait<'a> for ValueArchetype {
     const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 }
 
+impl Deref for ValueArchetype {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for ValueArchetype {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for ValueArchetype {}
+
+impl From<ValueArchetype> for Tao {
+    fn from(this: ValueArchetype) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<ValueArchetype> for Relation {
+    fn from(this: ValueArchetype) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<ValueArchetype> for Attribute {
     fn from(this: ValueArchetype) -> Attribute {
@@ -90,7 +106,7 @@ mod tests {
         initialize_kb();
         assert_eq!(ValueArchetype::archetype().id(), ValueArchetype::TYPE_ID);
         assert_eq!(
-            ValueArchetype::archetype().internal_name_str(),
+            ValueArchetype::archetype().internal_name(),
             Some(Rc::from(ValueArchetype::TYPE_NAME))
         );
     }
@@ -99,7 +115,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = ValueArchetype::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(
             ValueArchetype::try_from("A").map(|c| c.id()),
             Ok(concept.id())
@@ -129,10 +145,11 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = ValueArchetype::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 
     #[test]
+    #[allow(clippy::useless_conversion)]
     fn check_attribute_constraints() {
         initialize_kb();
         assert_eq!(
@@ -141,7 +158,7 @@ mod tests {
         );
         assert_eq!(
             ValueArchetype::archetype().value_archetype(),
-            Tao::archetype()
+            Tao::archetype().into()
         );
     }
 

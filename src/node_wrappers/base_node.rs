@@ -120,20 +120,12 @@ impl CommonNodeTrait for BaseNode {
         self.id
     }
 
-    fn set_internal_name_str(&mut self, name: &str) {
+    fn set_internal_name(&mut self, name: &str) {
         self.graph.set_node_name(self.id, name);
     }
 
-    fn internal_name_str(&self) -> Option<Rc<str>> {
+    fn internal_name(&self) -> Option<Rc<str>> {
         self.graph.node_name(self.id)
-    }
-
-    fn set_internal_name(&mut self, name: String) {
-        self.set_internal_name_str(&name);
-    }
-
-    fn internal_name(&self) -> Option<Rc<String>> {
-        self.internal_name_str().map(|s| Rc::new((*s).to_owned()))
     }
 }
 
@@ -217,7 +209,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut node = BaseNode::new();
-        node.set_internal_name_str("A");
+        node.set_internal_name("A");
         assert_eq!(BaseNode::try_from("A"), Ok(node));
         assert!(BaseNode::try_from("B").is_err());
     }
@@ -226,8 +218,8 @@ mod tests {
     fn create_and_retrieve_node_name() {
         initialize_kb();
         let mut node = BaseNode::new();
-        node.set_internal_name_str("A");
-        assert_eq!(node.internal_name_str(), Some(Rc::from("A")));
+        node.set_internal_name("A");
+        assert_eq!(node.internal_name(), Some(Rc::from("A")));
     }
 
     #[test]

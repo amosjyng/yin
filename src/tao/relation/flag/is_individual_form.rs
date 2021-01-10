@@ -2,10 +2,12 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::FormTrait;
 use crate::tao::relation::flag::Flag;
-use crate::Wrapper;
+use crate::tao::relation::Relation;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Whether or not a concept is an individual, as opposed to an archetype.
 ///
@@ -44,19 +46,7 @@ impl<'a> TryFrom<&'a str> for IsIndividual {
     }
 }
 
-impl Wrapper for IsIndividual {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for IsIndividual {
+impl ArchetypeTrait for IsIndividual {
     type ArchetypeForm = Archetype;
     type Form = IsIndividual;
 
@@ -65,7 +55,33 @@ impl<'a> ArchetypeTrait<'a> for IsIndividual {
     const PARENT_TYPE_ID: usize = Flag::TYPE_ID;
 }
 
+impl Deref for IsIndividual {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for IsIndividual {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for IsIndividual {}
+
+impl From<IsIndividual> for Tao {
+    fn from(this: IsIndividual) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<IsIndividual> for Relation {
+    fn from(this: IsIndividual) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<IsIndividual> for Flag {
     fn from(this: IsIndividual) -> Flag {
@@ -87,7 +103,7 @@ mod tests {
         initialize_kb();
         assert_eq!(IsIndividual::archetype().id(), IsIndividual::TYPE_ID);
         assert_eq!(
-            IsIndividual::archetype().internal_name_str(),
+            IsIndividual::archetype().internal_name(),
             Some(Rc::from(IsIndividual::TYPE_NAME))
         );
     }
@@ -96,7 +112,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = IsIndividual::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(
             IsIndividual::try_from("A").map(|c| c.id()),
             Ok(concept.id())
@@ -126,6 +142,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = IsIndividual::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

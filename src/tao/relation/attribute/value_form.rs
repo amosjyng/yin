@@ -2,10 +2,12 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::{Attribute, AttributeTrait};
-use crate::Wrapper;
+use crate::tao::relation::Relation;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// The value/target/to-node of an attribute.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -41,19 +43,7 @@ impl<'a> TryFrom<&'a str> for Value {
     }
 }
 
-impl Wrapper for Value {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Value {
+impl ArchetypeTrait for Value {
     type ArchetypeForm = AttributeArchetype;
     type Form = Value;
 
@@ -62,7 +52,33 @@ impl<'a> ArchetypeTrait<'a> for Value {
     const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 }
 
+impl Deref for Value {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Value {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for Value {}
+
+impl From<Value> for Tao {
+    fn from(this: Value) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<Value> for Relation {
+    fn from(this: Value) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<Value> for Attribute {
     fn from(this: Value) -> Attribute {
@@ -89,7 +105,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Value::archetype().id(), Value::TYPE_ID);
         assert_eq!(
-            Value::archetype().internal_name_str(),
+            Value::archetype().internal_name(),
             Some(Rc::from(Value::TYPE_NAME))
         );
     }
@@ -98,7 +114,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Value::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Value::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Value::try_from("B").is_err());
     }
@@ -125,17 +141,21 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Value::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 
     #[test]
+    #[allow(clippy::useless_conversion)]
     fn check_attribute_constraints() {
         initialize_kb();
         assert_eq!(
             Value::archetype().owner_archetype(),
             Attribute::archetype().into()
         );
-        assert_eq!(Value::archetype().value_archetype(), Tao::archetype());
+        assert_eq!(
+            Value::archetype().value_archetype(),
+            Tao::archetype().into()
+        );
     }
 
     #[test]

@@ -1,10 +1,12 @@
 use crate::node_wrappers::{debug_wrapper, FinalNode};
-use crate::tao::archetype::{Archetype, ArchetypeTrait};
+use crate::tao::archetype::{Archetype, ArchetypeFormTrait, ArchetypeTrait};
 use crate::tao::form::FormTrait;
-use crate::Wrapper;
+use crate::tao::relation::attribute::Attribute;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Archetype representing attributes.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -40,19 +42,7 @@ impl<'a> TryFrom<&'a str> for AttributeArchetype {
     }
 }
 
-impl Wrapper for AttributeArchetype {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for AttributeArchetype {
+impl ArchetypeTrait for AttributeArchetype {
     type ArchetypeForm = Archetype;
     type Form = AttributeArchetype;
 
@@ -61,12 +51,36 @@ impl<'a> ArchetypeTrait<'a> for AttributeArchetype {
     const PARENT_TYPE_ID: usize = Archetype::TYPE_ID;
 }
 
+impl Deref for AttributeArchetype {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for AttributeArchetype {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for AttributeArchetype {}
+
+impl From<AttributeArchetype> for Tao {
+    fn from(this: AttributeArchetype) -> Tao {
+        Tao::from(this.base)
+    }
+}
 
 impl From<AttributeArchetype> for Archetype {
     fn from(this: AttributeArchetype) -> Archetype {
         Archetype::from(this.base)
     }
+}
+
+impl ArchetypeFormTrait for AttributeArchetype {
+    type SubjectForm = Attribute;
 }
 
 #[cfg(test)]
@@ -85,7 +99,7 @@ mod tests {
             AttributeArchetype::TYPE_ID
         );
         assert_eq!(
-            AttributeArchetype::archetype().internal_name_str(),
+            AttributeArchetype::archetype().internal_name(),
             Some(Rc::from(AttributeArchetype::TYPE_NAME))
         );
     }
@@ -94,7 +108,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = AttributeArchetype::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(
             AttributeArchetype::try_from("A").map(|c| c.id()),
             Ok(concept.id())
@@ -121,6 +135,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = AttributeArchetype::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

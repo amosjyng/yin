@@ -2,10 +2,12 @@ use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::{Attribute, AttributeTrait};
-use crate::Wrapper;
+use crate::tao::relation::Relation;
+use crate::tao::Tao;
 use std::convert::{From, TryFrom};
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// Archetype associated with this form. This differs from parents, because this
 /// defines the form's meta-properties, whereas parents define the form's
@@ -43,19 +45,7 @@ impl<'a> TryFrom<&'a str> for MetaForm {
     }
 }
 
-impl Wrapper for MetaForm {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for MetaForm {
+impl ArchetypeTrait for MetaForm {
     type ArchetypeForm = AttributeArchetype;
     type Form = MetaForm;
 
@@ -64,7 +54,33 @@ impl<'a> ArchetypeTrait<'a> for MetaForm {
     const PARENT_TYPE_ID: usize = Attribute::TYPE_ID;
 }
 
+impl Deref for MetaForm {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for MetaForm {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
+}
+
 impl FormTrait for MetaForm {}
+
+impl From<MetaForm> for Tao {
+    fn from(this: MetaForm) -> Tao {
+        Tao::from(this.base)
+    }
+}
+
+impl From<MetaForm> for Relation {
+    fn from(this: MetaForm) -> Relation {
+        Relation::from(this.base)
+    }
+}
 
 impl From<MetaForm> for Attribute {
     fn from(this: MetaForm) -> Attribute {
@@ -91,7 +107,7 @@ mod tests {
         initialize_kb();
         assert_eq!(MetaForm::archetype().id(), MetaForm::TYPE_ID);
         assert_eq!(
-            MetaForm::archetype().internal_name_str(),
+            MetaForm::archetype().internal_name(),
             Some(Rc::from(MetaForm::TYPE_NAME))
         );
     }
@@ -100,7 +116,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = MetaForm::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(MetaForm::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(MetaForm::try_from("B").is_err());
     }
@@ -127,14 +143,21 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = MetaForm::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 
     #[test]
+    #[allow(clippy::useless_conversion)]
     fn check_attribute_constraints() {
         initialize_kb();
-        assert_eq!(MetaForm::archetype().owner_archetype(), Tao::archetype());
-        assert_eq!(MetaForm::archetype().value_archetype(), Tao::archetype());
+        assert_eq!(
+            MetaForm::archetype().owner_archetype(),
+            Tao::archetype().into()
+        );
+        assert_eq!(
+            MetaForm::archetype().value_archetype(),
+            Tao::archetype().into()
+        );
     }
 
     #[test]

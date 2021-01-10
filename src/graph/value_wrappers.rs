@@ -31,7 +31,7 @@ pub trait KBValue: Any {
 ///     guaranteed to return a value even if there was originally one associated with the node.
 ///
 /// This function encapsulates all of the above into one simpler return value.
-pub fn unwrap_value<'a, T: 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
+pub fn unwrap_value<'a, T: ?Sized + 'a>(wrapper: Option<Rc<dyn KBValue + 'a>>) -> Option<Rc<T>> {
     wrapper
         .map(|v| {
             let any_value = v.as_any();
@@ -74,11 +74,11 @@ macro_rules! define_closure {
 
 /// KBValue for weak references to data.
 #[derive(Debug)]
-pub struct WeakValue<T: Any> {
+pub struct WeakValue<T: ?Sized> {
     item: Weak<T>,
 }
 
-impl<T: Any> WeakValue<T> {
+impl<T: ?Sized> WeakValue<T> {
     /// Create a new KB wrapper that contains a weak reference to the given data.
     pub fn new(rc: &Rc<T>) -> Self {
         WeakValue {
@@ -93,7 +93,7 @@ impl<T: Any> WeakValue<T> {
     }
 }
 
-impl<'a, T: Any + 'static> KBValue for WeakValue<T> {
+impl<'a, T: ?Sized + 'static> KBValue for WeakValue<T> {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -101,7 +101,7 @@ impl<'a, T: Any + 'static> KBValue for WeakValue<T> {
 
 /// KBValue for owned immutable data.
 #[derive(Debug)]
-pub struct StrongValue<T: Any> {
+pub struct StrongValue<T: ?Sized> {
     item: Rc<T>,
 }
 
@@ -110,6 +110,13 @@ impl<T: Any> StrongValue<T> {
     pub fn new(t: T) -> Self {
         StrongValue { item: Rc::new(t) }
     }
+}
+
+impl<T: ?Sized> StrongValue<T> {
+    /// Create a new KB wrapper that owns the given data.
+    pub fn new_rc(rc: Rc<T>) -> Self {
+        StrongValue { item: rc }
+    }
 
     /// Get value that this wrapper owns. Guaranteed to still exist because the KB owns this data.
     pub fn value(&self) -> Rc<T> {
@@ -117,7 +124,7 @@ impl<T: Any> StrongValue<T> {
     }
 }
 
-impl<'a, T: Any + 'static> KBValue for StrongValue<T> {
+impl<'a, T: ?Sized + 'static> KBValue for StrongValue<T> {
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -164,7 +171,7 @@ mod tests {
         initialize_kb();
         let i = Inherits::archetype();
         let kb_result: Option<Rc<dyn KBValue>> = Some(define_closure!(|t: Form| {
-            Box::new(t.internal_name_str().unwrap())
+            Box::new(t.internal_name().unwrap())
         }));
         assert_eq!(
             run_closure::<Rc<str>>(&kb_result, i.as_form()),

@@ -1,11 +1,10 @@
 use crate::graph::{Graph, InjectionGraph};
 use crate::initialize_type;
 use crate::tao::archetype::{Archetype, ArchetypeTrait, AttributeArchetype};
-use crate::tao::form::data::{Data, Number, StringConcept};
 use crate::tao::form::Form;
 use crate::tao::relation::attribute::has_property::{HasAttribute, HasFlag, HasProperty};
 use crate::tao::relation::attribute::{
-    Attribute, DefaultValue, Inherits, MetaForm, Owner, OwnerArchetype, Value, ValueArchetype,
+    Attribute, Inherits, MetaForm, Owner, OwnerArchetype, Value, ValueArchetype,
 };
 use crate::tao::relation::flag::{Flag, IsIndividual, Meta, MultiValued, Nonhereditary};
 use crate::tao::relation::Relation;
@@ -13,7 +12,7 @@ use crate::tao::Tao;
 
 /// The maximum concept ID inside the types distributed by Yin itself. App-
 /// specific type concepts should continue their numbering on top of this.
-pub const YIN_MAX_ID: usize = 23;
+pub const YIN_MAX_ID: usize = 19;
 
 /// Adds all concepts to knowledge graph.
 pub fn initialize_types() {
@@ -41,13 +40,10 @@ pub fn initialize_types() {
             Nonhereditary,
             Meta,
             MultiValued,
-            IsIndividual,
-            Data,
-            StringConcept,
-            Number,
-            DefaultValue
+            IsIndividual
         )
     );
+    ig.add_edge(Relation::TYPE_ID, HasFlag::TYPE_ID, Nonhereditary::TYPE_ID);
     ig.add_edge(Relation::TYPE_ID, HasAttribute::TYPE_ID, Owner::TYPE_ID);
     ig.add_edge(Relation::TYPE_ID, OwnerArchetype::TYPE_ID, Tao::TYPE_ID);
     ig.add_edge(Attribute::TYPE_ID, HasAttribute::TYPE_ID, Value::TYPE_ID);
@@ -68,6 +64,11 @@ pub fn initialize_types() {
         ValueArchetype::TYPE_ID,
         OwnerArchetype::TYPE_ID,
         Attribute::TYPE_ID,
+    );
+    ig.add_edge(
+        Nonhereditary::TYPE_ID,
+        OwnerArchetype::TYPE_ID,
+        Relation::TYPE_ID,
     );
 }
 

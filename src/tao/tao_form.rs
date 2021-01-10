@@ -1,10 +1,10 @@
 use crate::node_wrappers::{debug_wrapper, FinalNode};
 use crate::tao::archetype::{Archetype, ArchetypeTrait};
 use crate::tao::form::Form;
-use crate::Wrapper;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
+use std::ops::{Deref, DerefMut};
 
 /// The root node of all knowledge.
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -40,25 +40,27 @@ impl<'a> TryFrom<&'a str> for Tao {
     }
 }
 
-impl Wrapper for Tao {
-    type BaseType = FinalNode;
-
-    fn essence(&self) -> &FinalNode {
-        &self.base
-    }
-
-    fn essence_mut(&mut self) -> &mut FinalNode {
-        &mut self.base
-    }
-}
-
-impl<'a> ArchetypeTrait<'a> for Tao {
+impl ArchetypeTrait for Tao {
     type ArchetypeForm = Archetype;
     type Form = Form;
 
     const TYPE_ID: usize = 0;
     const TYPE_NAME: &'static str = "tao";
     const PARENT_TYPE_ID: usize = Tao::TYPE_ID;
+}
+
+impl Deref for Tao {
+    type Target = FinalNode;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Tao {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
 }
 
 #[cfg(test)]
@@ -74,7 +76,7 @@ mod tests {
         initialize_kb();
         assert_eq!(Tao::archetype().id(), Tao::TYPE_ID);
         assert_eq!(
-            Tao::archetype().internal_name_str(),
+            Tao::archetype().internal_name(),
             Some(Rc::from(Tao::TYPE_NAME))
         );
     }
@@ -83,7 +85,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut concept = Tao::new();
-        concept.set_internal_name_str("A");
+        concept.set_internal_name("A");
         assert_eq!(Tao::try_from("A").map(|c| c.id()), Ok(concept.id()));
         assert!(Tao::try_from("B").is_err());
     }
@@ -107,6 +109,6 @@ mod tests {
     fn test_wrapper_implemented() {
         initialize_kb();
         let concept = Tao::new();
-        assert_eq!(concept.essence(), &FinalNode::from(concept.id()));
+        assert_eq!(concept.deref(), &FinalNode::from(concept.id()));
     }
 }

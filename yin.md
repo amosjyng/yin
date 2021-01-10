@@ -194,6 +194,12 @@ define!(
     archetype,
     "Represents patterns found across an entire class of concepts."
 );
+
+tao.set_meta_archetype(&archetype);
+form.set_meta_archetype(&archetype);
+let mut archetype_node = KnowledgeGraphNode::from(archetype.id());
+archetype_node.mark_root_archetype_analogue();
+archetype_node.mark_archetype_analogue();
 ```
 
 Then, we can assign meta-properties to a *type*, such as Attribute, rather than any specific instance of that type. For example, it makes sense to ask what the type of owner is for the Value attribute. It will be another attribute. Even though every instance of Value can have a different specific owner, they should all have owners that are attributes.
@@ -206,7 +212,11 @@ define_child!(
     archetype,
     "Archetype representing attributes."
 );
+
+attribute.set_meta_archetype(&attribute_archetype);
 ```
+
+This should reuse the default meta-definition functionality, but due to a current lack of autogeneation support for backwards-compatibility, we will manually define the meta-ness of attributes here.
 
 This can only be used to represent *attribute* archetypes, so unlike `Archetype` (which can represent all archetypes, including its own archetype, because it's an archetype too), `AttributeArchetype` is not an attribute and therefore it cannot implement `AttributeTrait`, and cannot be used to represent its own archetype.
 
@@ -231,10 +241,11 @@ A type's meta will inherit from the type's parents' metas. Meta objects effectiv
 Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
 
 ```rust
-define_child!(
-    nonhereditary,
-    flag,
-    "Marks a property as not behing inherited."
+add_flag!(
+    nonhereditary <= flag,
+    relation,
+    "Marks a property as not behing inherited.",
+    "representing a nonhereditary property."
 );
 ```
 
@@ -292,84 +303,22 @@ define_child!(
 );
 ```
 
-### Data
-
-One archetype type to look at is `Data`, perhaps roughly analogous to the linguistic concept of a "noun." What do we generally start out describing as nouns? Physical objects in the physical world.
-
-Now, not every noun corresponds directly to something physical. We have words that refer to mental states, for example. But even emotions appear to ultimately be an emergent phenomenon of lower-level physics. Even the [is-ought problem](https://en.wikipedia.org/wiki/Is%E2%80%93ought_problem) or [fact-value distinction](https://en.wikipedia.org/wiki/Fact%E2%80%93value_distinction) are, in a sense, not quite as dichotomous as they might seem: all "ought" opinions that have ever existed are encoded in some "is," whether that encoding takes the form of neural patterns, ink on a parchment, or sound waves propagating through the air. This doesn't mean that the general distinction between "is" and "ought" isn't worth making, or that nouns should be done away with. All abstractions are [leaky](https://blog.codinghorror.com/all-abstractions-are-failed-abstractions/), but [some are useful](https://en.wikipedia.org/wiki/All_models_are_wrong).
-
-The same can be said for the bits in Yin and Yang's world. Everything is ultimately bits for these programs -- even a video feed hooked up to the physical world only ever comes in as a stream of bits. If we really wanted to fool a program, it should be theoretically impossible for the program [to tell](https://en.wikipedia.org/wiki/Brain_in_a_vat) that it's actually running in a hermetically sealed continuous integration test environment instead of production. But it still makes sense to speak of pieces of data versus the relations between the data, even if the relations themselves can rightfully be considered data as well:
-
-```rust
-define_child!(
-    data,
-    form,
-    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
-);
-```
-
-In a sense, it's all about framing. Every series of bits forms a number, but unless you're Gödel and you're trying to establish an equivalence between a mathematical proof and an integer, reasoning about "a series of bits" is going to be quite different from reasoning about "a number."
-
-One type of data is a "string":
-
-```rust
-define_child!(
-    string_concept,
-    data,
-    "The concept of a string of characters."
-);
-```
-
-Another type of data is a number:
-
-```rust
-define_child!(
-    number,
-    data,
-    "The concept of numbers."
-);
-```
-
-Every type of data usually has a "default" value that we think of when constructing one from scratch.
-
-```rust
-define_child!(
-    default_value,
-    attribute,
-    "The default value of a data structure."
-);
-```
-
-For strings, this would be the empty string:
-
-```rust
-string_concept.set_default_value("String::new()");
-```
-
-For numbers, this would be zero:
-
-```rust
-number.set_default_value("0");
-```
-
 ### Implementation
 
 Theory is all good and well. But [Yang](https://github.com/amosjyng/yang/blob/main/yin.md) the code generator does not know what is background knowledge and what is, shall we say, "foreground" knowledge. Knowledge that we should actually act on within the scope of a particular project. Since the current project is bringing Yin down to earth, every single concept we mention here will be marked for implementation. Let's start with the first attribute we mentioned:
 
 ```rust
-tao.activate_root_node_logic();
+KnowledgeGraphNode::from(tao.id()).mark_root_analogue();
 ```
 
 Excellent, your reflexes work just as well at execution as they do at parsing! Let's implement the rest of what we've learned:
 
 ```rust
+BuildInfo::from(form.id()).mark_own_module();
 module!(
     form,
     "Concept forms, as opposed to archetypes.",
-    [
-        "form_trait::FormTrait",
-        "form_extension::FormExtension"
-    ]
+    ["form_trait::FormTrait"]
 );
 module!(relation, "Relations between the forms.");
 module!(flag, "Relations involving only one form.");
@@ -388,24 +337,9 @@ module!(
     [
         "archetype_trait::ArchetypeTrait",
         "archetype_form_trait::ArchetypeFormTrait",
-        "archetype_form_extension_trait::ArchetypeFormExtensionTrait",
         "attribute_archetype_form_trait::AttributeArchetypeFormTrait"
     ]
 );
-module!(
-    data,
-    "Data that actually exist concretely as bits on the machine, as opposed to only existing as a hypothetical, as an idea."
-);
-```
-
-When it comes to data, we should also tell Yang which Rust primitives these concepts refer to:
-
-```rust
-KnowledgeGraphNode::from(string_concept.id()).mark_data_analogue();
-string_concept.set_rust_primitive("String");
-
-KnowledgeGraphNode::from(number.id()).mark_data_analogue();
-number.set_rust_primitive("usize");
 ```
 
 ## Appendix
@@ -415,14 +349,14 @@ number.set_rust_primitive("usize");
 This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.7"
+zamm_yang = "0.1.10"
 ```
 
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:
 
 ```rust
-Crate::yin().set_version("0.1.4");
-Crate::yang().set_version("0.1.7");
+Crate::yin().set_version("0.2.0");
+Crate::yang().set_version("0.1.9");
 ```
 
 We should also let him know what our current crate name is. There is as of yet no way to let him know that this is the same crate as the `Crate::yin()` mentioned above.
@@ -436,21 +370,23 @@ Crate::current().set_implementation_name("zamm_yin");
 These are the generic imports for general Yang generation:
 
 ```rust
+use zamm_yang::add_flag;
 use zamm_yang::define;
 use zamm_yang::define_child;
 use zamm_yang::module;
 use zamm_yang::tao::initialize_kb;
+use zamm_yang::tao::ImplementExtension;
 use zamm_yang::tao::Tao;
-use zamm_yang::tao::archetype::CodegenFlags;
 use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::archetype::ArchetypeTrait;
 use zamm_yang::tao::archetype::ArchetypeFormTrait;
+use zamm_yang::tao::archetype::ArchetypeFormExtensionTrait;
 use zamm_yang::tao::archetype::AttributeArchetypeFormTrait;
 use zamm_yang::tao::form::Crate;
 use zamm_yang::tao::form::CrateExtension;
 use zamm_yang::tao::form::FormTrait;
 use zamm_yang::tao::form::ModuleExtension;
-use zamm_yang::tao::form::data::DataExtension;
+use zamm_yang::tao::perspective::BuildInfo;
 use zamm_yang::tao::perspective::KnowledgeGraphNode;
 use zamm_yang::node_wrappers::CommonNodeTrait;
 use zamm_yang::codegen::CodegenConfig;
