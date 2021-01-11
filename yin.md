@@ -149,8 +149,8 @@ define_child!(
 Now we go back and set this property for the relations:
 
 ```rust
-relation.add_attribute(aa(owner));
-attribute.add_attribute(aa(value));
+relation.add_attribute(&aa(owner));
+attribute.add_attribute(&aa(value));
 ```
 
 Now we can say that unary relations, binary relations, and all the n-ary relations where n > 1, all have owners. While we should theoretically exclude 0-ary relations from this, we will instead delegate all reasoning about 0-ary relations to Form, so that we can simply ascribe the "owner" property to all relations.
@@ -163,24 +163,24 @@ define_child!(
     attribute,
     "The type of owner this attribute has. Only the most restrictive inherited value will be used."
 );
-aa(owner_archetype).set_owner_archetype(relation);
+aa(owner_archetype).set_owner_archetype(&relation);
 
 define_child!(
     value_archetype,
     attribute,
     "The type of value this attribute has. Only the most restrictive inherited value will be used."
 );
-aa(value_archetype).set_owner_archetype(attribute);
+aa(value_archetype).set_owner_archetype(&attribute);
 ```
 
 As you can see, even `OwnerArchetype` and `ValueArchetype` have restrictions on their owners. `ValueArchetype` technically also has a restriction on its value (it should only ever be another archetype), but as of now, there's no way to actually specify that restriction. For completeness, let's describe the owner and value types of all the other relations we've defined:
 
 ```rust
-aa(relation).set_owner_archetype(tao);
-aa(attribute).set_value_archetype(tao);
-aa(owner).set_owner_archetype(relation);
-aa(value).set_owner_archetype(attribute);
-aa(has_property).set_value_archetype(relation);
+aa(relation).set_owner_archetype(&tao);
+aa(attribute).set_value_archetype(&tao);
+aa(owner).set_owner_archetype(&relation);
+aa(value).set_owner_archetype(&attribute);
+aa(has_property).set_value_archetype(&relation);
 ```
 
 Remember that because Attribute inherits from Relation, Attribute also has an owner archetype set to Tao, so we've covered all our tracks here. Every flag and attribute has an owner, every attribute also has a value, and some attributes only apply to other attributes.
@@ -349,14 +349,14 @@ module!(
 This is the version of Yang used to make this build happen:
 
 ```toml
-zamm_yang = "0.1.10"
+zamm_yang = "0.2.0"
 ```
 
 Yang does his best to be backwards-compatible, so we should let him know that we're new here:
 
 ```rust
 Crate::yin().set_version("0.2.0");
-Crate::yang().set_version("0.1.9");
+Crate::yang().set_version("0.2.0");
 ```
 
 We should also let him know what our current crate name is. There is as of yet no way to let him know that this is the same crate as the `Crate::yin()` mentioned above.
@@ -380,7 +380,6 @@ use zamm_yang::tao::Tao;
 use zamm_yang::tao::archetype::CreateImplementation;
 use zamm_yang::tao::archetype::ArchetypeTrait;
 use zamm_yang::tao::archetype::ArchetypeFormTrait;
-use zamm_yang::tao::archetype::ArchetypeFormExtensionTrait;
 use zamm_yang::tao::archetype::AttributeArchetypeFormTrait;
 use zamm_yang::tao::form::Crate;
 use zamm_yang::tao::form::CrateExtension;
