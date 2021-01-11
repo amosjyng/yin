@@ -4,11 +4,11 @@ mod base_node;
 mod final_node;
 mod inheritance_node;
 
-use crate::Wrapper;
 pub use base_node::{BaseNode, BaseNodeTrait};
 pub use final_node::FinalNode;
 pub use inheritance_node::{InheritanceNode, InheritanceNodeTrait};
 use std::fmt::{Formatter, Result};
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 /// All wrappers around a graph node will have these functions available.
@@ -17,27 +17,27 @@ pub trait CommonNodeTrait {
     fn id(&self) -> usize;
 
     /// Associate this concept with an internal name. The name does not need to be unique.
-    fn set_internal_name(&mut self, name: String);
+    fn set_internal_name(&mut self, name: &str);
 
     /// The internal name that's associated with this concept, if one exists.
-    fn internal_name(&self) -> Option<Rc<String>>;
+    fn internal_name(&self) -> Option<Rc<str>>;
 }
 
 impl<T> CommonNodeTrait for T
 where
-    T: Wrapper,
-    T::BaseType: CommonNodeTrait,
+    T: Deref + DerefMut,
+    T::Target: CommonNodeTrait,
 {
     fn id(&self) -> usize {
-        self.essence().id()
+        (**self).id()
     }
 
-    fn set_internal_name(&mut self, name: String) {
-        self.essence_mut().set_internal_name(name);
+    fn set_internal_name(&mut self, name: &str) {
+        (**self).set_internal_name(name);
     }
 
-    fn internal_name(&self) -> Option<Rc<String>> {
-        self.essence().internal_name()
+    fn internal_name(&self) -> Option<Rc<str>> {
+        (**self).internal_name()
     }
 }
 
@@ -54,28 +54,6 @@ mod tests {
     use super::*;
     use crate::tao::initialize_kb;
 
-    struct TestNodeWrapper {
-        actual: BaseNode,
-    }
-
-    impl From<BaseNode> for TestNodeWrapper {
-        fn from(actual: BaseNode) -> Self {
-            Self { actual }
-        }
-    }
-
-    impl Wrapper for TestNodeWrapper {
-        type BaseType = BaseNode;
-
-        fn essence(&self) -> &BaseNode {
-            &self.actual
-        }
-
-        fn essence_mut(&mut self) -> &mut BaseNode {
-            &mut self.actual
-        }
-    }
-
     #[test]
     fn create_and_retrieve_node_id() {
         initialize_kb();
@@ -88,7 +66,7 @@ mod tests {
     fn create_and_retrieve_node_name() {
         initialize_kb();
         let mut concept = BaseNode::new();
-        concept.set_internal_name("A".to_string());
-        assert_eq!(concept.internal_name(), Some(Rc::new("A".to_string())));
+        concept.set_internal_name("A");
+        assert_eq!(concept.internal_name(), Some(Rc::from("A")));
     }
 }

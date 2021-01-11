@@ -17,7 +17,7 @@
 //!     assert!(concept.has_ancestor(Form::archetype()));
 //!
 //!     // Set a name for the concept
-//!     concept.set_internal_name("Hello, world.".to_string());
+//!     concept.set_internal_name("Hello, world.");
 //!     println!("{}", concept.internal_name().unwrap());
 //! }
 //! ```
@@ -28,6 +28,3 @@
 pub mod graph;
 pub mod node_wrappers;
 pub mod tao;
-mod wrapper;
-
-pub use wrapper::Wrapper;

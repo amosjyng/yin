@@ -1,11 +1,11 @@
 use super::{debug_wrapper, BaseNode, BaseNodeTrait, InheritanceNode, InheritanceNodeTrait};
 use crate::graph::value_wrappers::KBValue;
-use crate::Wrapper;
 use std::cmp::{Eq, PartialEq};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 use std::hash::Hash;
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 /// Final node wrapper that offers a stable API for all concept abstractions dependent on it.
@@ -75,14 +75,16 @@ impl Debug for FinalNode {
     }
 }
 
-impl Wrapper for FinalNode {
-    type BaseType = InheritanceNode;
+impl Deref for FinalNode {
+    type Target = InheritanceNode;
 
-    fn essence(&self) -> &Self::BaseType {
+    fn deref(&self) -> &Self::Target {
         &self.inode
     }
+}
 
-    fn essence_mut(&mut self) -> &mut Self::BaseType {
+impl DerefMut for FinalNode {
+    fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inode
     }
 }
@@ -168,7 +170,7 @@ mod tests {
     fn from_name() {
         initialize_kb();
         let mut node = FinalNode::new();
-        node.set_internal_name("A".to_string());
+        node.set_internal_name("A");
         assert_eq!(FinalNode::try_from("A"), Ok(node));
         assert!(FinalNode::try_from("B").is_err());
     }

@@ -1,17 +1,19 @@
-use crate::node_wrappers::FinalNode;
-use crate::tao::form::FormTrait;
-use std::convert::TryFrom;
+use crate::node_wrappers::{CommonNodeTrait, FinalNode};
+use crate::tao::form::{Form, FormTrait};
+use std::ops::Deref;
 
 /// Implement for static access to archetype metadata and typed individuation (individuation
 /// through the archetype will return a more generic result than might be desired).
-pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> + Ord {
+pub trait ArchetypeTrait:
+    From<usize> + From<FinalNode> + Ord + Deref<Target = FinalNode>
+{
     /// The Form that will be used to reason about this node and its children as archetypes and
     /// subtypes.
-    type ArchetypeForm: ArchetypeTrait<'a> + FormTrait;
+    type ArchetypeForm: ArchetypeTrait + FormTrait + From<usize>;
     /// The Form that will be used to reason about this node's leaves as individuals. Unless you
     /// are the Tao, this should be the same as the type that `ArchetypeTrait` is being implemented
     /// on.
-    type Form: ArchetypeTrait<'a> + FormTrait;
+    type Form: ArchetypeTrait + FormTrait;
 
     /// The ID for this archetype.
     const TYPE_ID: usize;
@@ -22,7 +24,8 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
     /// The default parent this archetype inherits from. Every archetype should have at least one
     /// parent, so that it doesn't live in a separate universe of its own. This helps enforce that,
     /// since allocations are not allowed in Rust constants.
-    const PARENT_TYPE_ID: usize;
+    const PARENT_TYPE_ID: usize; // todo: deprecate this in favor of manual parent link
+                                 // initialization
 
     /// The incarnation of this archetype as a form.
     fn archetype() -> Self::ArchetypeForm {
@@ -44,7 +47,10 @@ pub trait ArchetypeTrait<'a>: From<usize> + From<FinalNode> + TryFrom<&'a str> +
     /// Self and Other. The time has come to stroke the ego, to stand out from the rest of the
     /// world as a unique individual engaging in the act of self-realization.
     fn new() -> Self::Form {
-        Self::Form::from(FinalNode::new_with_inheritance(Self::TYPE_ID))
+        let result = Self::Form::from(FinalNode::new_with_inheritance(Self::TYPE_ID));
+        // todo: require FormExtension on Self::Form after it's implemented everywhere
+        Form::from(result.id()).mark_individual();
+        result
     }
 }
 

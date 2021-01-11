@@ -41,8 +41,8 @@
 //! # let a_id = g.add_node();
 //! use std::rc::Rc;
 //!
-//! g.set_node_name(a_id, "A".to_string());
-//! assert_eq!(g.node_name(a_id), Some(Rc::new("A".to_string())));
+//! g.set_node_name(a_id, "A");
+//! assert_eq!(g.node_name(a_id), Some(Rc::from("A")));
 //! ```
 //!
 //! We can also set a value for the node. We use `Rc` here because Yin being the map and not the
@@ -106,7 +106,6 @@
 //! # use std::rc::Rc;
 //! # bind_in_memory_graph();
 //! # let mut g = InjectionGraph::new();
-//! use zamm_yin::Wrapper;
 //! use zamm_yin::tao::archetype::ArchetypeTrait;
 //! use zamm_yin::tao::form::{Form, FormTrait};
 //! use zamm_yin::graph::value_wrappers::{run_closure, StrongValue, KBClosure};
@@ -121,7 +120,7 @@
 //!
 //! let mut triple_id = g.add_node();
 //! g.set_node_value(triple_id, define_closure!(|t: Form| {
-//!     Box::new(*unwrap_value::<i64>(t.essence().value()).unwrap() * 3)
+//!     Box::new(*unwrap_value::<i64>(t.value()).unwrap() * 3)
 //! }));
 //! assert_eq!(
 //!     run_closure::<i64>(&g.node_value(triple_id), Form::from(count_id)),
@@ -164,13 +163,13 @@ pub trait Graph {
     fn add_node(&mut self) -> usize;
 
     /// Sets the name for a given node. Names can only be set once.
-    fn set_node_name(&mut self, id: usize, name: String);
+    fn set_node_name(&mut self, id: usize, name: &str);
 
     /// Sets the value for a given node. Values can only be set once.
     fn set_node_value(&mut self, id: usize, value: Rc<dyn KBValue>);
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or is unnamed.
-    fn node_name(&self, id: usize) -> Option<Rc<String>>;
+    fn node_name(&self, id: usize) -> Option<Rc<str>>;
 
     /// Retrieve's a node's name from the graph, or None if the node does not exist or does not
     /// have a value.
