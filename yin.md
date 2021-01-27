@@ -151,6 +151,11 @@ Now we go back and set this property for the relations:
 ```rust
 relation.add_attribute(&aa(owner));
 attribute.add_attribute(&aa(value));
+
+let mut owner_impl = owner.accessor_implementation().unwrap();
+owner_impl.set_dual_purpose_documentation("the owner for this attribute.");
+let mut value_impl = value.accessor_implementation().unwrap();
+value_impl.set_dual_purpose_documentation("the value for this attribute.");
 ```
 
 Now we can say that unary relations, binary relations, and all the n-ary relations where n > 1, all have owners. While we should theoretically exclude 0-ary relations from this, we will instead delegate all reasoning about 0-ary relations to Form, so that we can simply ascribe the "owner" property to all relations.
@@ -207,13 +212,7 @@ Then, we can assign meta-properties to a *type*, such as Attribute, rather than 
 The type of owner that exists for the Value attribute is actually a property that only makes sense for attribute archetypes, since other archetypes won't even have a Value attribute. As such, we should define a separate archetype for attributes specifically:
 
 ```rust
-define_child!(
-    attribute_archetype,
-    archetype,
-    "Archetype representing attributes."
-);
-
-attribute.set_meta_archetype(&attribute_archetype);
+let attribute_archetype = attribute.specific_meta();
 ```
 
 This should reuse the default meta-definition functionality, but due to a current lack of autogeneation support for backwards-compatibility, we will manually define the meta-ness of attributes here.
@@ -241,9 +240,10 @@ A type's meta will inherit from the type's parents' metas. Meta objects effectiv
 Not all properties should get inherited. We should make a note of the properties that are nonhereditary:
 
 ```rust
+let mut relation_meta = relation.specific_meta();
 add_flag!(
     nonhereditary <= flag,
-    relation,
+    relation_meta,
     "Marks a property as not behing inherited.",
     "representing a nonhereditary property."
 );
@@ -327,6 +327,9 @@ module!(
     "Relations between two forms.",
     ["attribute_trait::AttributeTrait"]
 );
+let attr_trait = attribute.impl_trait();
+BuildInfo::from(attr_trait.id()).set_implementation_name("AutoAttributeTrait");
+
 module!(
     has_property,
     "Meta-attributes around what attributes instances of an archetype have."
