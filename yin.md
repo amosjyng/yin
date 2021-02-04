@@ -279,6 +279,20 @@ define_child!(
 
 Technically a flag could be repeated multiple times for the same owner too, but because that's identical to having a single flag, this property is meaningless for flags. Alternatively, a repeated flag for the same owner is like a repeated attribute for the same owner-value pair: it all collapses down to one.
 
+A generic form may have attributes, as defined by its meta archetype. The values for these attributes will be of a certain archetype. We should define a relation for this as well. Note that under the hood, this is actually the same as `value_archetype` in the vast majority of cases. However, `owner_archetype` and `value_archetype` go together as a pair in the context of binary relationships. We're currently looking at this from the perspective of a generic "object," equivalent to an n-ary relationship, in which case both `owner_archetype` and `value_archetype` collapse into a generic meta-getter for the archetype associated with the nth item in the n-ary relationship.
+
+In other words, there needs to be *some* way of representing the relationship between `owner` and `owner_archetype`, and `value` and `value_archetype`. We cannot reuse `value_archetype` in this specific case because `value` can take on any form and `value_archetype` can take on any `archetype`. Therefore, the `value_archetype` of `value` is `form`, and the `value_archetype` of `value_archetype` is `archetype`, so there must be a separate relation `X` such that the `X` of `value` is `value_archetype`.
+
+In the most generic case, the `X` of any attribute `Y` must be the same as the `value_archetype` of Y. However, subtypes that inherit the attribute `Y` may have their own restrictions on possible values attached to `Y`. For example, a generic predator has generic prey. Once we've narrowed down the topic to a specific predator, we will know that we are talking about specific species of prey. Therefore, there needs to be a separate attribute that's tied to the meta-object and not the attribute.
+
+```rust
+define_child!(
+    attribute_form_archetype,
+    attribute,
+    "Designates an archetype for the values of an object's attributes."
+);
+```
+
 #### Individuation
 
 What exactly differentiates an archetype without subtypes from an individual? It's not just the inheritance relation -- individuals aren't necessarily leaves in the inheritance chain. Maybe you want to say "Script `B` does the same exact thing as script `A`, except that it pings server `D` instead of server `C`." Now, every change to script `A` also gets inherited by script `B`, even though both of them are individual scripts in their own right. Whether this could be better represented by both `A` and `B` referencing some behavior in common, or by combining the two into a single script with the server IP as a parameter, are irrelevant implementation details. What matters is that it is a valid idea that is readily understood by a human.

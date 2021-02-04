@@ -1,8 +1,8 @@
 use super::{Archetype, AttributeArchetype};
-use crate::node_wrappers::{BaseNodeTrait, FinalNode};
+use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
 use crate::tao::archetype::ArchetypeTrait;
 use crate::tao::form::FormTrait;
-use crate::tao::relation::attribute::{OwnerArchetype, ValueArchetype};
+use crate::tao::relation::attribute::{AttributeFormArchetype, OwnerArchetype, ValueArchetype};
 use crate::tao::relation::flag::{Meta, MultiValued, Nonhereditary};
 use crate::tao::Tao;
 use std::ops::{Deref, DerefMut};
@@ -82,6 +82,21 @@ pub trait AttributeArchetypeFormTrait:
     fn is_multi_valued_attr(&self) -> bool {
         self.has_flag(MultiValued::TYPE_ID)
     }
+
+    /// Set the attribute that overrides the attribute value archetype for a particular form.
+    fn set_attribute_form_archetype_override(
+        &mut self,
+        attribute_archetype_form: &AttributeArchetype,
+    ) {
+        self.add_outgoing(AttributeFormArchetype::TYPE_ID, &attribute_archetype_form)
+    }
+
+    /// Get the attribute that overrides the attribute value archetype for a particular form.
+    fn attribute_form_archetype_override(&self) -> Option<AttributeArchetype> {
+        self.outgoing_nodes(AttributeFormArchetype::TYPE_ID)
+            .last()
+            .map(|x| AttributeArchetype::from(x.id()))
+    }
 }
 
 impl AttributeArchetypeFormTrait for AttributeArchetype {}
@@ -157,5 +172,19 @@ mod tests {
 
         new_type.mark_multi_valued_attr();
         assert!(new_type.is_multi_valued_attr());
+    }
+
+    #[test]
+    fn test_set_attribute_form_archetype() {
+        initialize_kb();
+        let mut attr_type = Attribute::archetype().individuate_as_archetype();
+        let attr_type_form_type = Attribute::archetype().individuate_as_archetype();
+        assert_eq!(attr_type.attribute_form_archetype_override(), None);
+
+        attr_type.set_attribute_form_archetype_override(&attr_type_form_type);
+        assert_eq!(
+            attr_type.attribute_form_archetype_override(),
+            Some(attr_type_form_type)
+        );
     }
 }
