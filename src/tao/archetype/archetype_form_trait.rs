@@ -1,6 +1,6 @@
 use super::Archetype;
 use crate::node_wrappers::{BaseNodeTrait, CommonNodeTrait, FinalNode};
-use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype};
+use crate::tao::archetype::{ArchetypeTrait, AttributeArchetype, AttributeArchetypeFormTrait};
 use crate::tao::form::{Form, FormTrait};
 use crate::tao::relation::attribute::has_property::{HasAttribute, HasFlag};
 use crate::tao::relation::attribute::{Inherits, MetaForm};
@@ -131,6 +131,30 @@ pub trait ArchetypeFormTrait:
                 .unwrap_or(&FinalNode::from(Archetype::TYPE_ID))
                 .id(),
         )
+    }
+
+    /// If this archetype has attributes, then the attribute values will be of a certain archetype.
+    /// This function returns that archetype for the specified attribute.
+    fn attribute_form_archetype(&self, attribute: &AttributeArchetype) -> Option<Archetype> {
+        attribute
+            .attribute_form_archetype_override()
+            .map(|override_attr| {
+                self.outgoing_nodes(override_attr.id())
+                    .last()
+                    .map(|form_type| Archetype::from(form_type.id()))
+            })
+            .flatten()
+    }
+
+    /// If this archetype has attributes, then the attribute values will be of a certain archetype.
+    /// This function sets that archetype for the specified attribute.
+    fn set_attribute_form_archetype(
+        &mut self,
+        attribute: &AttributeArchetype,
+        form_type: &Archetype,
+    ) {
+        let override_attr = attribute.attribute_form_archetype_override().unwrap();
+        self.add_outgoing(override_attr.id(), &form_type)
     }
 
     /// Get all the types of flags that this type of concept is predefined to potentially have.
@@ -282,6 +306,23 @@ mod tests {
 
         assert_eq!(form_type.attributes(), vec![attr_type]);
         assert_eq!(form_type.added_attributes(), vec![attr_type]);
+    }
+
+    #[test]
+    fn test_attr_value_type_override() {
+        initialize_kb();
+        let mut form_type = Form::archetype().individuate_as_archetype();
+        let mut attr_type = Attribute::archetype().individuate_as_archetype();
+        let attr_archetype_type = Attribute::archetype().individuate_as_archetype();
+        attr_type.set_attribute_form_archetype_override(&attr_archetype_type);
+        let attr_value_type = Form::archetype().individuate_as_archetype();
+        assert_eq!(form_type.attribute_form_archetype(&attr_type), None);
+
+        form_type.set_attribute_form_archetype(&attr_type, &attr_value_type);
+        assert_eq!(
+            form_type.attribute_form_archetype(&attr_type),
+            Some(attr_value_type)
+        );
     }
 
     #[test]
